@@ -20,7 +20,12 @@ function committerDateIso(sha: string): string | undefined {
 
 export function siteLastChangedAt(): string {
   const sha = deployedCommitSha()
-  const date = committerDateIso(sha)
+  const supplied = process.env["COMMIT_DATE"]
+  const date = supplied
+    ? Number.isNaN(new Date(supplied).getTime())
+      ? undefined
+      : `${new Date(supplied).toISOString().slice(0, 19)}Z`
+    : committerDateIso(sha)
 
   if (date === undefined) {
     throw new Error(

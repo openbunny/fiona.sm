@@ -29,6 +29,13 @@ afterEach(() => {
 })
 
 describe("siteLastChangedAt", () => {
+  it("uses the commit date supplied to a Docker build", () => {
+    vi.stubEnv("COMMIT_DATE", syntheticCommitDate)
+    vi.stubEnv("COMMIT_SHA", "a".repeat(40))
+
+    expect(siteLastChangedAt()).toBe("2019-03-04T05:06:07Z")
+  })
+
   it("returns the checked-out HEAD commit's own committer date", () => {
     vi.stubEnv("VERCEL_GIT_COMMIT_SHA", "")
     vi.stubEnv("COMMIT_SHA", "")

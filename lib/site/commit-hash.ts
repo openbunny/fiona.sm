@@ -26,7 +26,7 @@ function shaFromGit(): string | undefined {
 
 const missingShaMessage =
   "No commit hash is available at build time. Vercel sets VERCEL_GIT_COMMIT_SHA automatically. " +
-  "A Docker build needs `--build-arg COMMIT_SHA=$(git rev-parse HEAD)`. " +
+  "A Docker build needs `--build-arg COMMIT_SHA=$(git rev-parse HEAD)` and `--build-arg COMMIT_DATE=$(git log -1 --format=%cI HEAD)`. " +
   "A local or CI build needs a git checkout `git rev-parse HEAD` can read."
 
 export function deployedCommitSha(): string {

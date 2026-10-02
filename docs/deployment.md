@@ -1,5 +1,16 @@
 # Deployment
 
+## Docker build
+
+Build from the repository root with the commit hash and committer date from the same checkout:
+
+```sh
+docker build --build-arg COMMIT_SHA="$(git rev-parse HEAD)" \
+  --build-arg COMMIT_DATE="$(git log -1 --format=%cI HEAD)" .
+```
+
+The build needs the date because the Docker context does not carry Git history.
+
 The site deploys to Vercel from this repository's root. `main` is production.
 
 ## What is declared here
