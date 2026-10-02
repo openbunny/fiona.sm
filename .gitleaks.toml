@@ -1,0 +1,40 @@
+title = "fiona.sm secret scanning"
+
+[extend]
+useDefault = true
+
+[[rules]]
+id = "signing-material"
+description = "private key, seed or API secret assigned to a name that says so"
+regex = '''(?i)\b(private[_-]?key|secret[_-]?key|api[_-]?secret|signing[_-]?key|mnemonic|seed[_-]?phrase)"?\s*[:=]\s*"?(0x)?[0-9a-zA-Z/+_-]{32,}'''
+keywords = [
+  "private_key",
+  "privatekey",
+  "secret_key",
+  "secretkey",
+  "api_secret",
+  "apisecret",
+  "signing_key",
+  "signingkey",
+  "mnemonic",
+  "seed_phrase",
+  "seedphrase",
+]
+
+# Armoured public keys and signed canary statements read as high-entropy
+# secrets to generic-api-key. Scoped to that one rule, by path, so a real
+# private key committed under the same path still fires the private-key rule.
+[[allowlists]]
+targetRules = [ "generic-api-key" ]
+description = "armoured public keys and signed canary statements published by fiona.sm"
+paths = [
+  '''^public/(.*/)?[^/]*\.asc$''',
+  '''^public/\.well-known/openpgpkey/''',
+]
+
+[[allowlists]]
+description = "not source"
+paths = [
+  '''(^|/)node_modules/''',
+  '''(^|/)\.next/''',
+]

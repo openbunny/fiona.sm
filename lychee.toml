@@ -1,0 +1,47 @@
+# `bun run check:links` resolves only in-tree links, so each failure is
+# repository-owned and gates. `just links-remote` reaches unreliable vendor
+# hosts, so it reports outside the gates with `offline` overridden.
+
+offline = true
+
+# A fragment naming no heading in the target file is a broken link even
+# when the file exists. `full` is lychee's widest fragment mode; the
+# stricter config wins, since checking more cannot pass what less failed.
+include_fragments = "full"
+
+# Every request configured as if the network run were the gate, so
+# `just links-remote` differs from `bun run check:links` only in reaching the
+# network.
+max_retries = 2
+retry_wait_time = 5
+timeout = 20
+max_concurrency = 8
+user_agent = "lychee (+https://github.com/lycheeverse/lychee)"
+
+# A HEAD-only check reads as a 405 on several documentation hosts.
+method = "get"
+
+# Anchored to whole path segments: a bare word is a substring match
+# ("build" would exclude any path merely containing those letters), and a
+# link checker that skips a file reports success for it.
+exclude_path = [
+  "(^|/)node_modules/",
+  "(^|/)\\.next/",
+  "(^|/)dist/",
+  "(^|/)build/",
+  "(^|/)coverage/",
+  "(^|/)playwright-report/",
+  "(^|/)test-results/",
+  "(^|/)\\.git/",
+]
+
+# Placeholders in templates and examples, not links.
+exclude = [
+  "^https?://(localhost|127\\.0\\.0\\.1|0\\.0\\.0\\.0|\\[::1\\])",
+  "^https?://example\\.(com|org|net)",
+  "^https?://.*\\.internal",
+]
+
+# A private repository answers 404 to an unauthenticated check, which is
+# indistinguishable from a link that is genuinely broken.
+exclude_private = true

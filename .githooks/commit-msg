@@ -1,0 +1,11 @@
+#!/bin/sh
+# Opt in with: git config core.hooksPath .githooks
+
+# git invokes a commit-msg hook as an executable, not a config key, so this
+# has no non-script form.
+
+set -eu
+
+if [ -x node_modules/.bin/commitlint ]; then
+    node_modules/.bin/commitlint --config commitlint.config.mjs --edit "$1"
+fi

@@ -1,0 +1,29 @@
+name: renovate
+on:
+  schedule:
+    - cron: "0 4 1 * *"
+  workflow_dispatch:
+concurrency:
+  group: renovate
+  cancel-in-progress: false
+permissions: {}
+jobs:
+  renovate:
+    name: renovate
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write # Renovate pushes each update to its own branch.
+      pull-requests: write # it opens and closes the PR for each branch.
+      issues: write # config:recommended reports a failed run as an issue.
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: renovatebot/github-action@6d26fcf0275dc65624cbc3d51fe78bc773f98321 # v46.3.6
+        env:
+          RENOVATE_REPOSITORIES: ${{ github.repository }}
+          RENOVATE_PLATFORM: github
+          RENOVATE_ONBOARDING: "false"
+          RENOVATE_REQUIRE_CONFIG: required
+        with:
+          token: ${{ secrets.RENOVATE_TOKEN || secrets.GITHUB_TOKEN }}

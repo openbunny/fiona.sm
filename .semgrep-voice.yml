@@ -1,0 +1,1036 @@
+# Carried over verbatim from the finance monorepo this rule set was
+# authored for. Every citation of VOICE.md below, including inside a rule's
+# own `message:`, points at that file in that source repository; it does not
+# exist in this checkout. Resolve a citation here against this repo's own
+# AGENTS.md instead.
+#
+# docs/VOICE.md's banned-word lists, for the parts of that document a rule
+# can check without judgment: whether a banned word or phrase appears in text
+# a human reads (a string literal, a template literal, or a comment), not
+# whether a sentence should have been deleted or a limit exceeded -- those
+# stay a reader's job.
+#
+# Word lists come straight from VOICE.md's "Banned outright" section: the
+# purpose-verb and hedge/filler lists in full; "we/our/let's" scoped to
+# string and template literals only, because VOICE.md's own reason for
+# banning first person plural is about copy the reader sees, and a comment
+# reasoning about "we" as engineers is a different sentence than "we"
+# addressing the reader. The figurative-language list is in full except
+# "clean" and "surface" (as a verb): both are load-bearing domain nouns/verbs
+# here ("public read surface", "a transport failure must surface as
+# Error::Evm", "clean close", a scratch-database name) far more often than
+# they are the banned figure of speech -- measured on this tree, most hits
+# for both were exactly that, so neither can be made precise as a semgrep
+# rule. Evaluative adjectives (good/bad/high/low/...) and exclamation marks
+# are in VOICE.md but not here: "high leverage" and "low price" are literal
+# data-surface facts as often as they are opinions, and an exclamation mark
+# inside a string is `!` used as Tailwind's important modifier, a non-null
+# assertion or `!==` in a code snippet, or `<!doctype` far more often than it
+# is punctuation -- measured on this tree, most hits for both were exactly
+# that, so neither can be made precise as a semgrep rule. The same measurement
+# rules out a blanket ellipsis ban from VOICE.md's punctuation rules: `'…'`
+# and `"{}…"`/`"{}..."` are this tree's own truncation marker (grvt, godel,
+# perpdexlist, deltatradepro, gains, coinex, mexc, derive, variational,
+# mempool, gateio, litecoinspace), which carries information -- the string was
+# cut -- the same way `4m old` does, so a regex cannot tell that occurrence
+# from the rhetorical trailing-off VOICE.md actually bans.
+#
+# Three rules below reach past the banned-word lists into mechanically
+# checkable structure from VOICE.md's "Hard limits" table. VOICE.md's own
+# "Where this binds" and "What this product is" sections state the scope:
+# `web/apps/manifold` only, because that is the one product those sections
+# describe. The family-office, personal-canary and unrelated-brand sites
+# elsewhere under `web/apps/` are not it, and their own `description`
+# metadata or "read-only" wording is not this section's concern:
+#   - `ts-manifold-column-header-too-long`: a `header: "..."` column
+#     definition (`DataTable`'s own idiom, not an HTTP header -- this tree
+#     never writes `header: "literal"` for one) longer than the 2-word limit.
+#     A `header:` built from a template literal or a named constant is not
+#     checked -- its rendered length is not known statically.
+#   - `ts-manifold-metadata-description`: a `description` field on the page's
+#     `metadata` export. VOICE.md: "Page description: delete it."
+#   - `ts-manifold-string-scope-claim`: "read-only"/"viewer" describing the
+#     product. VOICE.md: "Do not describe the app as read-only or as a
+#     viewer." Not extended to `finance/`, where the same words correctly
+#     describe a client's own API access scope (`pacifica`, `lighter`), a
+#     different claim about a different thing.
+#
+# "right now"/"at the moment" join the hedge/filler lists as
+# `*-temporal-filler` rules, from VOICE.md's "cut every word that is not the
+# fact" table. "yet" and "currently" are in that table too but not here:
+# measured on this tree both read overwhelmingly as ordinary prose ("has not
+# been asked for anything yet", "not currently listed for trading" quoting a
+# venue's own error) rather than the banned filler, so neither is precise
+# enough to assert without a reader's judgment.
+#
+# Like .semgrep-comments.yml, this runs tree-wide (`just voice`). Swift gets
+# the same nine rules as Rust and TypeScript (string and comment: figurative,
+# purpose-verb, hedge, temporal-filler; plus first-person on strings only, for
+# the reason given above) -- only the comment syntax differs, since Swift has
+# no `//!` module-doc form to special-case. No Objective-C rule: those three
+# files carry no reader-facing string copy or surviving comment (`.semgrep-
+# comments.yml`'s objc-*-not-kept rules close that surface outright), so the
+# banned-word lists would have nothing to check.
+#
+# `// nosemgrep: <rule-id> -- <reason>` (`eslint-disable-next-line` equivalent
+# is the same comment syntax in TypeScript) opts a line out where the matched
+# text is not authored copy -- a vendored label quoted verbatim in a fixture,
+# for instance -- same convention the other two semgrep configs use.
+#
+# `rust-string-concat-literal`/`swift-string-concat-literal` and the four
+# `ts-concat-*` rules close #1277: every rule above matches text inside one
+# string/template-literal node, so `concat!("po", "werful")` in Rust or
+# `"po" + "werful"` in TypeScript reassembles a banned word for the reader
+# without ever putting it inside a single node any rule above inspects.
+# `concat!` has a legitimate use this tree relies on (`descriptor.rs` reading
+# ten `.proto` files into one constant for a test) and cannot be banned
+# outright, so the two shapes are closed differently, each measured before
+# choosing:
+#   - Rust and Swift: measured tree-wide, joining two or more *plain string
+#     literals* (no `include_str!`/`env!`/`stringify!` mixed in, so the
+#     legitimate `descriptor.rs` use and every user-agent/`Display`-impl
+#     `concat!` survive untouched) happens at four sites in Rust and zero in
+#     Swift, none of them reader-facing -- a hex constant and two YAML test
+#     fixtures wrapped across lines, and a lint name built from three parts.
+#     All four were rewritten as one literal (Rust's `\`-newline string
+#     continuation wraps a long one across source lines with no join left to
+#     hide a split word in), so the shape is banned outright rather than
+#     inspected for content.
+#   - TypeScript: the same outright ban does not survive measurement --
+#     wrapping a long message across several `+`-joined literals for line
+#     length is an ordinary idiom here, 21 genuine sites doing exactly that
+#     tree-wide (test failure messages, a CSP header, a Playwright assertion).
+#     Banning the shape would mean justifying or rewriting all 21, and the
+#     next long message written the same ordinary way starts the rule down
+#     the road #1234 already named: a check every author learns to route
+#     around, which then enforces nothing. So the four `ts-concat-*` rules
+#     check what a `+` chain of literals actually reassembles instead of its
+#     shape: each re-derives the matching `ts-string-*` rule's banned-word
+#     regex with an optional `["'`]\s*\+\s*["'`]` joint threaded between every
+#     character, so the word matches whether the source spelled it whole or
+#     split it at any point along the chain -- one split, ten, it makes no
+#     difference to the regex. Verified against every real `+` chain in this
+#     tree: zero matches, so the 21 genuine sites stay green. `we`/`our`/
+#     `let's` needed a different construction (#1287): two- and three-letter
+#     words are short enough that an ordinary line-wrapped sentence spells one
+#     by coincidence at the exact join point when every letter-boundary is an
+#     optional join the same way the four rules above do it (measured: 9 false
+#     positives, e.g. `"...is TensorField's own We" + "bGL canvas..."` reads
+#     as `We` at the join because the whole word already sits untouched inside
+#     the first literal). `ts-concat-first-person` instead requires the join
+#     to land inside the word's own letters -- one alternative per internal
+#     split point (`w`|`e`, `o`|`ur`, `ou`|`r`, and `let's`'s four splits),
+#     mandatory at that position and optional elsewhere -- so a word whole in
+#     one literal never matches (no join exists inside it to require) while a
+#     genuine split at any position still does. Verified against the cited
+#     false positive and every tracked `.ts`/`.tsx` file (zero matches) and
+#     against a constructed genuine split at every internal position of each
+#     word (each fires).
+#
+#     What stays open even after this: any string built by something other
+#     than a literal-literal `concat!`/`+` chain -- `format!`, `.push_str`, a
+#     TypeScript `+=` accumulation, array `.join("")`, a template literal
+#     built from separately-named `const` fragments referenced once each, or
+#     the equivalent in another language's string-building API -- reassembles
+#     the same way and this file cannot see any of it (verified against
+#     #1363's own three fixtures: all three scan clean). Closing that needs
+#     evaluating the program, not matching its text; a human reading the diff
+#     is the only gate for it, same as for the arbitrary Turing-complete
+#     cases this file's other rules cannot see either (#1287).
+#
+# `.proto` gets the comment checks only, `languages: [generic]` with
+# `paths.include` scoped to `/proto/**/*.proto` -- semgrep has no first-class
+# proto language, same posture as `.semgrep.yml`'s
+# `proto-money-field-uses-float`. No string-literal rules: a `.proto` message
+# carries field declarations, not reader-facing string copy, so the
+# string-literal patterns above would never match. First-person plural is
+# also skipped here for the reason it is skipped in Rust/TypeScript comments
+# above -- proto comments reason about the wire, they do not address a
+# reader.
+#
+# Markdown (`md-*`, `languages: [generic]`, `paths.include: "*.md"`) was
+# entirely ungated before this: 152 tracked files, the largest body of
+# human-read prose in the tree, including `AGENTS.md` and
+# `docs/CODING-STANDARD.md` themselves. Every `md-*` rule shares one
+# span-selector prefix instead of the two-pattern container/content split
+# above, because markdown mixes prose with quoted material on the same line
+# in a way source code does not:
+#
+#   (?m)^(?:[^`"\n]|`[^`\n]*`|"[^"\n]*")*?\b(WORDS)\b
+#
+# Read left to right: from a line's start, skip a complete backtick code
+# span or a complete same-line double-quoted span as one atomic unit
+# (whichever opens first), or skip one plain character, repeated lazily,
+# until a banned word surfaces outside both. This closes two real sources of
+# false positives, both measured on this tree rather than assumed:
+#   - Inline code. `` `just check` `` reads as code, not prose, the same
+#     reason the Rust/TS rules above never scan an identifier. Measured:
+#     conformance docs alone reference `just <recipe>` 110 times in inline
+#     code, plus roughly 25 more as a bare shell-example line inside a
+#     fenced block with no per-line backticks at all -- see the
+#     `md-hedge-just` note below for that second shape.
+#   - Vendor text quoted inline. A conformance doc's whole purpose is
+#     quoting a venue or vendor verbatim (`docs/VOICE.md` § Documentation's
+#     own provenance exception), and vendor prose was not written to this
+#     standard: `finance/docs/conformance/lighter.md` and `risex.md` quote
+#     terms-of-service text reading "We do not collect..." and "...our
+#     customers", `deribit.md` quotes a Deribit article saying "just the
+#     amount you would pay". Rewriting a quotation to satisfy this file's
+#     own banned-word list would misquote the source, which is worse.
+#     Measured limitation: the pairing only tracks a quote opened and closed
+#     on the *same* line, so a quotation that wraps across lines (as all
+#     three cited cases do) leaves an unpaired `"` that the prefix cannot
+#     step over, which happens to also stop the match rather than exposing
+#     the banned word on the far side of the break -- verified against all
+#     three cases and against every real `+`-free line in the tree, zero
+#     false negatives introduced (no non-quoted banned word shares a line
+#     with an unrelated unclosed quote here). A vendor quotation that both
+#     opens and closes on one line and contains its own two-line-spanning
+#     inner quote is not something this measurement found and is not
+#     something this pattern can be trusted against.
+#
+# A markdown blockquote (a line starting `>`) is a second, more consistent
+# vendor-text shape particular to the conformance docs -- `coinalyze.md`,
+# `okx.md`, `godel.md` and `extended/SOURCES.md` all use one to cite a
+# vendor's docs or terms verbatim, unquoted-inline because the citation runs
+# several lines. Every `md-*` rule excludes it with a second span-selector
+# clause, `(?!>)`, checked once per line same as the pairing prefix.
+#
+# Per-word exclusions, each measured the same way §1's header measures
+# `clean`/`surface` for Rust and TypeScript -- by reading every tree-wide hit
+# before deciding, not by assumption:
+#   - `smart` is dropped from `md-figurative`. Every real hit is domain
+#     jargon: "smart contract" (`hibachi.md`, `aster.md`) is blockchain
+#     terminology, "Smart Money"/"Smart-Money" (`nansen.md`) is Nansen's own
+#     label for an address cohort, named because that is what the vendor
+#     calls it. Zero hits were the banned marketing adjective.
+#   - `enables` is dropped from `md-purpose-verb`. Every real hit describes
+#     a Cargo feature flag or a MinIO API call turning a specific thing on
+#     (`rustls-tls-webpki-roots` enabling a TLS backend, `minio-init`
+#     enabling bucket versioning) -- Cargo's own book uses "enables" this
+#     way for feature unification. Zero hits addressed a reader's benefit.
+#   - `yet` and `currently` are not in `md-temporal-filler`, matching the
+#     Rust/TS exclusion above and for the same measured reason: conformance
+#     docs quote a venue's own error strings ("not currently listed for
+#     trading") and ordinary unrelated prose ("has not shipped yet") far
+#     more often than the banned filler sense. `right now`/`at the moment`
+#     stayed precise enough to keep: every real hit found was the banned
+#     sense, and both were rewritten.
+#   - `md-first-person` (`we`/`our`) additionally excludes
+#     `finance/docs/conformance/**`: three of this tree's five real hits are
+#     the cross-line vendor quotations the pairing prefix cannot reach
+#     (above); the other two are blockquotes already excluded by `(?!>)`.
+#     No hit in this directory was this tree's own voice, so the directory
+#     carries no gate coverage loss today, but a future author's own
+#     first-person sentence in a conformance doc would not be caught by this
+#     rule -- `docs/CODING-STANDARD.md`'s enforcement table records this as
+#     `review` there, `gate` everywhere else in `*.md`. `let's` had zero
+#     hits tree-wide and needed no exclusion.
+#   - `docs/VOICE.md` itself is excluded (`paths.exclude`) from
+#     `md-figurative`, `md-purpose-verb`, `md-hedge`, `md-hedge-just` and
+#     `md-first-person` -- never from `md-temporal-filler`, which needs no
+#     exclusion at all. VOICE.md's own "Banned outright" section quotes
+#     every word these rules ban, in order to ban it: `_at a glance, under
+#     the hood, ..., north star._`, `_helps you, lets you, ..., built to._`,
+#     `_simply, just, ..., it should be noted._`, and `No _we_, no _our_, no
+#     _let's_.` -- four italic, comma-separated lists the pairing prefix
+#     does not reach, because markdown italics are not a quote or a code
+#     span. This is the one exclusion in this file scoped to a single
+#     document rather than a directory or a word, because it is the one
+#     document in this repository whose entire job is to name these words.
+#     Read in full before choosing this: every other banned-word mention in
+#     VOICE.md sits inside a backtick span or a table cell already covered
+#     by the pairing prefix above (the "Hard limits" § "Cut every word that
+#     is not the fact" table, `` `right now` ``, `` `Oops! Something went
+#     wrong.` ``) -- the four bullets are the only passages that needed a
+#     wider exclusion, so the exclusion is scoped no wider than that: this
+#     file, these five rules, nothing else in `*.md`.
+#
+# `md-hedge-just` is `just` split out of `md-hedge` because it alone needed
+# a fenced-code exclusion the other fifteen hedge words measured as not
+# needing (zero of their real hits were inside a fence). A fenced ` ```sh `
+# block's content is not inline-backtick-wrapped line by line, so the
+# pairing prefix above does not see it as code -- but every real fenced
+# example measured here (`just check       # pre-push`, `just adopt-scan
+# ./NAME-VERSION`, ~25 sites) puts `just` as the line's first word, so
+# `md-hedge-just` adds `(?!\s*just\b)` to the span selector: a line cannot
+# be a shell example unless the recipe name leads it, and no genuine hedge
+# sentence measured here opens a line with "just" (every real hit was
+# mid-sentence, e.g. "not just X"). Seventeen real hits were found this way,
+# tree-wide, past both exclusions, and all seventeen were rewritten to state
+# the fact without the hedge (`not just X` to `not X alone` or `not only
+# X`, `at or just below` to `at or immediately below`) rather than excluded.
+#
+# No markdown exclamation-mark rule exists, matching the Rust/TS/Swift
+# decision above and for the same reason, re-measured for `*.md`
+# specifically: of 90 raw `!` occurrences, 11 are markdown's own image
+# syntax `![alt]`, and virtually all the rest are Rust macro invocations
+# quoted in docs (`println!`, `venues!`, `register!`, `panic!`,
+# `tracing::error!`), boolean negation (`!is_retryable`, `!v.is_empty()`),
+# an HTML comment (`<!--`), or a Tailwind `!important` mention -- the same
+# shapes the header above found for source code, not the banned
+# punctuation. `docs/VOICE.md`'s own `` `Oops! Something went wrong.` ``
+# example is backtick-wrapped and would be excluded by the pairing prefix
+# regardless.
+
+rules:
+  - id: rust-string-figurative
+    languages: [rust]
+    severity: ERROR
+    message: >-
+      Figurative language in a string literal. VOICE.md § Banned outright: it
+      does not resolve literally, so a literal reader stalls on it. Say what
+      the thing is.
+    patterns:
+      - pattern-regex: '"(?:[^"\\\n]|\\.)*"'
+      - pattern-regex: "(?i)\\b(at a glance|under the hood|drill down|deep dive|unlock|powerful|seamless|robust|rich|smart|intuitive|elegant|first-class|out of the box|heavy lifting|source of truth|north star)\\b"
+
+  - id: rust-string-purpose-verb
+    languages: [rust]
+    severity: ERROR
+    message: >-
+      A purpose verb in a string literal. VOICE.md § Banned outright: say what
+      a thing is, never what it does for the reader.
+    patterns:
+      - pattern-regex: '"(?:[^"\\\n]|\\.)*"'
+      - pattern-regex: "(?i)\\b(helps you|lets you|allows you to|enables|makes it easy to|so you can|designed to|built to)\\b"
+
+  - id: rust-string-hedge
+    languages: [rust]
+    severity: ERROR
+    message: >-
+      A hedge or filler word in a string literal. VOICE.md § Banned outright:
+      cut every word that is not the fact.
+    patterns:
+      - pattern-regex: '"(?:[^"\\\n]|\\.)*"'
+      - pattern-regex: "(?i)\\b(simply|just|essentially|basically|actually|really|quite|fairly|generally|typically|various|appropriate|as needed|please note|of course|note that|in order to|it should be noted)\\b"
+
+  - id: rust-string-first-person
+    languages: [rust]
+    severity: ERROR
+    message: >-
+      First person plural in a string literal. VOICE.md § Banned outright: no
+      we, no our, no let's.
+    patterns:
+      - pattern-regex: '"(?:[^"\\\n]|\\.)*"'
+      - pattern-regex: "(?i)\\b(we|our|let's)\\b"
+
+  - id: rust-comment-figurative
+    languages: [rust]
+    severity: ERROR
+    message: >-
+      Figurative language in a comment. VOICE.md § Banned outright applies to
+      everything a human reads, comments included.
+    paths:
+      exclude:
+        - "**/gen/**"
+    patterns:
+      - pattern-regex: '(?:^[ \t]*///?[^\n]*\n)+[ \t]*[^\n]*\n'
+      - pattern-regex: "(?i)\\b(at a glance|under the hood|drill down|deep dive|unlock|powerful|seamless|robust|rich|smart|intuitive|elegant|first-class|out of the box|heavy lifting|source of truth|north star)\\b"
+
+  - id: rust-comment-purpose-verb
+    languages: [rust]
+    severity: ERROR
+    message: >-
+      A purpose verb in a comment. VOICE.md § Banned outright applies to
+      everything a human reads, comments included.
+    paths:
+      exclude:
+        - "**/gen/**"
+    patterns:
+      - pattern-regex: '(?:^[ \t]*///?[^\n]*\n)+[ \t]*[^\n]*\n'
+      - pattern-regex: "(?i)\\b(helps you|lets you|allows you to|enables|makes it easy to|so you can|designed to|built to)\\b"
+
+  - id: rust-comment-hedge
+    languages: [rust]
+    severity: ERROR
+    message: >-
+      A hedge or filler word in a comment. VOICE.md § Banned outright applies
+      to everything a human reads, comments included.
+    paths:
+      exclude:
+        - "**/gen/**"
+    patterns:
+      - pattern-regex: '(?:^[ \t]*///?[^\n]*\n)+[ \t]*[^\n]*\n'
+      - pattern-regex: "(?i)\\b(simply|just|essentially|basically|actually|really|quite|fairly|generally|typically|various|appropriate|as needed|please note|of course|note that|in order to|it should be noted)\\b"
+
+  - id: ts-string-figurative
+    languages: [typescript]
+    severity: ERROR
+    message: >-
+      Figurative language in a string or template literal. VOICE.md § Banned
+      outright: it does not resolve literally, so a literal reader stalls on
+      it.
+    paths:
+      exclude:
+        - "**/gen/**"
+    patterns:
+      - pattern-regex: '(?:"(?:[^"\\\n]|\\.)*"|`(?:[^`\\]|\\.)*`|''(?:[^''\\\n]|\\.)*'')'
+      - pattern-regex: "(?i)\\b(at a glance|under the hood|drill down|deep dive|unlock|powerful|seamless|robust|rich|smart|intuitive|elegant|first-class|out of the box|heavy lifting|source of truth|north star)\\b"
+
+  - id: ts-string-purpose-verb
+    languages: [typescript]
+    severity: ERROR
+    message: >-
+      A purpose verb in a string or template literal. VOICE.md § Banned
+      outright: say what a thing is, never what it does for the reader.
+    paths:
+      exclude:
+        - "**/gen/**"
+    patterns:
+      - pattern-regex: '(?:"(?:[^"\\\n]|\\.)*"|`(?:[^`\\]|\\.)*`|''(?:[^''\\\n]|\\.)*'')'
+      - pattern-regex: "(?i)\\b(helps you|lets you|allows you to|enables|makes it easy to|so you can|designed to|built to)\\b"
+
+  - id: ts-string-hedge
+    languages: [typescript]
+    severity: ERROR
+    message: >-
+      A hedge or filler word in a string or template literal. VOICE.md §
+      Banned outright: cut every word that is not the fact.
+    paths:
+      exclude:
+        - "**/gen/**"
+    patterns:
+      - pattern-regex: '(?:"(?:[^"\\\n]|\\.)*"|`(?:[^`\\]|\\.)*`|''(?:[^''\\\n]|\\.)*'')'
+      - pattern-regex: "(?i)\\b(simply|just|essentially|basically|actually|really|quite|fairly|generally|typically|various|appropriate|as needed|please note|of course|note that|in order to|it should be noted)\\b"
+
+  - id: ts-string-first-person
+    languages: [typescript]
+    severity: ERROR
+    message: >-
+      First person plural in a string or template literal. VOICE.md § Banned
+      outright: no we, no our, no let's.
+    paths:
+      exclude:
+        - "**/gen/**"
+    patterns:
+      - pattern-regex: '(?:"(?:[^"\\\n]|\\.)*"|`(?:[^`\\]|\\.)*`|''(?:[^''\\\n]|\\.)*'')'
+      - pattern-regex: "(?i)\\b(we|our|let's)\\b"
+
+  - id: ts-comment-figurative
+    languages: [typescript]
+    severity: ERROR
+    message: >-
+      Figurative language in a comment. VOICE.md § Banned outright applies to
+      everything a human reads, comments included.
+    paths:
+      exclude:
+        - "**/gen/**"
+    patterns:
+      - pattern-regex: '(?:^|[ \t])//[^\n]*$'
+      - pattern-regex: "(?i)\\b(at a glance|under the hood|drill down|deep dive|unlock|powerful|seamless|robust|rich|smart|intuitive|elegant|first-class|out of the box|heavy lifting|source of truth|north star)\\b"
+
+  - id: ts-comment-purpose-verb
+    languages: [typescript]
+    severity: ERROR
+    message: >-
+      A purpose verb in a comment. VOICE.md § Banned outright applies to
+      everything a human reads, comments included.
+    paths:
+      exclude:
+        - "**/gen/**"
+    patterns:
+      - pattern-regex: '(?:^|[ \t])//[^\n]*$'
+      - pattern-regex: "(?i)\\b(helps you|lets you|allows you to|enables|makes it easy to|so you can|designed to|built to)\\b"
+
+  - id: ts-comment-hedge
+    languages: [typescript]
+    severity: ERROR
+    message: >-
+      A hedge or filler word in a comment. VOICE.md § Banned outright applies
+      to everything a human reads, comments included.
+    paths:
+      exclude:
+        - "**/gen/**"
+    patterns:
+      - pattern-regex: '(?:^|[ \t])//[^\n]*$'
+      - pattern-regex: "(?i)\\b(simply|just|essentially|basically|actually|really|quite|fairly|generally|typically|various|appropriate|as needed|please note|of course|note that|in order to|it should be noted)\\b"
+
+  - id: proto-comment-figurative
+    languages: [generic]
+    severity: ERROR
+    message: >-
+      Figurative language in a proto comment. VOICE.md § Banned outright
+      applies to everything a human reads, comments included.
+    paths:
+      include:
+        - "/proto/**/*.proto"
+    patterns:
+      - pattern-regex: '(?:^|[ \t])//[^\n]*$'
+      - pattern-regex: "(?i)\\b(at a glance|under the hood|drill down|deep dive|unlock|powerful|seamless|robust|rich|smart|intuitive|elegant|first-class|out of the box|heavy lifting|source of truth|north star)\\b"
+
+  - id: proto-comment-purpose-verb
+    languages: [generic]
+    severity: ERROR
+    message: >-
+      A purpose verb in a proto comment. VOICE.md § Banned outright applies
+      to everything a human reads, comments included.
+    paths:
+      include:
+        - "/proto/**/*.proto"
+    patterns:
+      - pattern-regex: '(?:^|[ \t])//[^\n]*$'
+      - pattern-regex: "(?i)\\b(helps you|lets you|allows you to|enables|makes it easy to|so you can|designed to|built to)\\b"
+
+  - id: proto-comment-hedge
+    languages: [generic]
+    severity: ERROR
+    message: >-
+      A hedge or filler word in a proto comment. VOICE.md § Banned outright
+      applies to everything a human reads, comments included.
+    paths:
+      include:
+        - "/proto/**/*.proto"
+    patterns:
+      - pattern-regex: '(?:^|[ \t])//[^\n]*$'
+      - pattern-regex: "(?i)\\b(simply|just|essentially|basically|actually|really|quite|fairly|generally|typically|various|appropriate|as needed|please note|of course|note that|in order to|it should be noted)\\b"
+
+  - id: rust-string-temporal-filler
+    languages: [rust]
+    severity: ERROR
+    message: >-
+      A temporal filler phrase in a string literal. VOICE.md § Hard limits:
+      every state may change, so this is never the fact -- unless the timing
+      itself is the fact, as in `4m old`.
+    patterns:
+      - pattern-regex: '"(?:[^"\\\n]|\\.)*"'
+      - pattern-regex: "(?i)\\b(right now|at the moment)\\b"
+
+  - id: rust-comment-temporal-filler
+    languages: [rust]
+    severity: ERROR
+    message: >-
+      A temporal filler phrase in a comment. VOICE.md § Hard limits applies to
+      everything a human reads, comments included.
+    paths:
+      exclude:
+        - "**/gen/**"
+    patterns:
+      - pattern-regex: '(?:^[ \t]*///?[^\n]*\n)+[ \t]*[^\n]*\n'
+      - pattern-regex: "(?i)\\b(right now|at the moment)\\b"
+
+  - id: ts-string-temporal-filler
+    languages: [typescript]
+    severity: ERROR
+    message: >-
+      A temporal filler phrase in a string or template literal. VOICE.md §
+      Hard limits: every state may change, so this is never the fact --
+      unless the timing itself is the fact, as in `4m old`.
+    paths:
+      exclude:
+        - "**/gen/**"
+    patterns:
+      - pattern-regex: '(?:"(?:[^"\\\n]|\\.)*"|`(?:[^`\\]|\\.)*`|''(?:[^''\\\n]|\\.)*'')'
+      - pattern-regex: "(?i)\\b(right now|at the moment)\\b"
+
+  - id: ts-comment-temporal-filler
+    languages: [typescript]
+    severity: ERROR
+    message: >-
+      A temporal filler phrase in a comment. VOICE.md § Hard limits applies to
+      everything a human reads, comments included.
+    paths:
+      exclude:
+        - "**/gen/**"
+    patterns:
+      - pattern-regex: '(?:^|[ \t])//[^\n]*$'
+      - pattern-regex: "(?i)\\b(right now|at the moment)\\b"
+
+  - id: proto-comment-temporal-filler
+    languages: [generic]
+    severity: ERROR
+    message: >-
+      A temporal filler phrase in a proto comment. VOICE.md § Hard limits
+      applies to everything a human reads, comments included.
+    paths:
+      include:
+        - "/proto/**/*.proto"
+    patterns:
+      - pattern-regex: '(?:^|[ \t])//[^\n]*$'
+      - pattern-regex: "(?i)\\b(right now|at the moment)\\b"
+
+  - id: ts-manifold-column-header-too-long
+    languages: [typescript]
+    severity: ERROR
+    message: >-
+      A `header:` literal over VOICE.md's column-header limit: 1 word, 2 only
+      where one is ambiguous. Shorten it, or move the fact somewhere that
+      isn't a header.
+    paths:
+      include:
+        - "/web/apps/manifold/**"
+    patterns:
+      - pattern-regex: 'header:\s*"[^"\n]*"'
+      - pattern-regex: '"[^"\s]+(?:\s+[^"\s]+){2,}"'
+
+  - id: ts-manifold-metadata-description
+    languages: [typescript]
+    severity: ERROR
+    message: >-
+      A `description` field on the page's `metadata` export. VOICE.md §
+      Hard limits: "Page description: delete it."
+    paths:
+      include:
+        - "/web/apps/manifold/**"
+    patterns:
+      - pattern-regex: 'export const metadata[\s\S]*?\n\}'
+      - pattern-regex: "\\bdescription\\s*:"
+
+  - id: ts-manifold-string-scope-claim
+    languages: [typescript]
+    severity: ERROR
+    message: >-
+      Describes the product as read-only or a viewer. VOICE.md § What this
+      product is: execution is not ruled out, and copy that forecloses it
+      will have to be unwritten.
+    paths:
+      include:
+        - "/web/apps/manifold/**"
+    patterns:
+      - pattern-regex: '(?:"(?:[^"\\\n]|\\.)*"|`(?:[^`\\]|\\.)*`|''(?:[^''\\\n]|\\.)*'')'
+      - pattern-regex: "(?i)\\b(read-only|read only|viewers?)\\b"
+
+  - id: swift-string-figurative
+    languages: [swift]
+    severity: ERROR
+    message: >-
+      Figurative language in a string literal. VOICE.md § Banned outright: it
+      does not resolve literally, so a literal reader stalls on it. Say what
+      the thing is.
+    patterns:
+      - pattern-regex: '"(?:[^"\\\n]|\\.)*"'
+      - pattern-regex: "(?i)\\b(at a glance|under the hood|drill down|deep dive|unlock|powerful|seamless|robust|rich|smart|intuitive|elegant|first-class|out of the box|heavy lifting|source of truth|north star)\\b"
+
+  - id: swift-string-purpose-verb
+    languages: [swift]
+    severity: ERROR
+    message: >-
+      A purpose verb in a string literal. VOICE.md § Banned outright: say what
+      a thing is, never what it does for the reader.
+    patterns:
+      - pattern-regex: '"(?:[^"\\\n]|\\.)*"'
+      - pattern-regex: "(?i)\\b(helps you|lets you|allows you to|enables|makes it easy to|so you can|designed to|built to)\\b"
+
+  - id: swift-string-hedge
+    languages: [swift]
+    severity: ERROR
+    message: >-
+      A hedge or filler word in a string literal. VOICE.md § Banned outright:
+      cut every word that is not the fact.
+    patterns:
+      - pattern-regex: '"(?:[^"\\\n]|\\.)*"'
+      - pattern-regex: "(?i)\\b(simply|just|essentially|basically|actually|really|quite|fairly|generally|typically|various|appropriate|as needed|please note|of course|note that|in order to|it should be noted)\\b"
+
+  - id: swift-string-first-person
+    languages: [swift]
+    severity: ERROR
+    message: >-
+      First person plural in a string literal. VOICE.md § Banned outright: no
+      we, no our, no let's.
+    patterns:
+      - pattern-regex: '"(?:[^"\\\n]|\\.)*"'
+      - pattern-regex: "(?i)\\b(we|our|let's)\\b"
+
+  - id: swift-comment-figurative
+    languages: [swift]
+    severity: ERROR
+    message: >-
+      Figurative language in a comment. VOICE.md § Banned outright applies to
+      everything a human reads, comments included.
+    patterns:
+      - pattern-regex: '(?:^[ \t]*///?[^\n]*\n)+[ \t]*[^\n]*\n'
+      - pattern-regex: "(?i)\\b(at a glance|under the hood|drill down|deep dive|unlock|powerful|seamless|robust|rich|smart|intuitive|elegant|first-class|out of the box|heavy lifting|source of truth|north star)\\b"
+
+  - id: swift-comment-purpose-verb
+    languages: [swift]
+    severity: ERROR
+    message: >-
+      A purpose verb in a comment. VOICE.md § Banned outright applies to
+      everything a human reads, comments included.
+    patterns:
+      - pattern-regex: '(?:^[ \t]*///?[^\n]*\n)+[ \t]*[^\n]*\n'
+      - pattern-regex: "(?i)\\b(helps you|lets you|allows you to|enables|makes it easy to|so you can|designed to|built to)\\b"
+
+  - id: swift-comment-hedge
+    languages: [swift]
+    severity: ERROR
+    message: >-
+      A hedge or filler word in a comment. VOICE.md § Banned outright applies
+      to everything a human reads, comments included.
+    patterns:
+      - pattern-regex: '(?:^[ \t]*///?[^\n]*\n)+[ \t]*[^\n]*\n'
+      - pattern-regex: "(?i)\\b(simply|just|essentially|basically|actually|really|quite|fairly|generally|typically|various|appropriate|as needed|please note|of course|note that|in order to|it should be noted)\\b"
+
+  - id: swift-string-temporal-filler
+    languages: [swift]
+    severity: ERROR
+    message: >-
+      A temporal filler phrase in a string literal. VOICE.md § Hard limits:
+      every state may change, so this is never the fact -- unless the timing
+      itself is the fact, as in `4m old`.
+    patterns:
+      - pattern-regex: '"(?:[^"\\\n]|\\.)*"'
+      - pattern-regex: "(?i)\\b(right now|at the moment)\\b"
+
+  - id: swift-comment-temporal-filler
+    languages: [swift]
+    severity: ERROR
+    message: >-
+      A temporal filler phrase in a comment. VOICE.md § Hard limits applies to
+      everything a human reads, comments included.
+    patterns:
+      - pattern-regex: '(?:^[ \t]*///?[^\n]*\n)+[ \t]*[^\n]*\n'
+      - pattern-regex: "(?i)\\b(right now|at the moment)\\b"
+
+  - id: hcl-typst-authored-voice
+    languages: [generic]
+    severity: ERROR
+    message: >-
+      Banned wording in OpenTofu or Typst source. State the literal fact in
+      the repository voice.
+    paths:
+      include:
+        - "/github-org/**/*.tf"
+        - "/research/**/*.typ"
+    patterns:
+      - pattern-regex: "(?i)\\b(at a glance|under the hood|drill down|deep dive|unlock|powerful|seamless|robust|rich|smart|intuitive|elegant|first-class|out of the box|heavy lifting|source of truth|north star|helps you|lets you|allows you to|enables|makes it easy to|so you can|designed to|built to|simply|just|essentially|basically|actually|really|quite|fairly|generally|typically|various|appropriate|as needed|please note|of course|note that|in order to|it should be noted)\\b"
+
+  - id: rust-string-concat-literal
+    languages: [rust]
+    severity: ERROR
+    message: >-
+      concat! joining two or more plain string literals. #1277: banned
+      text split across concat! args reassembles for the reader while
+      every string-literal rule above matches one literal node. Measured:
+      the tree's only four sites did this to wrap a hex constant, two YAML
+      fixtures and a lint name across lines, none reader-facing, all
+      rewritten as one literal (Rust's `\`-newline continuation wraps a
+      long one with no join left to exploit). Merge into one literal.
+    patterns:
+      - pattern-regex: 'concat!\(\s*"(?:[^"\\]|\\.)*"(?:\s*,\s*"(?:[^"\\]|\\.)*")+\s*,?\s*\)'
+
+  - id: swift-string-concat-literal
+    languages: [swift]
+    severity: ERROR
+    message: >-
+      Two or more plain string literals joined with `+`. #1277: the same
+      evasion as rust-string-concat-literal; zero sites do this tree-wide.
+      Merge into one literal.
+    patterns:
+      - pattern-regex: '"(?:[^"\\]|\\.)*"(?:\s*\+\s*"(?:[^"\\]|\\.)*")+'
+
+  - id: ts-concat-figurative
+    languages: [typescript]
+    severity: ERROR
+    message: >-
+      Figurative language reassembled from a `+` chain of literals. #1277: the
+      join-tolerant sibling of ts-string-figurative -- see this file's header
+      comment for why TypeScript checks content here instead of taking
+      the outright ban rust-string-concat-literal takes.
+    paths:
+      exclude:
+        - "**/gen/**"
+    patterns:
+      - pattern-regex: "(?:\"(?:[^\"\\\\\\n]|\\\\.)*\"|`(?:[^`\\\\]|\\\\.)*`|'(?:[^'\\\\\\n]|\\\\.)*')(?:\\s*\\+\\s*(?:\"(?:[^\"\\\\\\n]|\\\\.)*\"|`(?:[^`\\\\]|\\\\.)*`|'(?:[^'\\\\\\n]|\\\\.)*'))+"
+      - pattern-regex: "(?i)(?:a(?:[\"'`]\\s*\\+\\s*[\"'`])?t(?:[\"'`]\\s*\\+\\s*[\"'`])?\\ (?:[\"'`]\\s*\\+\\s*[\"'`])?a(?:[\"'`]\\s*\\+\\s*[\"'`])?\\ (?:[\"'`]\\s*\\+\\s*[\"'`])?g(?:[\"'`]\\s*\\+\\s*[\"'`])?l(?:[\"'`]\\s*\\+\\s*[\"'`])?a(?:[\"'`]\\s*\\+\\s*[\"'`])?n(?:[\"'`]\\s*\\+\\s*[\"'`])?c(?:[\"'`]\\s*\\+\\s*[\"'`])?e|u(?:[\"'`]\\s*\\+\\s*[\"'`])?n(?:[\"'`]\\s*\\+\\s*[\"'`])?d(?:[\"'`]\\s*\\+\\s*[\"'`])?e(?:[\"'`]\\s*\\+\\s*[\"'`])?r(?:[\"'`]\\s*\\+\\s*[\"'`])?\\ (?:[\"'`]\\s*\\+\\s*[\"'`])?t(?:[\"'`]\\s*\\+\\s*[\"'`])?h(?:[\"'`]\\s*\\+\\s*[\"'`])?e(?:[\"'`]\\s*\\+\\s*[\"'`])?\\ (?:[\"'`]\\s*\\+\\s*[\"'`])?h(?:[\"'`]\\s*\\+\\s*[\"'`])?o(?:[\"'`]\\s*\\+\\s*[\"'`])?o(?:[\"'`]\\s*\\+\\s*[\"'`])?d|d(?:[\"'`]\\s*\\+\\s*[\"'`])?r(?:[\"'`]\\s*\\+\\s*[\"'`])?i(?:[\"'`]\\s*\\+\\s*[\"'`])?l(?:[\"'`]\\s*\\+\\s*[\"'`])?l(?:[\"'`]\\s*\\+\\s*[\"'`])?\\ (?:[\"'`]\\s*\\+\\s*[\"'`])?d(?:[\"'`]\\s*\\+\\s*[\"'`])?o(?:[\"'`]\\s*\\+\\s*[\"'`])?w(?:[\"'`]\\s*\\+\\s*[\"'`])?n|d(?:[\"'`]\\s*\\+\\s*[\"'`])?e(?:[\"'`]\\s*\\+\\s*[\"'`])?e(?:[\"'`]\\s*\\+\\s*[\"'`])?p(?:[\"'`]\\s*\\+\\s*[\"'`])?\\ (?:[\"'`]\\s*\\+\\s*[\"'`])?d(?:[\"'`]\\s*\\+\\s*[\"'`])?i(?:[\"'`]\\s*\\+\\s*[\"'`])?v(?:[\"'`]\\s*\\+\\s*[\"'`])?e|u(?:[\"'`]\\s*\\+\\s*[\"'`])?n(?:[\"'`]\\s*\\+\\s*[\"'`])?l(?:[\"'`]\\s*\\+\\s*[\"'`])?o(?:[\"'`]\\s*\\+\\s*[\"'`])?c(?:[\"'`]\\s*\\+\\s*[\"'`])?k|p(?:[\"'`]\\s*\\+\\s*[\"'`])?o(?:[\"'`]\\s*\\+\\s*[\"'`])?w(?:[\"'`]\\s*\\+\\s*[\"'`])?e(?:[\"'`]\\s*\\+\\s*[\"'`])?r(?:[\"'`]\\s*\\+\\s*[\"'`])?f(?:[\"'`]\\s*\\+\\s*[\"'`])?u(?:[\"'`]\\s*\\+\\s*[\"'`])?l|s(?:[\"'`]\\s*\\+\\s*[\"'`])?e(?:[\"'`]\\s*\\+\\s*[\"'`])?a(?:[\"'`]\\s*\\+\\s*[\"'`])?m(?:[\"'`]\\s*\\+\\s*[\"'`])?l(?:[\"'`]\\s*\\+\\s*[\"'`])?e(?:[\"'`]\\s*\\+\\s*[\"'`])?s(?:[\"'`]\\s*\\+\\s*[\"'`])?s|r(?:[\"'`]\\s*\\+\\s*[\"'`])?o(?:[\"'`]\\s*\\+\\s*[\"'`])?b(?:[\"'`]\\s*\\+\\s*[\"'`])?u(?:[\"'`]\\s*\\+\\s*[\"'`])?s(?:[\"'`]\\s*\\+\\s*[\"'`])?t|r(?:[\"'`]\\s*\\+\\s*[\"'`])?i(?:[\"'`]\\s*\\+\\s*[\"'`])?c(?:[\"'`]\\s*\\+\\s*[\"'`])?h|s(?:[\"'`]\\s*\\+\\s*[\"'`])?m(?:[\"'`]\\s*\\+\\s*[\"'`])?a(?:[\"'`]\\s*\\+\\s*[\"'`])?r(?:[\"'`]\\s*\\+\\s*[\"'`])?t|i(?:[\"'`]\\s*\\+\\s*[\"'`])?n(?:[\"'`]\\s*\\+\\s*[\"'`])?t(?:[\"'`]\\s*\\+\\s*[\"'`])?u(?:[\"'`]\\s*\\+\\s*[\"'`])?i(?:[\"'`]\\s*\\+\\s*[\"'`])?t(?:[\"'`]\\s*\\+\\s*[\"'`])?i(?:[\"'`]\\s*\\+\\s*[\"'`])?v(?:[\"'`]\\s*\\+\\s*[\"'`])?e|e(?:[\"'`]\\s*\\+\\s*[\"'`])?l(?:[\"'`]\\s*\\+\\s*[\"'`])?e(?:[\"'`]\\s*\\+\\s*[\"'`])?g(?:[\"'`]\\s*\\+\\s*[\"'`])?a(?:[\"'`]\\s*\\+\\s*[\"'`])?n(?:[\"'`]\\s*\\+\\s*[\"'`])?t|f(?:[\"'`]\\s*\\+\\s*[\"'`])?i(?:[\"'`]\\s*\\+\\s*[\"'`])?r(?:[\"'`]\\s*\\+\\s*[\"'`])?s(?:[\"'`]\\s*\\+\\s*[\"'`])?t(?:[\"'`]\\s*\\+\\s*[\"'`])?\\-(?:[\"'`]\\s*\\+\\s*[\"'`])?c(?:[\"'`]\\s*\\+\\s*[\"'`])?l(?:[\"'`]\\s*\\+\\s*[\"'`])?a(?:[\"'`]\\s*\\+\\s*[\"'`])?s(?:[\"'`]\\s*\\+\\s*[\"'`])?s|o(?:[\"'`]\\s*\\+\\s*[\"'`])?u(?:[\"'`]\\s*\\+\\s*[\"'`])?t(?:[\"'`]\\s*\\+\\s*[\"'`])?\\ (?:[\"'`]\\s*\\+\\s*[\"'`])?o(?:[\"'`]\\s*\\+\\s*[\"'`])?f(?:[\"'`]\\s*\\+\\s*[\"'`])?\\ (?:[\"'`]\\s*\\+\\s*[\"'`])?t(?:[\"'`]\\s*\\+\\s*[\"'`])?h(?:[\"'`]\\s*\\+\\s*[\"'`])?e(?:[\"'`]\\s*\\+\\s*[\"'`])?\\ (?:[\"'`]\\s*\\+\\s*[\"'`])?b(?:[\"'`]\\s*\\+\\s*[\"'`])?o(?:[\"'`]\\s*\\+\\s*[\"'`])?x|h(?:[\"'`]\\s*\\+\\s*[\"'`])?e(?:[\"'`]\\s*\\+\\s*[\"'`])?a(?:[\"'`]\\s*\\+\\s*[\"'`])?v(?:[\"'`]\\s*\\+\\s*[\"'`])?y(?:[\"'`]\\s*\\+\\s*[\"'`])?\\ (?:[\"'`]\\s*\\+\\s*[\"'`])?l(?:[\"'`]\\s*\\+\\s*[\"'`])?i(?:[\"'`]\\s*\\+\\s*[\"'`])?f(?:[\"'`]\\s*\\+\\s*[\"'`])?t(?:[\"'`]\\s*\\+\\s*[\"'`])?i(?:[\"'`]\\s*\\+\\s*[\"'`])?n(?:[\"'`]\\s*\\+\\s*[\"'`])?g|s(?:[\"'`]\\s*\\+\\s*[\"'`])?o(?:[\"'`]\\s*\\+\\s*[\"'`])?u(?:[\"'`]\\s*\\+\\s*[\"'`])?r(?:[\"'`]\\s*\\+\\s*[\"'`])?c(?:[\"'`]\\s*\\+\\s*[\"'`])?e(?:[\"'`]\\s*\\+\\s*[\"'`])?\\ (?:[\"'`]\\s*\\+\\s*[\"'`])?o(?:[\"'`]\\s*\\+\\s*[\"'`])?f(?:[\"'`]\\s*\\+\\s*[\"'`])?\\ (?:[\"'`]\\s*\\+\\s*[\"'`])?t(?:[\"'`]\\s*\\+\\s*[\"'`])?r(?:[\"'`]\\s*\\+\\s*[\"'`])?u(?:[\"'`]\\s*\\+\\s*[\"'`])?t(?:[\"'`]\\s*\\+\\s*[\"'`])?h|n(?:[\"'`]\\s*\\+\\s*[\"'`])?o(?:[\"'`]\\s*\\+\\s*[\"'`])?r(?:[\"'`]\\s*\\+\\s*[\"'`])?t(?:[\"'`]\\s*\\+\\s*[\"'`])?h(?:[\"'`]\\s*\\+\\s*[\"'`])?\\ (?:[\"'`]\\s*\\+\\s*[\"'`])?s(?:[\"'`]\\s*\\+\\s*[\"'`])?t(?:[\"'`]\\s*\\+\\s*[\"'`])?a(?:[\"'`]\\s*\\+\\s*[\"'`])?r)"
+
+  - id: ts-concat-purpose-verb
+    languages: [typescript]
+    severity: ERROR
+    message: >-
+      A purpose verb reassembled from a `+` chain of literals. #1277: the
+      join-tolerant sibling of ts-string-purpose-verb -- see this file's header
+      comment for why TypeScript checks content here instead of taking
+      the outright ban rust-string-concat-literal takes.
+    paths:
+      exclude:
+        - "**/gen/**"
+    patterns:
+      - pattern-regex: "(?:\"(?:[^\"\\\\\\n]|\\\\.)*\"|`(?:[^`\\\\]|\\\\.)*`|'(?:[^'\\\\\\n]|\\\\.)*')(?:\\s*\\+\\s*(?:\"(?:[^\"\\\\\\n]|\\\\.)*\"|`(?:[^`\\\\]|\\\\.)*`|'(?:[^'\\\\\\n]|\\\\.)*'))+"
+      - pattern-regex: "(?i)(?:h(?:[\"'`]\\s*\\+\\s*[\"'`])?e(?:[\"'`]\\s*\\+\\s*[\"'`])?l(?:[\"'`]\\s*\\+\\s*[\"'`])?p(?:[\"'`]\\s*\\+\\s*[\"'`])?s(?:[\"'`]\\s*\\+\\s*[\"'`])?\\ (?:[\"'`]\\s*\\+\\s*[\"'`])?y(?:[\"'`]\\s*\\+\\s*[\"'`])?o(?:[\"'`]\\s*\\+\\s*[\"'`])?u|l(?:[\"'`]\\s*\\+\\s*[\"'`])?e(?:[\"'`]\\s*\\+\\s*[\"'`])?t(?:[\"'`]\\s*\\+\\s*[\"'`])?s(?:[\"'`]\\s*\\+\\s*[\"'`])?\\ (?:[\"'`]\\s*\\+\\s*[\"'`])?y(?:[\"'`]\\s*\\+\\s*[\"'`])?o(?:[\"'`]\\s*\\+\\s*[\"'`])?u|a(?:[\"'`]\\s*\\+\\s*[\"'`])?l(?:[\"'`]\\s*\\+\\s*[\"'`])?l(?:[\"'`]\\s*\\+\\s*[\"'`])?o(?:[\"'`]\\s*\\+\\s*[\"'`])?w(?:[\"'`]\\s*\\+\\s*[\"'`])?s(?:[\"'`]\\s*\\+\\s*[\"'`])?\\ (?:[\"'`]\\s*\\+\\s*[\"'`])?y(?:[\"'`]\\s*\\+\\s*[\"'`])?o(?:[\"'`]\\s*\\+\\s*[\"'`])?u(?:[\"'`]\\s*\\+\\s*[\"'`])?\\ (?:[\"'`]\\s*\\+\\s*[\"'`])?t(?:[\"'`]\\s*\\+\\s*[\"'`])?o|e(?:[\"'`]\\s*\\+\\s*[\"'`])?n(?:[\"'`]\\s*\\+\\s*[\"'`])?a(?:[\"'`]\\s*\\+\\s*[\"'`])?b(?:[\"'`]\\s*\\+\\s*[\"'`])?l(?:[\"'`]\\s*\\+\\s*[\"'`])?e(?:[\"'`]\\s*\\+\\s*[\"'`])?s|m(?:[\"'`]\\s*\\+\\s*[\"'`])?a(?:[\"'`]\\s*\\+\\s*[\"'`])?k(?:[\"'`]\\s*\\+\\s*[\"'`])?e(?:[\"'`]\\s*\\+\\s*[\"'`])?s(?:[\"'`]\\s*\\+\\s*[\"'`])?\\ (?:[\"'`]\\s*\\+\\s*[\"'`])?i(?:[\"'`]\\s*\\+\\s*[\"'`])?t(?:[\"'`]\\s*\\+\\s*[\"'`])?\\ (?:[\"'`]\\s*\\+\\s*[\"'`])?e(?:[\"'`]\\s*\\+\\s*[\"'`])?a(?:[\"'`]\\s*\\+\\s*[\"'`])?s(?:[\"'`]\\s*\\+\\s*[\"'`])?y(?:[\"'`]\\s*\\+\\s*[\"'`])?\\ (?:[\"'`]\\s*\\+\\s*[\"'`])?t(?:[\"'`]\\s*\\+\\s*[\"'`])?o|s(?:[\"'`]\\s*\\+\\s*[\"'`])?o(?:[\"'`]\\s*\\+\\s*[\"'`])?\\ (?:[\"'`]\\s*\\+\\s*[\"'`])?y(?:[\"'`]\\s*\\+\\s*[\"'`])?o(?:[\"'`]\\s*\\+\\s*[\"'`])?u(?:[\"'`]\\s*\\+\\s*[\"'`])?\\ (?:[\"'`]\\s*\\+\\s*[\"'`])?c(?:[\"'`]\\s*\\+\\s*[\"'`])?a(?:[\"'`]\\s*\\+\\s*[\"'`])?n|d(?:[\"'`]\\s*\\+\\s*[\"'`])?e(?:[\"'`]\\s*\\+\\s*[\"'`])?s(?:[\"'`]\\s*\\+\\s*[\"'`])?i(?:[\"'`]\\s*\\+\\s*[\"'`])?g(?:[\"'`]\\s*\\+\\s*[\"'`])?n(?:[\"'`]\\s*\\+\\s*[\"'`])?e(?:[\"'`]\\s*\\+\\s*[\"'`])?d(?:[\"'`]\\s*\\+\\s*[\"'`])?\\ (?:[\"'`]\\s*\\+\\s*[\"'`])?t(?:[\"'`]\\s*\\+\\s*[\"'`])?o|b(?:[\"'`]\\s*\\+\\s*[\"'`])?u(?:[\"'`]\\s*\\+\\s*[\"'`])?i(?:[\"'`]\\s*\\+\\s*[\"'`])?l(?:[\"'`]\\s*\\+\\s*[\"'`])?t(?:[\"'`]\\s*\\+\\s*[\"'`])?\\ (?:[\"'`]\\s*\\+\\s*[\"'`])?t(?:[\"'`]\\s*\\+\\s*[\"'`])?o)"
+
+  - id: ts-concat-hedge
+    languages: [typescript]
+    severity: ERROR
+    message: >-
+      A hedge or filler word reassembled from a `+` chain of literals. #1277: the
+      join-tolerant sibling of ts-string-hedge -- see this file's header
+      comment for why TypeScript checks content here instead of taking
+      the outright ban rust-string-concat-literal takes.
+    paths:
+      exclude:
+        - "**/gen/**"
+    patterns:
+      - pattern-regex: "(?:\"(?:[^\"\\\\\\n]|\\\\.)*\"|`(?:[^`\\\\]|\\\\.)*`|'(?:[^'\\\\\\n]|\\\\.)*')(?:\\s*\\+\\s*(?:\"(?:[^\"\\\\\\n]|\\\\.)*\"|`(?:[^`\\\\]|\\\\.)*`|'(?:[^'\\\\\\n]|\\\\.)*'))+"
+      - pattern-regex: "(?i)(?:s(?:[\"'`]\\s*\\+\\s*[\"'`])?i(?:[\"'`]\\s*\\+\\s*[\"'`])?m(?:[\"'`]\\s*\\+\\s*[\"'`])?p(?:[\"'`]\\s*\\+\\s*[\"'`])?l(?:[\"'`]\\s*\\+\\s*[\"'`])?y|j(?:[\"'`]\\s*\\+\\s*[\"'`])?u(?:[\"'`]\\s*\\+\\s*[\"'`])?s(?:[\"'`]\\s*\\+\\s*[\"'`])?t|e(?:[\"'`]\\s*\\+\\s*[\"'`])?s(?:[\"'`]\\s*\\+\\s*[\"'`])?s(?:[\"'`]\\s*\\+\\s*[\"'`])?e(?:[\"'`]\\s*\\+\\s*[\"'`])?n(?:[\"'`]\\s*\\+\\s*[\"'`])?t(?:[\"'`]\\s*\\+\\s*[\"'`])?i(?:[\"'`]\\s*\\+\\s*[\"'`])?a(?:[\"'`]\\s*\\+\\s*[\"'`])?l(?:[\"'`]\\s*\\+\\s*[\"'`])?l(?:[\"'`]\\s*\\+\\s*[\"'`])?y|b(?:[\"'`]\\s*\\+\\s*[\"'`])?a(?:[\"'`]\\s*\\+\\s*[\"'`])?s(?:[\"'`]\\s*\\+\\s*[\"'`])?i(?:[\"'`]\\s*\\+\\s*[\"'`])?c(?:[\"'`]\\s*\\+\\s*[\"'`])?a(?:[\"'`]\\s*\\+\\s*[\"'`])?l(?:[\"'`]\\s*\\+\\s*[\"'`])?l(?:[\"'`]\\s*\\+\\s*[\"'`])?y|a(?:[\"'`]\\s*\\+\\s*[\"'`])?c(?:[\"'`]\\s*\\+\\s*[\"'`])?t(?:[\"'`]\\s*\\+\\s*[\"'`])?u(?:[\"'`]\\s*\\+\\s*[\"'`])?a(?:[\"'`]\\s*\\+\\s*[\"'`])?l(?:[\"'`]\\s*\\+\\s*[\"'`])?l(?:[\"'`]\\s*\\+\\s*[\"'`])?y|r(?:[\"'`]\\s*\\+\\s*[\"'`])?e(?:[\"'`]\\s*\\+\\s*[\"'`])?a(?:[\"'`]\\s*\\+\\s*[\"'`])?l(?:[\"'`]\\s*\\+\\s*[\"'`])?l(?:[\"'`]\\s*\\+\\s*[\"'`])?y|q(?:[\"'`]\\s*\\+\\s*[\"'`])?u(?:[\"'`]\\s*\\+\\s*[\"'`])?i(?:[\"'`]\\s*\\+\\s*[\"'`])?t(?:[\"'`]\\s*\\+\\s*[\"'`])?e|f(?:[\"'`]\\s*\\+\\s*[\"'`])?a(?:[\"'`]\\s*\\+\\s*[\"'`])?i(?:[\"'`]\\s*\\+\\s*[\"'`])?r(?:[\"'`]\\s*\\+\\s*[\"'`])?l(?:[\"'`]\\s*\\+\\s*[\"'`])?y|g(?:[\"'`]\\s*\\+\\s*[\"'`])?e(?:[\"'`]\\s*\\+\\s*[\"'`])?n(?:[\"'`]\\s*\\+\\s*[\"'`])?e(?:[\"'`]\\s*\\+\\s*[\"'`])?r(?:[\"'`]\\s*\\+\\s*[\"'`])?a(?:[\"'`]\\s*\\+\\s*[\"'`])?l(?:[\"'`]\\s*\\+\\s*[\"'`])?l(?:[\"'`]\\s*\\+\\s*[\"'`])?y|t(?:[\"'`]\\s*\\+\\s*[\"'`])?y(?:[\"'`]\\s*\\+\\s*[\"'`])?p(?:[\"'`]\\s*\\+\\s*[\"'`])?i(?:[\"'`]\\s*\\+\\s*[\"'`])?c(?:[\"'`]\\s*\\+\\s*[\"'`])?a(?:[\"'`]\\s*\\+\\s*[\"'`])?l(?:[\"'`]\\s*\\+\\s*[\"'`])?l(?:[\"'`]\\s*\\+\\s*[\"'`])?y|v(?:[\"'`]\\s*\\+\\s*[\"'`])?a(?:[\"'`]\\s*\\+\\s*[\"'`])?r(?:[\"'`]\\s*\\+\\s*[\"'`])?i(?:[\"'`]\\s*\\+\\s*[\"'`])?o(?:[\"'`]\\s*\\+\\s*[\"'`])?u(?:[\"'`]\\s*\\+\\s*[\"'`])?s|a(?:[\"'`]\\s*\\+\\s*[\"'`])?p(?:[\"'`]\\s*\\+\\s*[\"'`])?p(?:[\"'`]\\s*\\+\\s*[\"'`])?r(?:[\"'`]\\s*\\+\\s*[\"'`])?o(?:[\"'`]\\s*\\+\\s*[\"'`])?p(?:[\"'`]\\s*\\+\\s*[\"'`])?r(?:[\"'`]\\s*\\+\\s*[\"'`])?i(?:[\"'`]\\s*\\+\\s*[\"'`])?a(?:[\"'`]\\s*\\+\\s*[\"'`])?t(?:[\"'`]\\s*\\+\\s*[\"'`])?e|a(?:[\"'`]\\s*\\+\\s*[\"'`])?s(?:[\"'`]\\s*\\+\\s*[\"'`])?\\ (?:[\"'`]\\s*\\+\\s*[\"'`])?n(?:[\"'`]\\s*\\+\\s*[\"'`])?e(?:[\"'`]\\s*\\+\\s*[\"'`])?e(?:[\"'`]\\s*\\+\\s*[\"'`])?d(?:[\"'`]\\s*\\+\\s*[\"'`])?e(?:[\"'`]\\s*\\+\\s*[\"'`])?d|p(?:[\"'`]\\s*\\+\\s*[\"'`])?l(?:[\"'`]\\s*\\+\\s*[\"'`])?e(?:[\"'`]\\s*\\+\\s*[\"'`])?a(?:[\"'`]\\s*\\+\\s*[\"'`])?s(?:[\"'`]\\s*\\+\\s*[\"'`])?e(?:[\"'`]\\s*\\+\\s*[\"'`])?\\ (?:[\"'`]\\s*\\+\\s*[\"'`])?n(?:[\"'`]\\s*\\+\\s*[\"'`])?o(?:[\"'`]\\s*\\+\\s*[\"'`])?t(?:[\"'`]\\s*\\+\\s*[\"'`])?e|o(?:[\"'`]\\s*\\+\\s*[\"'`])?f(?:[\"'`]\\s*\\+\\s*[\"'`])?\\ (?:[\"'`]\\s*\\+\\s*[\"'`])?c(?:[\"'`]\\s*\\+\\s*[\"'`])?o(?:[\"'`]\\s*\\+\\s*[\"'`])?u(?:[\"'`]\\s*\\+\\s*[\"'`])?r(?:[\"'`]\\s*\\+\\s*[\"'`])?s(?:[\"'`]\\s*\\+\\s*[\"'`])?e|n(?:[\"'`]\\s*\\+\\s*[\"'`])?o(?:[\"'`]\\s*\\+\\s*[\"'`])?t(?:[\"'`]\\s*\\+\\s*[\"'`])?e(?:[\"'`]\\s*\\+\\s*[\"'`])?\\ (?:[\"'`]\\s*\\+\\s*[\"'`])?t(?:[\"'`]\\s*\\+\\s*[\"'`])?h(?:[\"'`]\\s*\\+\\s*[\"'`])?a(?:[\"'`]\\s*\\+\\s*[\"'`])?t|i(?:[\"'`]\\s*\\+\\s*[\"'`])?n(?:[\"'`]\\s*\\+\\s*[\"'`])?\\ (?:[\"'`]\\s*\\+\\s*[\"'`])?o(?:[\"'`]\\s*\\+\\s*[\"'`])?r(?:[\"'`]\\s*\\+\\s*[\"'`])?d(?:[\"'`]\\s*\\+\\s*[\"'`])?e(?:[\"'`]\\s*\\+\\s*[\"'`])?r(?:[\"'`]\\s*\\+\\s*[\"'`])?\\ (?:[\"'`]\\s*\\+\\s*[\"'`])?t(?:[\"'`]\\s*\\+\\s*[\"'`])?o|i(?:[\"'`]\\s*\\+\\s*[\"'`])?t(?:[\"'`]\\s*\\+\\s*[\"'`])?\\ (?:[\"'`]\\s*\\+\\s*[\"'`])?s(?:[\"'`]\\s*\\+\\s*[\"'`])?h(?:[\"'`]\\s*\\+\\s*[\"'`])?o(?:[\"'`]\\s*\\+\\s*[\"'`])?u(?:[\"'`]\\s*\\+\\s*[\"'`])?l(?:[\"'`]\\s*\\+\\s*[\"'`])?d(?:[\"'`]\\s*\\+\\s*[\"'`])?\\ (?:[\"'`]\\s*\\+\\s*[\"'`])?b(?:[\"'`]\\s*\\+\\s*[\"'`])?e(?:[\"'`]\\s*\\+\\s*[\"'`])?\\ (?:[\"'`]\\s*\\+\\s*[\"'`])?n(?:[\"'`]\\s*\\+\\s*[\"'`])?o(?:[\"'`]\\s*\\+\\s*[\"'`])?t(?:[\"'`]\\s*\\+\\s*[\"'`])?e(?:[\"'`]\\s*\\+\\s*[\"'`])?d)"
+
+  - id: ts-concat-temporal-filler
+    languages: [typescript]
+    severity: ERROR
+    message: >-
+      A temporal filler phrase reassembled from a `+` chain of literals. #1277: the
+      join-tolerant sibling of ts-string-temporal-filler -- see this file's header
+      comment for why TypeScript checks content here instead of taking
+      the outright ban rust-string-concat-literal takes.
+    paths:
+      exclude:
+        - "**/gen/**"
+    patterns:
+      - pattern-regex: "(?:\"(?:[^\"\\\\\\n]|\\\\.)*\"|`(?:[^`\\\\]|\\\\.)*`|'(?:[^'\\\\\\n]|\\\\.)*')(?:\\s*\\+\\s*(?:\"(?:[^\"\\\\\\n]|\\\\.)*\"|`(?:[^`\\\\]|\\\\.)*`|'(?:[^'\\\\\\n]|\\\\.)*'))+"
+      - pattern-regex: "(?i)(?:r(?:[\"'`]\\s*\\+\\s*[\"'`])?i(?:[\"'`]\\s*\\+\\s*[\"'`])?g(?:[\"'`]\\s*\\+\\s*[\"'`])?h(?:[\"'`]\\s*\\+\\s*[\"'`])?t(?:[\"'`]\\s*\\+\\s*[\"'`])?\\ (?:[\"'`]\\s*\\+\\s*[\"'`])?n(?:[\"'`]\\s*\\+\\s*[\"'`])?o(?:[\"'`]\\s*\\+\\s*[\"'`])?w|a(?:[\"'`]\\s*\\+\\s*[\"'`])?t(?:[\"'`]\\s*\\+\\s*[\"'`])?\\ (?:[\"'`]\\s*\\+\\s*[\"'`])?t(?:[\"'`]\\s*\\+\\s*[\"'`])?h(?:[\"'`]\\s*\\+\\s*[\"'`])?e(?:[\"'`]\\s*\\+\\s*[\"'`])?\\ (?:[\"'`]\\s*\\+\\s*[\"'`])?m(?:[\"'`]\\s*\\+\\s*[\"'`])?o(?:[\"'`]\\s*\\+\\s*[\"'`])?m(?:[\"'`]\\s*\\+\\s*[\"'`])?e(?:[\"'`]\\s*\\+\\s*[\"'`])?n(?:[\"'`]\\s*\\+\\s*[\"'`])?t)"
+
+  - id: ts-concat-first-person
+    languages: [typescript]
+    severity: ERROR
+    message: >-
+      First person plural reassembled from a `+` chain of literals. #1287:
+      unlike the four siblings above, this one requires the join to fall
+      inside the word's own letters (`w`|`e`, `o`|`ur`, `ou`|`r`, and each
+      internal split of `let's`) rather than making every letter-boundary
+      optional -- an optional join at every position also matches a whole
+      word sitting untouched inside one literal of an unrelated `+` chain,
+      which is what produced 9 false positives (`"...own We" + "bGL..."`)
+      when tried the same way as the other three. See this file's header
+      comment for why `we`/`our`/`let's` needed a different construction.
+    paths:
+      exclude:
+        - "**/gen/**"
+    patterns:
+      - pattern-regex: "(?:\"(?:[^\"\\\\\\n]|\\\\.)*\"|`(?:[^`\\\\]|\\\\.)*`|'(?:[^'\\\\\\n]|\\\\.)*')(?:\\s*\\+\\s*(?:\"(?:[^\"\\\\\\n]|\\\\.)*\"|`(?:[^`\\\\]|\\\\.)*`|'(?:[^'\\\\\\n]|\\\\.)*'))+"
+      - pattern-regex: "(?i)(?:\\bw[\"'`]\\s*\\+\\s*[\"'`]e\\b|\\bo[\"'`]\\s*\\+\\s*[\"'`]u(?:[\"'`]\\s*\\+\\s*[\"'`])?r\\b|\\bo(?:[\"'`]\\s*\\+\\s*[\"'`])?u[\"'`]\\s*\\+\\s*[\"'`]r\\b|\\bl[\"'`]\\s*\\+\\s*[\"'`]e(?:[\"'`]\\s*\\+\\s*[\"'`])?t(?:[\"'`]\\s*\\+\\s*[\"'`])?\\\\?'(?:[\"'`]\\s*\\+\\s*[\"'`])?s\\b|\\bl(?:[\"'`]\\s*\\+\\s*[\"'`])?e[\"'`]\\s*\\+\\s*[\"'`]t(?:[\"'`]\\s*\\+\\s*[\"'`])?\\\\?'(?:[\"'`]\\s*\\+\\s*[\"'`])?s\\b|\\bl(?:[\"'`]\\s*\\+\\s*[\"'`])?e(?:[\"'`]\\s*\\+\\s*[\"'`])?t[\"'`]\\s*\\+\\s*[\"'`]\\\\?'(?:[\"'`]\\s*\\+\\s*[\"'`])?s\\b|\\bl(?:[\"'`]\\s*\\+\\s*[\"'`])?e(?:[\"'`]\\s*\\+\\s*[\"'`])?t(?:[\"'`]\\s*\\+\\s*[\"'`])?\\\\?'[\"'`]\\s*\\+\\s*[\"'`]s\\b)"
+
+  - id: md-figurative
+    languages: [generic]
+    severity: ERROR
+    message: >-
+      Figurative language in markdown prose. VOICE.md § Banned outright: it
+      does not resolve literally, so a literal reader stalls on it.
+    paths:
+      include:
+        - "*.md"
+      exclude:
+        - "docs/VOICE.md"
+    patterns:
+      - pattern-regex: '(?m)^(?!>)(?:[^`"\n]|`[^`\n]*`|"[^"\n]*")*?\b(?:at a glance|under the hood|drill down|deep dive|unlock|powerful|seamless|robust|rich|intuitive|elegant|first-class|out of the box|heavy lifting|source of truth|north star)\b'
+
+  - id: md-purpose-verb
+    languages: [generic]
+    severity: ERROR
+    message: >-
+      A purpose verb in markdown prose. VOICE.md § Banned outright: say what a
+      thing is, never what it does for the reader.
+    paths:
+      include:
+        - "*.md"
+      exclude:
+        - "docs/VOICE.md"
+    patterns:
+      - pattern-regex: '(?m)^(?!>)(?:[^`"\n]|`[^`\n]*`|"[^"\n]*")*?\b(?:helps you|lets you|allows you to|makes it easy to|so you can|designed to|built to)\b'
+
+  - id: md-hedge
+    languages: [generic]
+    severity: ERROR
+    message: >-
+      A hedge or filler word in markdown prose. VOICE.md § Banned outright:
+      cut every word that is not the fact.
+    paths:
+      include:
+        - "*.md"
+      exclude:
+        - "docs/VOICE.md"
+    patterns:
+      - pattern-regex: '(?m)^(?!>)(?:[^`"\n]|`[^`\n]*`|"[^"\n]*")*?\b(?:simply|essentially|basically|actually|really|quite|fairly|generally|typically|various|appropriate|as needed|please note|of course|note that|in order to|it should be noted)\b'
+
+  - id: md-hedge-just
+    languages: [generic]
+    severity: ERROR
+    message: >-
+      "just" as a hedge in markdown prose, not the `just` command-runner
+      name. VOICE.md § Banned outright: cut every word that is not the fact.
+    paths:
+      include:
+        - "*.md"
+      exclude:
+        - "docs/VOICE.md"
+    patterns:
+      - pattern-regex: '(?m)^(?!>)(?!\s*just\b)(?:[^`"\n]|`[^`\n]*`|"[^"\n]*")*?\bjust\b'
+
+  - id: md-temporal-filler
+    languages: [generic]
+    severity: ERROR
+    message: >-
+      A temporal filler phrase in markdown prose. VOICE.md § Hard limits:
+      every state may change, so this is never the fact -- unless the timing
+      itself is the fact, as in `4m old`.
+    paths:
+      include:
+        - "*.md"
+    patterns:
+      - pattern-regex: '(?m)^(?!>)(?:[^`"\n]|`[^`\n]*`|"[^"\n]*")*?\b(?:right now|at the moment)\b'
+
+  - id: md-first-person
+    languages: [generic]
+    severity: ERROR
+    message: >-
+      First person plural in markdown prose. VOICE.md § Banned outright: no
+      we, no our, no let's.
+    paths:
+      include:
+        - "*.md"
+      exclude:
+        - "docs/VOICE.md"
+        - "finance/docs/conformance/**"
+    patterns:
+      - pattern-regex: "(?m)^(?!>)(?:[^`\"\\n]|`[^`\\n]*`|\"[^\"\\n]*\")*?\\b(?:we|our|let's)\\b"
+
+  # toml-comment-authored-voice, yaml-comment-authored-voice, sh-comment-authored-voice
+  # and justfile-comment-authored-voice share one shape: `# ...` from a
+  # comment-only line, `finance/justfile`'s own `--` skipped, past a
+  # complete same-line backtick or double-quoted span (this tree quotes a
+  # `just <recipe>` reference in backticks in these files exactly as
+  # markdown does; unlike markdown, none of these types measured a
+  # multi-line-wrapped comment or a fenced shell example, so neither the
+  # md-hedge-just line-initial exclusion nor a blockquote exclusion is
+  # needed here). Reduced word list relative to the Rust/TS/markdown
+  # rules, matching `hcl-typst-authored-voice` above: figurative minus
+  # `clean`/`surface` (never measured a hit in these types) and `smart`
+  # (dropped for the same domain-jargon reason as markdown; the same
+  # "smart contract" phrasing exists in this tree's config comments),
+  # purpose-verb minus `enables` (same Cargo-feature-flag reason as
+  # markdown -- `.cargo/mutants.toml` and a `Cargo.toml` both use it that
+  # way), no exclamation rule (same measured reason as everywhere else in
+  # this file). `.semgrep-voice.yml` and `.semgrep-comments.yml` are
+  # excluded from `yaml-comment-authored-voice`: both are, like
+  # `docs/VOICE.md`, documents whose comments extensively quote and
+  # discuss this file's own banned-word lists as their subject rather
+  # than using them, and `.semgrep-comments.yml` belongs to a sibling
+  # lane this file does not edit. Six real violations were found and
+  # fixed across these four types before this rule was added -- four
+  # `actually` hedges in `finance/scripts/*.sh` and
+  # `finance/crates/*/tests/probe_*.sh`, one `not just X` each in
+  # `deny.toml` and `.cargo/mutants.toml`, one `source of truth` in the
+  # root `justfile`, one `not just X` in `compose.yml`, and one `our` each
+  # in `deny.toml` and `finance/scripts/verify-minio.sh` -- see the three
+  # docs-fix commits on this branch for the rewrites.
+  - id: toml-comment-authored-voice
+    languages: [generic]
+    severity: ERROR
+    message: >-
+      Banned wording in a TOML comment. VOICE.md § Banned outright applies to
+      everything a human reads, comments included.
+    paths:
+      include:
+        - "*.toml"
+    patterns:
+      - pattern-regex: "(?m)^\\s*#(?:[^`\"\\n]|`[^`\\n]*`|\"[^\"\\n]*\")*?\\b(?:at a glance|under the hood|drill down|deep dive|unlock|powerful|seamless|robust|rich|intuitive|elegant|first-class|out of the box|heavy lifting|source of truth|north star|helps you|lets you|allows you to|makes it easy to|so you can|designed to|built to|simply|just|essentially|basically|actually|really|quite|fairly|generally|typically|various|appropriate|as needed|please note|of course|note that|in order to|it should be noted|right now|at the moment|we|our|let's)\\b"
+
+  - id: toml-field-authored-voice
+    languages: [generic]
+    severity: ERROR
+    message: >-
+      Banned wording in a `description`/`reason` field. VOICE.md § Banned
+      outright applies to everything a human reads.
+    paths:
+      include:
+        - "*.toml"
+    patterns:
+      - pattern-regex: "\\b(?:description|reason)\\s*=\\s*\"[^\"\\n]*\\b(?:at a glance|under the hood|drill down|deep dive|unlock|powerful|seamless|robust|rich|intuitive|elegant|first-class|out of the box|heavy lifting|source of truth|north star|helps you|lets you|allows you to|makes it easy to|so you can|designed to|built to|simply|just|essentially|basically|actually|really|quite|fairly|generally|typically|various|appropriate|as needed|please note|of course|note that|in order to|it should be noted|right now|at the moment|we|our|let's)\\b[^\"\\n]*\""
+
+  - id: yaml-comment-authored-voice
+    languages: [generic]
+    severity: ERROR
+    message: >-
+      Banned wording in a YAML comment. VOICE.md § Banned outright applies to
+      everything a human reads, comments included.
+    paths:
+      include:
+        - "*.yml"
+        - "*.yaml"
+      exclude:
+        - ".semgrep-voice.yml"
+        - ".semgrep-comments.yml"
+    patterns:
+      - pattern-regex: "(?m)^\\s*#(?:[^`\"\\n]|`[^`\\n]*`|\"[^\"\\n]*\")*?\\b(?:at a glance|under the hood|drill down|deep dive|unlock|powerful|seamless|robust|rich|intuitive|elegant|first-class|out of the box|heavy lifting|source of truth|north star|helps you|lets you|allows you to|makes it easy to|so you can|designed to|built to|simply|just|essentially|basically|actually|really|quite|fairly|generally|typically|various|appropriate|as needed|please note|of course|note that|in order to|it should be noted|right now|at the moment|we|our|let's)\\b"
+
+  - id: sh-comment-authored-voice
+    languages: [generic]
+    severity: ERROR
+    message: >-
+      Banned wording in a shell-script comment. VOICE.md § Banned outright
+      applies to everything a human reads, comments included.
+    paths:
+      include:
+        - "*.sh"
+    patterns:
+      - pattern-regex: "(?m)^\\s*#(?:[^`\"\\n]|`[^`\\n]*`|\"[^\"\\n]*\")*?\\b(?:at a glance|under the hood|drill down|deep dive|unlock|powerful|seamless|robust|rich|intuitive|elegant|first-class|out of the box|heavy lifting|source of truth|north star|helps you|lets you|allows you to|makes it easy to|so you can|designed to|built to|simply|just|essentially|basically|actually|really|quite|fairly|generally|typically|various|appropriate|as needed|please note|of course|note that|in order to|it should be noted|right now|at the moment|we|our|let's)\\b"
+
+  - id: justfile-comment-authored-voice
+    languages: [generic]
+    severity: ERROR
+    message: >-
+      Banned wording in a justfile comment. VOICE.md § Banned outright
+      applies to everything a human reads, comments included.
+    paths:
+      include:
+        - "justfile"
+        - "*/justfile"
+    patterns:
+      - pattern-regex: "(?m)^\\s*#(?:[^`\"\\n]|`[^`\\n]*`|\"[^\"\\n]*\")*?\\b(?:at a glance|under the hood|drill down|deep dive|unlock|powerful|seamless|robust|rich|intuitive|elegant|first-class|out of the box|heavy lifting|source of truth|north star|helps you|lets you|allows you to|makes it easy to|so you can|designed to|built to|simply|just|essentially|basically|actually|really|quite|fairly|generally|typically|various|appropriate|as needed|please note|of course|note that|in order to|it should be noted|right now|at the moment|we|our|let's)\\b"
+
+  # A `just`/shell recipe's own `echo`/`printf` argument reaches an operator
+  # reading gate output, same standing as an error message in source --
+  # unlike the comment rules above, the double-quoted span here *is* the
+  # prose to check, not a citation to skip past, so no pairing prefix
+  # applies. Verified zero hits tree-wide before landing; a single-quoted
+  # banner literal (`'\n...just %s...\n'`, both justfiles' gate-name
+  # separator) is unreached by design, since it prints the tool's own name
+  # rather than a message.
+  - id: shell-message-authored-voice
+    languages: [generic]
+    severity: ERROR
+    message: >-
+      Banned wording in an echo/printf message a human reads. VOICE.md §
+      Banned outright applies to everything a human reads. "just" is absent
+      from this list: in a justfile or a shell recipe the word names the
+      command runner far more often than it hedges, and the backtick carve-out
+      `md-hedge-just` uses cannot transfer, since a backtick inside a shell
+      string is command substitution. A hedging "just" in one of these
+      messages is caught by review (#1368).
+    paths:
+      include:
+        - "*.sh"
+        - "justfile"
+        - "*/justfile"
+    patterns:
+      - pattern-regex: "(?:echo|printf)\\s+\"[^\"\\n]*\\b(?:at a glance|under the hood|drill down|deep dive|unlock|powerful|seamless|robust|rich|intuitive|elegant|first-class|out of the box|heavy lifting|source of truth|north star|helps you|lets you|allows you to|makes it easy to|so you can|designed to|built to|simply|essentially|basically|actually|really|quite|fairly|generally|typically|various|appropriate|as needed|please note|of course|note that|in order to|it should be noted|right now|at the moment|we|our|let's)\\b[^\"\\n]*\""
+
+  - id: mjs-comment-authored-voice
+    languages: [generic]
+    severity: ERROR
+    message: >-
+      Banned wording in a `.mjs` config comment. VOICE.md § Banned outright
+      applies to everything a human reads, comments included.
+    paths:
+      include:
+        - "*.mjs"
+    patterns:
+      - pattern-regex: "(?m)^\\s*//(?:[^`\"\\n]|`[^`\\n]*`|\"[^\"\\n]*\")*?\\b(?:at a glance|under the hood|drill down|deep dive|unlock|powerful|seamless|robust|rich|intuitive|elegant|first-class|out of the box|heavy lifting|source of truth|north star|helps you|lets you|allows you to|makes it easy to|so you can|designed to|built to|simply|just|essentially|basically|actually|really|quite|fairly|generally|typically|various|appropriate|as needed|please note|of course|note that|in order to|it should be noted|right now|at the moment|we|our|let's)\\b"
+
+  # CSS has no `//` line comment, only `/* ... */`, and manifold's
+  # `tokens.css`/`globals.css` carry this tree's only substantial CSS
+  # prose (reasoning for a colour ramp, a WCAG citation, a cross-file
+  # duplication note) -- manifold is fully bound, not part of `CLAUDE.md`'s
+  # rendered-copy carve-out. `drill-down` (hyphenated, naming the table's
+  # own expand control) does not match `drill down` (spaced, the banned
+  # verb phrase) by construction; no exclusion was needed for it.
+  - id: css-comment-authored-voice
+    languages: [generic]
+    severity: ERROR
+    message: >-
+      Banned wording in a CSS comment. VOICE.md § Banned outright applies to
+      everything a human reads, comments included.
+    paths:
+      include:
+        - "*.css"
+    patterns:
+      - pattern-regex: "/\\*(?:[^*`]|\\*(?!/)|`[^`]*`)*?\\b(?:at a glance|under the hood|drill down|deep dive|unlock|powerful|seamless|robust|rich|intuitive|elegant|first-class|out of the box|heavy lifting|source of truth|north star|helps you|lets you|allows you to|makes it easy to|so you can|designed to|built to|simply|just|essentially|basically|actually|really|quite|fairly|generally|typically|various|appropriate|as needed|please note|of course|note that|in order to|it should be noted|right now|at the moment|we|our|let's)\\b(?:[^*`]|\\*(?!/)|`[^`]*`)*?\\*/"

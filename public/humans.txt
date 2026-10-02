@@ -1,0 +1,44 @@
+/* team */
+Name: fiona
+Contact: mail@fiona.sm
+Site: https://fiona.sm
+Key: Ed25519, held on a YubiKey
+Fingerprint: see /fiona.asc, and the signature of /.well-known/security.txt
+
+/* canary */
+this site includes a pgp key canary at /canary. the live document is the
+clearsigned statement at /canary.asc, not that page and not its rendered
+HTML. verify it against the public key at /fiona.asc, and compare that
+fingerprint against a source that is not this site — on a keyring that has
+not certified this key, a good signature
+reported alongside a warning that the key is not certified with a trusted
+signature is the expected result, because only that fingerprint comparison can
+tie the key to a person. if the signature fails or the fingerprint differs,
+treat the page as tampered with. if no new statement appears by the renew-by
+date, the old statement no longer speaks for today and nothing published here
+should be relied on as current — though a missed renewal alone is not proof that
+the key is compromised, because travel, illness, or a lost card will do it.
+statements are signed by hand with a physical key; there is no automation and no
+second operator. silence is the signal: do not read it as an oversight, and do
+not go on trusting a stale statement.
+
+Disclosure policy: /security-policy.txt
+Signed contact: /.well-known/security.txt
+Machine-readable: /llms.txt
+Web Key Directory: gpg --locate-keys mail@fiona.sm
+
+/* site */
+Standards: HTML5, openpgp, RFC 9116
+Language: English
+Doctype: HTML5
+Components: Next.js, shadcn/ui, Bun
+Type: Courier Prime, JetBrains Mono, self-hosted
+Colour: see app/globals.css
+Host: Vercel
+Analytics: first-party only, no third-party hosts
+
+/* note */
+this file is hand-written and nothing signs or tests it, so it deliberately
+repeats no fingerprint and no date. both would drift here without anything
+catching it. take those from the signed files instead: /canary.asc and
+/.well-known/security.txt.

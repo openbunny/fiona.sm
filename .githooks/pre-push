@@ -1,0 +1,11 @@
+#!/bin/sh
+# Opt in with: git config core.hooksPath .githooks
+
+# git invokes a pre-push hook as an executable, not a config key, so this has
+# no non-script form.
+
+# The complete local gate is `just check`; unlike the monorepo this repo
+# was extracted from, there is only one tree here, so it always runs.
+set -eu
+
+just check

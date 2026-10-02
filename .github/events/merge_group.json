@@ -1,0 +1,13 @@
+{
+  "action": "checks_requested",
+  "merge_group": {
+    "head_ref": "refs/heads/gh-readonly-queue/main/pr-1-0000000000000000000000000000000000000f",
+    "base_ref": "refs/heads/main",
+    "head_sha": "0000000000000000000000000000000000000f"
+  },
+  "repository": {
+    "name": "fiona.sm",
+    "full_name": "OA/fiona.sm",
+    "default_branch": "main"
+  }
+}

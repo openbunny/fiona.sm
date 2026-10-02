@@ -1,0 +1,722 @@
+# Carried over verbatim from the finance monorepo this rule set was
+# authored for. Every citation of VOICE.md and docs/CODING-STANDARD.md below,
+# including inside a rule's own `message:`, points at those two files in
+# that source repository; neither exists in this checkout. Resolve a
+# citation here against this repo's own AGENTS.md instead.
+#
+# docs/CODING-STANDARD.md's comment rule -- default to none, with the keep
+# list VOICE.md and AGENTS.md state (provenance link, clap --help doc, a
+# doctest, a licence/SPDX header; in TypeScript a tool-read directive or
+# published-package JSDoc; in Swift a line-scoped `swiftlint:disable`
+# carrying its reason). Runs tree-wide (`just comments`), same as
+# .semgrep.yml.
+#
+# An individual site opts out with `// nosemgrep: <rule-id> -- <reason>`,
+# the same convention .semgrep.yml uses.
+#
+# `.proto` gets `languages: [generic]` with `paths.include` scoped to
+# `/proto/**/*.proto`, the same posture .semgrep.yml's
+# `proto-money-field-uses-float` uses -- semgrep has no first-class proto
+# language. Its keep list is its own rendering exception, the same way
+# Rust's (clap derive, doctest fence) and TypeScript's (cspell/vitest/eslint
+# directives) are each specific to that language's tooling. Objective-C gets
+# the same generic-language treatment, scoped to `extensions/*/**/*.{h,m}`:
+# semgrep has no Objective-C parser either, and the keep list there is just
+# provenance and a licence header -- no lint tool's suppression directive is
+# configured for it in this tree.
+#
+# A `finance#NNNN` citation is not a keep: the source repository is gone,
+# so the citation resolves nowhere (#1211). A citation nothing can follow is
+# not provenance.
+#
+# `proto-comment-not-kept` carries a second keep the other rules do not: a
+# block stating a unit, sign convention, precision or absence rule. AGENTS.md
+# requires every numeric field to state its unit, precision and sign
+# convention on the wire; Rust and TypeScript carry that in a type plus a
+# test, so their prose keep list stays narrow, but protobuf's own type system
+# cannot express "this string is an annualized fraction, never negative" and
+# no test reads a `.proto` file, so this comment is the only place that fact
+# is recorded at all.
+#
+# The keep does not extend to a backtick-quoted symbol or an `e.g.`. Both
+# were tried, and both exempt a plain restatement that states nothing the
+# field does not -- nearly every wire comment names a field in backticks
+# (#1234).
+#
+# Two narrow additions past that measurement (#1234), each verified to
+# match only the finding it was added for:
+#   - `UNIT_[A-Z]+` -- a `Unit` enum value's own name (`UNIT_RATIO`,
+#     `UNIT_COUNT`): this enum IS the wire's unit vocabulary, so a comment on
+#     one of its values is a unit definition by construction. Does not match
+#     `OPEN_INTEREST_UNIT_BASE`/`OPEN_INTEREST_UNIT_NOTIONAL` -- glued to a
+#     preceding word by underscore, so `\b` never lands before `UNIT`.
+#   - `always set` -- a field's own presence guarantee (never absent). Two
+#     `field_descriptors` comments state this and nothing else nearby; every
+#     other "always set" in this tree already sits beside `never`.
+#
+# A bare `zero` was tried as a third and dropped: it passes any restatement
+# that happens to mention zero. The one comment needing it said "venues with
+# zero this scan are omitted", which is an absence-not-zero statement written
+# without the word -- rewording it to say `absent` states the rule more
+# plainly and needs no alternative.
+#
+# Python's own keep list (#1266) is narrower than every other language's:
+# docs/CODING-STANDARD.md's Python section states its exceptions are "No
+# docstrings or comments. The single exception is a `typer` command
+# docstring" -- no provenance link, unlike VOICE.md's baseline exception for
+# every other language, because that section is narrower than VOICE.md and
+# docs/CODING-STANDARD.md's own precedence rule says the narrower one wins.
+# The keep list here adds two things that rule does not name but which
+# another rule requires: a licence/SPDX header (the same rendering exception
+# every other language gets), and the no-tool-replaces-this-script
+# justification line `docs/CODING-STANDARD.md`'s script rule demands (#1264)
+# -- without it, `comments` and `houserules` would each require what the
+# other forbids.
+#
+# `pattern-regex` is raw text, blind to Python's own string/comment
+# distinction (proven against this tree: `#21` inside a docstring's prose,
+# preceded by a space, reads exactly like a comment opener to the regex).
+# `#\d` excludes an issue citation for the same reason the other languages'
+# rules exclude a URL -- a real comment kept here never opens with a bare
+# digit.
+#
+# HTML, Dockerfile, dotenv-example and JSONC carried no rule: an HTML comment
+# in options/popup/signature, a `#` line in a Dockerfile, a `#` line in
+# `.env.example` and a `//` line in a `.jsonc` all passed every gate. Each
+# gets the keep its own tooling earns and nothing else -- an HTML
+# `cspell:ignore` line a spell gate reads, a Dockerfile `# syntax=`
+# directive the builder reads, a disabled `"KEY": false` rule's own reason
+# block -- and `.env.example` gets none at all, since
+# finance/docs/data-platform.md ## Secrets already states the
+# loopback-defaults rule every one of those comments restated.
+# `.github/PULL_REQUEST_TEMPLATE.md` is excluded outright: a form's
+# instructional comments are its function, not its annotation.
+#
+# `*.json5` is not covered. The repository carries no JSON5 file: the Renovate
+# config is `renovate.json`, whose pin reasons live in `description` fields
+# that JSON holds natively rather than in comments a keep list would have to
+# judge.
+
+rules:
+  - id: rust-doc-comment-not-kept
+    languages: [rust]
+    severity: ERROR
+    message: >-
+      /// or #[doc = "..."] comment outside the keep list: carries no link to
+      an outside authority, is not on a clap derive item, and has no doctest
+      fence. Cut it, or add what the keep list requires.
+    # #1278: #[doc = "..."] and #[doc = concat!(...)] are rustdoc's attribute
+    # form of exactly the same /// construct -- they render identically in
+    # generated docs and on hover -- so the same block-plus-next-line shape is
+    # matched for both, sharing the keep list below. #1288 adds a third
+    # alternative for a `#[doc = "..."]` whose string spans source lines via
+    # `\`-newline continuation: the first alternative's `[^\n]*` requires the
+    # closing `]` on the attribute's own line and cannot see past a real
+    # newline inside the string.
+    paths:
+      exclude:
+        - "**/gen/**"
+    patterns:
+      - pattern-either:
+          - pattern-regex: '(?:^[ \t]*///[^\n]*\n)+[ \t]*[^\n]*\n'
+          - pattern-regex: '(?:^[ \t]*#\[doc\s*=\s*[^\n]*\][ \t]*\n)+[ \t]*[^\n]*\n'
+          - pattern-regex: '^[ \t]*#\[doc\s*=\s*"(?:[^"\\]|\\.|\\\r?\n)*"\s*\][ \t]*\n[ \t]*[^\n]*\n'
+      - pattern-not-regex: "https?://"
+      - pattern-not-regex: '#\[(?:derive\([^\n]*(?:Parser|Args|Subcommand)|arg\(|command\()'
+      - pattern-not-regex: "```"
+      - pattern-not-regex: "(?i)SPDX-License-Identifier|Copyright"
+
+  - id: rust-comment-not-kept
+    languages: [rust]
+    severity: ERROR
+    message: >-
+      // or //! comment outside the keep list. A licence header, a
+      module-level //! carrying only a link to an outside authority (the
+      provenance exception -- //! is the only legal syntax for a module doc,
+      so /// cannot carry this case), or a //! doctest fence, are the sole
+      keeps; a reason belongs on the issue, not the line. #1288: `#![doc =
+      "..."]` is the attribute spelling of the same module doc and shares
+      this rule's keep list rather than rust-doc-comment-not-kept's, which
+      only ever meant the item-level `///`/`#[doc = ...]` forms.
+    paths:
+      exclude:
+        - "**/gen/**"
+    patterns:
+      - pattern-either:
+          - pattern-regex: '(?:^|[ \t])//(?!/|!)[^\n]*$'
+          - pattern-regex: '(?:^[ \t]*//!.*\n)+[ \t]*[^\n]*\n'
+          - pattern-regex: '(?:^[ \t]*#!\[doc\s*=\s*[^\n]*\][ \t]*\n)+[ \t]*[^\n]*\n'
+      - pattern-not-regex: "(?i)SPDX-License-Identifier|Copyright"
+      - pattern-not-regex: "```"
+      - pattern-not-regex: '^[ \t]*//!\s*<https?://\S+>[ \t]*$'
+      - pattern-not-regex: '^[ \t]*#!\[doc\s*=\s*"[^\n]*https?://[^\n]*"\s*\][ \t]*$'
+
+  - id: rust-block-comment-not-kept
+    languages: [rust]
+    severity: ERROR
+    message: >-
+      /* */ block comment outside the keep list. Not on the keep list at
+      any size; delete it or move the reason to the issue.
+    paths:
+      exclude:
+        - "**/gen/**"
+    patterns:
+      # A bare `/\*...\*/` also matches a `/*` glob token inside an ordinary
+      # string (`"…/*"`) closed by an unrelated later `*/` substring
+      # (`"*://*/*"`), engulfing real code as a phantom comment. A real
+      # opener is never glued to an identifier or another slash right
+      # before it, and is never immediately followed by a quote closing the
+      # string it sat inside.
+      - pattern-regex: '(?:^|[^A-Za-z0-9_/])/\*(?!["''`])[\s\S]*?\*/'
+      - pattern-not-regex: "(?i)SPDX-License-Identifier|Copyright"
+      # A Debug/Display impl that annotates a raw wire value with its decoded
+      # form (`/* {t} */` in the format string, `/* 77858.3000 */` in the
+      # value it renders) matches the same shape as a bare block comment;
+      # neither case can be told from a real comment by regex alone (#1222).
+      - pattern-not-regex: '/\*\s*(\{[^{}]*\}|-?\d+(?:\.\d+)?)\s*\*/'
+
+  - id: ts-comment-not-kept
+    languages: [typescript]
+    severity: ERROR
+    message: >-
+      Comment outside the keep list. TypeScript keeps only a directive a
+      tool reads (cspell:ignore, @vitest-environment, eslint-disable/-enable)
+      and JSDoc on a genuinely published package's public API -- neither
+      applies here on the evidence in the comment itself.
+    paths:
+      exclude:
+        - "**/gen/**"
+    patterns:
+      - pattern-regex: '(?:^|[ \t])//(?!/)[^\n]*$'
+      - pattern-not-regex: "(?i)cspell:ignore|@vitest-environment|eslint-disable|eslint-enable|SPDX-License-Identifier|Copyright"
+
+  - id: ts-block-comment-not-kept
+    languages: [typescript]
+    severity: ERROR
+    message: >-
+      /* */ or /** */ block comment outside the keep list -- see
+      ts-comment-not-kept.
+    paths:
+      exclude:
+        - "**/gen/**"
+    patterns:
+      # See rust-block-comment-not-kept: a bare `/\*...\*/` also spans an
+      # ordinary string glob like `"…/*"` through an unrelated later `*/`
+      # substring such as `"*://*/*"`, so a real opener must not be glued to
+      # an identifier or slash right before it, or a quote right after it.
+      - pattern-regex: '(?:^|[^A-Za-z0-9_/])/\*(?!["''`])[\s\S]*?\*/'
+      - pattern-not-regex: "(?i)cspell:ignore|@vitest-environment|eslint-disable|eslint-enable|SPDX-License-Identifier|Copyright"
+
+  - id: proto-comment-not-kept
+    languages: [generic]
+    severity: ERROR
+    message: >-
+      Comment block outside the keep list: no link to an outside authority,
+      no licence/SPDX header. Cut it, or add what the keep list requires.
+    # Block-matched like rust-doc-comment-not-kept, not per line like
+    # rust-comment-not-kept: a `.proto` field comment is prose describing one
+    # invariant, and its citation sits on one line of the paragraph, not
+    # every line -- a per-line check would fail 1,255 of 1,377 comment lines
+    # on citation placement alone, not on missing content.
+    paths:
+      include:
+        - "/proto/**/*.proto"
+    patterns:
+      - pattern-regex: '(?:^[ \t]*//[^\n]*\n)+[ \t]*[^\n]*\n'
+      - pattern-not-regex: "https?://"
+      - pattern-not-regex: "(?i)SPDX-License-Identifier|Copyright"
+      - pattern-not-regex: '(?i)\babsen(t|ce)\b|\bnever\b|\bhazard\b|annualiz|\bprecision\b|sign convention|denominat|unix_ms|\bfraction\b|\bunit\b|\bquantity\b|\bnotional\b|\bpositive\b|\bnegative\b|UNIT_[A-Z]+|always set'
+
+  - id: swift-doc-comment-not-kept
+    languages: [swift]
+    severity: ERROR
+    message: >-
+      /// doc comment outside the keep list: carries no link to an outside
+      authority and no licence/SPDX header. docs/CODING-STANDARD.md's Swift
+      rules forbid documentation comments outright; cut it, or add what the
+      keep list requires.
+    patterns:
+      - pattern-regex: '(?:^[ \t]*///[^\n]*\n)+[ \t]*[^\n]*\n'
+      - pattern-not-regex: "https?://"
+      - pattern-not-regex: "(?i)SPDX-License-Identifier|Copyright"
+
+  - id: swift-comment-not-kept
+    languages: [swift]
+    severity: ERROR
+    message: >-
+      // comment outside the keep list. A licence header, or a
+      line-scoped `swiftlint:disable:next`/`:previous`/`:this` carrying its
+      reason after a dash, are the sole keeps; a reason with no suppression
+      belongs on the issue, not the line.
+    patterns:
+      - pattern-regex: '(?:^|[ \t])//(?!/)[^\n]*$'
+      - pattern-not-regex: "(?i)SPDX-License-Identifier|Copyright"
+      - pattern-not-regex: '(?i)swiftlint:disable:(?:next|previous|this)\b[^\n]*[-\x{2013}\x{2014}]\s*\S'
+
+  - id: swift-block-comment-not-kept
+    languages: [swift]
+    severity: ERROR
+    message: >-
+      /* */ or /** */ block comment outside the keep list. Not on the keep
+      list at any size; delete it or move the reason to the issue.
+    patterns:
+      # Same phantom-comment guard as rust-block-comment-not-kept: a bare
+      # `/\*...\*/` also spans an ordinary string glob like `"…/*"` through
+      # an unrelated later `*/` substring, so a real opener must not be
+      # glued to an identifier or slash right before it, or a quote right
+      # after it.
+      - pattern-regex: '(?:^|[^A-Za-z0-9_/])/\*(?!["''`])[\s\S]*?\*/'
+      - pattern-not-regex: "(?i)SPDX-License-Identifier|Copyright"
+
+  - id: objc-comment-not-kept
+    languages: [generic]
+    severity: ERROR
+    message: >-
+      Comment block outside the keep list: no link to an outside authority,
+      no licence/SPDX header. Cut it, or add what the keep list requires.
+    # `languages: [generic]` because semgrep has no Objective-C parser, the
+    # same posture as proto-comment-not-kept above. Block-matched like
+    # rust-doc-comment-not-kept: no suppression-directive keep exists here,
+    # since no Objective-C lint tool is configured in this tree.
+    paths:
+      include:
+        - "/extensions/*/**/*.h"
+        - "/extensions/*/**/*.m"
+    patterns:
+      - pattern-regex: '(?:^[ \t]*//[^\n]*\n)+[ \t]*[^\n]*\n'
+      - pattern-not-regex: "https?://"
+      - pattern-not-regex: "(?i)SPDX-License-Identifier|Copyright"
+
+  - id: objc-block-comment-not-kept
+    languages: [generic]
+    severity: ERROR
+    message: >-
+      /* */ or /** */ block comment outside the keep list. Not on the keep
+      list at any size; delete it or move the reason to the issue.
+    paths:
+      include:
+        - "/extensions/*/**/*.h"
+        - "/extensions/*/**/*.m"
+    patterns:
+      - pattern-regex: '(?:^|[^A-Za-z0-9_/])/\*(?!["''`])[\s\S]*?\*/'
+      - pattern-not-regex: "(?i)SPDX-License-Identifier|Copyright"
+
+  - id: hcl-comment-not-kept
+    languages: [generic]
+    severity: ERROR
+    message: >-
+      HCL comment outside the provenance and licence keep list. Express the
+      rule in configuration or link the provider behaviour that requires it.
+    paths:
+      include:
+        - "/github-org/**/*.tf"
+    patterns:
+      - pattern-regex: '(?m)^[ \t]*(?:#|//)[^\n]*$'
+      - pattern-not-regex: "https?://"
+      - pattern-not-regex: "(?i)SPDX-License-Identifier|Copyright"
+
+  - id: typst-comment-not-kept
+    languages: [generic]
+    severity: ERROR
+    message: >-
+      Typst comment outside the provenance and licence keep list. Use a name
+      or cite the external authority.
+    paths:
+      include:
+        - "/research/**/*.typ"
+    patterns:
+      - pattern-regex: '(?m)^[ \t]*//[^\n]*$'
+      - pattern-not-regex: "https?://"
+      - pattern-not-regex: "(?i)SPDX-License-Identifier|Copyright"
+
+  - id: python-comment-not-kept
+    languages: [python]
+    severity: ERROR
+    message: >-
+      # comment outside the keep list: no licence/SPDX header, no
+      noqa/nosemgrep directive with a reason, and no no-tool-replaces-this
+      justification. docs/CODING-STANDARD.md's Python rules forbid comments
+      outright past that. Cut it, or add what the keep list requires.
+    # #1279: Python needs no whitespace before `#` -- `x*8#comment` opens a
+    # comment exactly as `x*8 #comment` does -- so a bare `[ \t]`-or-line-start
+    # guard missed one glued directly to code. Widened to also fire right
+    # after a word character (letter/digit/underscore), a closing bracket or
+    # `,`/`;`/`:` (#1289: measured zero sites tree-wide either way, so this
+    # is a zero-risk widening), the shapes of code ending, without also firing
+    # right after a quote: every non-whitespace-preceded `#` measured on this
+    # tree today opens a string's own content (a docstring's `#21`, or a
+    # regex/format string spelling Rust's `#[derive(...)]`/`#[serde(...)]`
+    # attribute syntax as data), and every one of those sits right after the
+    # string's *opening* quote.
+    #
+    # #1289: a `#` glued to a *closing* quote (`"v"#comment`) is a real
+    # comment, and distinguishable from the opening-quote case above by quote
+    # parity -- counting `"` (or `'`) characters from line start, an opening
+    # quote is always the odd-numbered one and a closing quote the even-numbered
+    # one. The two extra alternatives below require an even total before the
+    # matched quote: `^[^"]*"(?:[^"]*"[^"]*")*[^"]*"#` reads as one quote (the
+    # 1st, odd), zero or more complete pairs (each adds 2, staying odd), then a
+    # run of non-quote text and a final quote (the total's odd 1 plus one more
+    # closing quote = even) landing right on `#`. Escaped and triple-quoted
+    # strings are not parsed -- an escaped same-type quote or an embedded quote
+    # inside a triple-quoted string shifts the parity this counts, a narrower
+    # instance of the same "regex is blind to Python's string/comment
+    # distinction" limit this file's header already states.
+    patterns:
+      - pattern-either:
+          - pattern-regex: '(?:^|[ \t\w)\]},;:])#(?!!)[^\n]*$'
+          - pattern-regex: '^[^"\n]*"(?:[^"\n]*"[^"\n]*")*[^"\n]*"#(?!!)[^\n]*$'
+          - pattern-regex: "^[^'\\n]*'(?:[^'\\n]*'[^'\\n]*')*[^'\\n]*'#(?!!)[^\\n]*$"
+      - pattern-not-regex: "(?i)SPDX-License-Identifier|Copyright"
+      - pattern-not-regex: "(?i)\\bno tool\\b"
+      - pattern-not-regex: "(?i)(?:noqa|nosemgrep)\\b.*[-\u2013\u2014]\\s*\\S"
+      - pattern-not-regex: "#\\d"
+
+  - id: python-docstring-not-kept
+    languages: [python]
+    severity: ERROR
+    message: >-
+      Function/class docstring outside the keep list. docs/CODING-STANDARD.md
+      forbids Python docstrings outright, except a typer command docstring
+      rendered as --help text. Cut it, or add what the keep list requires.
+    # An AST `pattern:` combining a string metavariable with a trailing `...`
+    # (tried first) does not anchor to the first body statement: on this
+    # tree's own `verify_tokens.py`/`verify_probe.py` files it matched a
+    # `subprocess.run([...])` call's own string arguments, several statements
+    # and a nesting level away from the def line, and fired on every
+    # function with a plain-string argument anywhere in its body. Matched as
+    # raw text instead, anchored to a def/class header line immediately
+    # followed by a quoted string, with the optional decorator line folded
+    # into the same match so the typer keep below can see it.
+    patterns:
+      - pattern-regex: '(?m)^([ \t]*@[^\n]*\n)?[ \t]*(?:async[ \t]+def|def|class)[ \t]+\w[^\n]*:[ \t]*\n[ \t]*("""[\s\S]*?"""|''''''[\s\S]*?''''''|"[^"\n]*"|''[^''\n]*'')'
+      - pattern-not-regex: "(?i)SPDX-License-Identifier|Copyright"
+      - pattern-not-regex: '@\w[\w.]*\.command\b'
+
+  - id: python-module-docstring-not-kept
+    languages: [python]
+    severity: ERROR
+    message: >-
+      Module docstring outside the keep list. A typer command's docstring
+      renders as --help text; a module has no such reader, so Python's only
+      exception does not reach here. Cut it, or add what the keep list
+      requires.
+    patterns:
+      - pattern-regex: "\\A(?:#[^\\n]*\\n)*[ \\t]*\"\"\"[\\s\\S]*?\"\"\""
+      - pattern-not-regex: "(?i)SPDX-License-Identifier|Copyright"
+
+  # TOML, YAML, SQL, CSS, shell and the two justfiles carried no rule at all
+  # (#1352): the largest was TOML at 106 tracked files, and a comment written
+  # into the root Cargo.toml would have passed every gate. None of these
+  # languages gets a CODING-STANDARD.md section narrowing VOICE.md's baseline
+  # the way Rust/TypeScript/Swift/Python do, so "provenance, doctest or
+  # tool-render" is the wrong keep list here -- that model exists because
+  # those four languages have an alternative (a test, a --help render) that
+  # these do not. The keep list below is VOICE.md's own general rule, made
+  # mechanical the only way a regex can: `docs/VOICE.md`'s "Hazard comment: 3
+  # lines. It has earned them; nothing else has." is a literal ceiling, not a
+  # Rust-specific one, so a comment block longer than 3 lines is cut on
+  # sight, and one at or under it keeps by default the same way this file's
+  # own Rust/TS rules already accept a compliant hazard without asking what
+  # it argues. This does not catch a 3-line restatement or a 1-line
+  # narrated incident -- the same blind spot `proto-comment-not-kept`'s own
+  # keyword list already accepts above -- so a reviewer still reads the
+  # survivors. Measured against the tree (#1352): 47 TOML blocks over the
+  # line, 15 YAML (3 of them `.semgrep*.yml`'s own header, excluded below),
+  # 2 CSS, 6 shell, 0 SQL; all trimmed to fit rather than cut outright,
+  # since every one measured was a real invariant, not a restatement.
+  #
+  # `.semgrep.yml`/`.semgrep-comments.yml`/`.semgrep-voice.yml` are excluded
+  # from `yaml-comment-not-kept`: their headers are the design record for
+  # their own keep lists (this file's own header above is the same shape,
+  # narrowing and citing a measurement each time a pattern was added), the
+  # YAML equivalent of the ADR VOICE.md's documentation exemption already
+  # names, not a comment restating a line beneath it. Neither
+  # `yaml-comment-not-kept` nor `mjs-comment-not-kept` excludes
+  # `extensions/`: both extensions carry no finding in either (#1353,
+  # #1367).
+  #
+  # `mjs-comment-not-kept` does not use the 3-line-hazard model: `.mjs` is
+  # JavaScript, which CODING-STANDARD.md's TypeScript section already
+  # narrows the same way Rust's is narrowed, and semgrep's `typescript`
+  # language does not match a `.mjs` extension (verified: a `.mjs` file adds
+  # zero to `Targets scanned` under `languages: [typescript]`), so this
+  # mirrors `ts-comment-not-kept`'s keep list verbatim under `languages:
+  # [javascript]` rather than inventing a second standard for one extension.
+  # Scoped to `**/*.mjs` explicitly -- `languages: [javascript]` alone also
+  # claims a bare `.js`/`.jsx`/`.cjs` (none tracked here today) but never a
+  # `.ts`/`.tsx`, which stay `ts-comment-not-kept`'s alone. Its block-comment
+  # arm needed one more guard past `rust-block-comment-not-kept`'s: a glob
+  # literal like `"finance/**"` or `"**/.claude/**"` spells `/**`/`**/` right
+  # next to a real comment's own `/**`/`*/`, and the existing phantom-comment
+  # guard (glued identifier or slash before the opener, a quote right after
+  # it) cannot see the quotes around the glob that make it a string, not a
+  # comment -- proven against this tree's own `eslint.config.mjs`, which
+  # phantom-matched from a `${dir}/**` template literal through to an
+  # unrelated `**/.claude/**` glob thirteen lines later. A real comment in
+  # this tree never carries a bare `"`, so requiring the match contain none
+  # discards the phantom without narrowing what a real comment may say.
+  #
+  # SQL is `--` and `/* */`, matched the same two ways as Rust's line and
+  # block forms; a sqlx migration here carries no `-- name:`-style directive
+  # for the tool to read (verified: no migration has one), so that keep
+  # named in the brief is not added -- a keep with nothing behind it is the
+  # same defect `.gitleaks.toml`'s history already warns against for a
+  # citation nothing can follow.
+  #
+  # `finance/crates/gateway/migrations/**` is excluded from this rule
+  # entirely, not merely given a keep. sqlx checksums a migration file's raw
+  # bytes the first time it runs and stores the checksum in the target
+  # database's `_sqlx_migrations` row, refusing to start when the bytes on
+  # disk later differ from that row (verified live against
+  # `finance-postgres-1`: every one of its 24 applied migrations' SHA-384
+  # equals its stored checksum, 0 mismatches). Trimming a comment from an
+  # already-applied file is therefore not a style change but the same
+  # `VersionMismatch` a91f6ce5 caused and 1c5a4d9b reverted -- it bricks the
+  # gateway against any database that already ran the file. A path-based
+  # exclude cannot see which migrations are applied: "applied" is a fact
+  # about a database's `_sqlx_migrations` table, not about a file or its
+  # path, so this exclude also silences the rule for a new, not-yet-applied
+  # migration -- its comments are a reviewer's job until #1379's offline
+  # gate (sqlx's own migration metadata, no live database needed) lands and
+  # can tell the two cases apart. CSS is `/* */` only, matched like Rust's
+  # block form. Shell adds the two directives this tree already uses:
+  # `shellcheck disable=<code> # <reason>` (verified live in
+  # finance/scripts/*.sh) and the bare `no tool` phrase CODING-STANDARD.md's
+  # script rule demands and `python-comment-not-kept` already keeps for the
+  # same reason. Shell's block pattern needed the same phantom guard
+  # `python-comment-not-kept`'s own header describes for a different
+  # reason: `finance/scripts/verify-flatten-numeric-seam.sh` heredocs literal
+  # Rust source into a fixture, and `#[derive(...)]`/`#[serde(...)]` read as
+  # a `#`-comment to a regex blind to the heredoc's own quoting; a real
+  # shell comment in this tree is never glued straight to `[` with no space,
+  # so that shape is excluded rather than the heredoc's contents.
+  #
+  # The two justfiles are neither an extension semgrep detects nor a
+  # filename with existing convention, so both get `languages: [generic]`
+  # with `paths.include` naming them exactly, the same posture as HCL/Typst
+  # above. A justfile recipe's own leading comment is a documented special
+  # case (the brief, and confirmed live: `just --list` prints only the
+  # single comment line immediately adjacent to a recipe, dropping every
+  # earlier line of a multi-line block silently -- verified with a scratch
+  # justfile before touching either real one). That single line is program
+  # output, the same standing `clap`'s `///` or `typer`'s docstring already
+  # have, so it is the whole keep beyond licence/nosemgrep: no hazard
+  # allowance, because a justfile recipe's own body is shell already covered
+  # by `sh-comment-not-kept`'s reasoning once it carries a `#!` line, and
+  # `docs/CODING-STANDARD.md`'s "a custom script should not exist" already
+  # holds the bar for what survives inside one. Matched by pairing each
+  # comment line with the line immediately below it and requiring that
+  # second line look like a recipe signature (`name`, optionally
+  # parameters, then `:`) -- with a `(?!=)` after that colon, since
+  # `name := value` is a justfile variable, not a recipe, and without the
+  # exclusion a variable's own trailing comment line reads as kept. Applied
+  # this way, a block's every line but its last is paired with another
+  # comment line and fails the recipe-shape check on sight; only the last
+  # line pairs with the recipe itself. Verified against both files: `just
+  # --list` prints byte-identical output before and after every cut (#1352).
+
+  - id: toml-comment-not-kept
+    languages: [generic]
+    severity: ERROR
+    message: >-
+      Comment block outside the keep list: longer than VOICE.md's 3-line
+      hazard ceiling, with no licence/SPDX header and no nosemgrep/noqa
+      directive carrying its reason. Trim it to fit, cite an issue or doc, or
+      cut it.
+    paths:
+      include:
+        - "**/*.toml"
+      exclude:
+        - "/supply-chain/**"
+    patterns:
+      - pattern-regex: '(?:^[ \t]*#(?!!)[^\n]*\n){4,}'
+      - pattern-not-regex: "(?i)SPDX-License-Identifier|Copyright"
+      - pattern-not-regex: "(?i)(?:noqa|nosemgrep)\\b.*[-–—]\\s*\\S"
+      - pattern-not-regex: "(?i)cspell:ignore"
+
+  - id: yaml-comment-not-kept
+    languages: [yaml]
+    severity: ERROR
+    message: >-
+      Comment block outside the keep list: longer than VOICE.md's 3-line
+      hazard ceiling, with no licence/SPDX header and no nosemgrep/noqa
+      directive carrying its reason. Trim it to fit, cite an issue or doc, or
+      cut it.
+    paths:
+      exclude:
+        - "/.semgrep.yml"
+        - "/.semgrep-comments.yml"
+        - "/.semgrep-comments-strict.yml"
+        - "/.semgrep-voice.yml"
+    patterns:
+      - pattern-regex: '(?:^[ \t]*#(?!!)[^\n]*\n){4,}'
+      - pattern-not-regex: "(?i)SPDX-License-Identifier|Copyright"
+      - pattern-not-regex: "(?i)(?:noqa|nosemgrep)\\b.*[-–—]\\s*\\S"
+
+  - id: sql-comment-not-kept
+    languages: [generic]
+    severity: ERROR
+    message: >-
+      SQL comment outside the keep list: longer than VOICE.md's 3-line
+      hazard ceiling, with no licence/SPDX header. Trim it to fit, cite an
+      issue or doc, or cut it.
+    # reason: an applied sqlx migration's bytes are checksummed into
+    # _sqlx_migrations and the gateway refuses to start on a mismatch (see
+    # this file's header, above); a migration file's comment cannot be
+    # trimmed without risking that checksum, so this rule does not apply
+    # inside finance/crates/gateway/migrations/ at all (#1379).
+    paths:
+      include:
+        - "**/*.sql"
+      exclude:
+        - "/finance/crates/gateway/migrations/**"
+    patterns:
+      - pattern-either:
+          - pattern-regex: '(?:^[ \t]*--[^\n]*\n){4,}'
+          - pattern-regex: '(?:^|[^A-Za-z0-9_/])/\*(?!["''`])(?:[^*]|\*(?!/))*(?:\n(?:[^*]|\*(?!/))*){3,}\*/'
+      - pattern-not-regex: "(?i)SPDX-License-Identifier|Copyright"
+
+  - id: css-block-comment-not-kept
+    languages: [generic]
+    severity: ERROR
+    message: >-
+      /* */ comment outside the keep list: longer than VOICE.md's 3-line
+      hazard ceiling, with no licence/SPDX header. Trim it to fit, cite an
+      issue or doc, or cut it.
+    paths:
+      include:
+        - "**/*.css"
+    patterns:
+      - pattern-regex: '(?:^|[^A-Za-z0-9_/])/\*(?!["''`])(?:[^*]|\*(?!/))*(?:\n(?:[^*]|\*(?!/))*){3,}\*/'
+      - pattern-not-regex: "(?i)SPDX-License-Identifier|Copyright"
+
+  - id: sh-comment-not-kept
+    languages: [bash]
+    severity: ERROR
+    message: >-
+      # comment outside the keep list: longer than VOICE.md's 3-line hazard
+      ceiling, with no licence/SPDX header, no shellcheck directive, and no
+      no-tool-replaces-this-script justification. Trim it to fit, cite an
+      issue or doc, or cut it.
+    patterns:
+      - pattern-regex: '(?:^[ \t]*#(?!!)[^\n]*\n){4,}'
+      - pattern-not-regex: "(?i)SPDX-License-Identifier|Copyright"
+      - pattern-not-regex: "(?i)(?:noqa|nosemgrep)\\b.*[-–—]\\s*\\S"
+      - pattern-not-regex: "shellcheck disable="
+      - pattern-not-regex: "(?i)\\bno tool\\b"
+      - pattern-not-regex: '(?m)^[ \t]*#\['
+
+  - id: mjs-comment-not-kept
+    languages: [javascript]
+    severity: ERROR
+    message: >-
+      Comment outside the keep list -- see ts-comment-not-kept. semgrep's
+      `typescript` language does not match `.mjs` by extension, so this
+      mirrors that rule's keep list under `javascript` instead.
+    paths:
+      include:
+        - "**/*.mjs"
+      exclude:
+        - "**/gen/**"
+    patterns:
+      - pattern-either:
+          - pattern-regex: '(?:^|[ \t])//(?!/)[^\n]*$'
+          - pattern-regex: '(?:^|[^A-Za-z0-9_/])/\*(?!["''`])[\s\S]*?\*/'
+      - pattern-not-regex: "(?i)cspell:ignore|@vitest-environment|eslint-disable|eslint-enable|SPDX-License-Identifier|Copyright"
+      - pattern-not-regex: '"'
+
+  - id: justfile-comment-not-kept
+    languages: [generic]
+    severity: ERROR
+    message: >-
+      # comment outside the keep list: not the single line `just --list`
+      renders as this recipe's description, no licence/SPDX header, and no
+      nosemgrep/noqa directive carrying its reason. Trim it to the one line
+      `just --list` shows, cite an issue or doc, or cut it.
+    paths:
+      include:
+        - "/justfile"
+        - "/finance/justfile"
+    patterns:
+      - pattern-regex: '(?m)^[ \t]*#(?!!)[^\n]*\n[ \t]*[^\n]*\n'
+      - pattern-not-regex: "(?i)SPDX-License-Identifier|Copyright"
+      - pattern-not-regex: "(?i)(?:noqa|nosemgrep)\\b.*[-–—]\\s*\\S"
+      - pattern-not-regex: '(?m)^[a-zA-Z_][a-zA-Z0-9_-]*(?:[ \t]+[^\n]*)?:(?!=)'
+
+  - id: html-comment-not-kept
+    languages: [generic]
+    severity: ERROR
+    message: >-
+      <!-- --> comment outside the keep list: no link to an outside
+      authority, no licence/SPDX header, and no cspell-scope line a spell
+      gate reads. Cut it, or add what the keep list requires.
+    # `.github/PULL_REQUEST_TEMPLATE.md` is excluded, not kept: a form's
+    # instructional comments are its function, and no keep list reaches them.
+    # Scoped narrow to `**/*.html` -- an HTML comment inside Markdown stays
+    # outside this rule entirely.
+    paths:
+      include:
+        - "**/*.html"
+      exclude:
+        - "/.github/PULL_REQUEST_TEMPLATE.md"
+    patterns:
+      - pattern-regex: '<!--[\s\S]*?-->'
+      - pattern-not-regex: "https?://"
+      - pattern-not-regex: "(?i)SPDX-License-Identifier|Copyright"
+      - pattern-not-regex: "(?i)cspell:ignore"
+
+  - id: dockerfile-comment-not-kept
+    languages: [generic]
+    severity: ERROR
+    message: >-
+      # comment outside the keep list: not the `# syntax=` directive the
+      builder reads, no link to an outside authority, and no licence/SPDX
+      header. Cut it, or move the hazard to the doc that owns it.
+    # Per-line like sh, not block-matched: the only multi-line keep would be
+    # a hazard block, and a Dockerfile hazard belongs in
+    # finance/docs/data-platform.md, never in the build file.
+    paths:
+      include:
+        - "**/Dockerfile"
+    patterns:
+      - pattern-regex: '(?m)^[ \t]*#(?!!)[^\n]*$'
+      - pattern-not-regex: "(?i)SPDX-License-Identifier|Copyright"
+      - pattern-not-regex: "https?://"
+      - pattern-not-regex: '(?m)^[ \t]*#[ \t]*syntax='
+
+  - id: dotenv-comment-not-kept
+    languages: [generic]
+    severity: ERROR
+    message: >-
+      # comment in `.env.example` outside the keep list: there is no keep
+      list. finance/docs/data-platform.md ## Secrets already states the
+      loopback-defaults rule, so every comment here restates it. Cut it.
+    # No pattern-not-regex at all: no licence header, no directive and no
+    # provenance link is kept in this file.
+    paths:
+      include:
+        - "**/.env.example"
+    patterns:
+      - pattern-regex: '(?m)^[ \t]*#[^\n]*$'
+
+  - id: jsonc-comment-not-kept
+    languages: [generic]
+    severity: ERROR
+    message: >-
+      // comment outside the keep list: not the reason block immediately
+      preceding a boolean `"KEY": true|false` line, and no licence/SPDX header.
+      Cut it, or move the reason onto the key it justifies.
+    # Block-matched like proto: a key's reason is prose, and its `"KEY":`
+    # line sits below the paragraph, not on every line -- a per-line check
+    # would fail every reason line but the last on placement alone. The keep
+    # is boolean keys only: a choice with two states carries its reason
+    # beside it; anything else states a rule that belongs in a document.
+    # `*.json5` is not covered at all (see this file's header).
+    paths:
+      include:
+        - "**/*.jsonc"
+    patterns:
+      - pattern-regex: '(?:^[ \t]*//[^\n]*\n)+[ \t]*[^\n]*\n'
+      - pattern-not-regex: "(?i)SPDX-License-Identifier|Copyright"
+      - pattern-not-regex: '(?m)^[ \t]*"[^"\n]+"[ \t]*:[ \t]*(?:false|true)'

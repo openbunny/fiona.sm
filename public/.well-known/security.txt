@@ -1,0 +1,18 @@
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA512
+
+Contact: mailto:mail@fiona.sm
+Expires: 2026-12-29T23:59:59.000Z
+Encryption: https://fiona.sm/fiona.asc
+Encryption: openpgp4fpr:4820fa938ba2573de08e4fad45b4b5460d72a034
+Policy: https://fiona.sm/security-policy.txt
+Preferred-Languages: en
+Canonical: https://fiona.sm/.well-known/security.txt
+-----BEGIN PGP SIGNATURE-----
+
+iJEEARYKADkWIQRIIPqTi6JXPeCOT61FtLVGDXKgNAUCar1LXRsUgAAAAAAEAA5t
+YW51MiwyLjUrMS4xMiwwLDMACgkQRbS1Rg1yoDTHCAEA6fLPvCHsVojER+eXAlAp
+oGYJ0zsb8PoFWmoB2kmzYlYA+wY/joyQzpPcydK8D0h6Jx3+EgjWd2wfGiIunU+g
+lXsH
+=aPO9
+-----END PGP SIGNATURE-----

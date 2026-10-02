@@ -1,0 +1,10 @@
+# Not authored here.
+node_modules/
+.next/
+out/
+build/
+coverage/
+bun.lock
+
+# Emitted by `next build`; its comments are Next's, not ours.
+next-env.d.ts

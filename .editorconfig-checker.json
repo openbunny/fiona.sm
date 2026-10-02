@@ -1,0 +1,12 @@
+{
+  "//": [
+    "The openpgpkey hu/ files are binary key material served at a fixed path:",
+    "adding the final newline this checker wants corrupts the key.",
+    "MaxLineLength stays off because Prettier owns the line width and does not",
+    "agree with a single number set here."
+  ],
+  "Exclude": ["(^|/)public/\\.well-known/openpgpkey/hu/"],
+  "Disable": {
+    "MaxLineLength": true
+  }
+}

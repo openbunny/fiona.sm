@@ -1,0 +1,47 @@
+# nosemgrep: toml-comment-not-kept -- excluded bytes are not authored text: lockfiles are generated, and cspell.json's word list deliberately holds rejected spellings and WKD hash fragments.
+
+# `cspell.json` (bun run cspell) also covers this tree, deliberately
+# overlapping: typos matches known misspelling patterns, cspell rejects any
+# word absent from its dictionary -- check which gate flags a coined word.
+
+[files]
+extend-exclude = [
+  "bun.lock",
+  "mise.lock",
+  "cspell.json",
+  "node_modules/",
+  ".next/",
+  "coverage/",
+  "playwright-report/",
+  "test-results/",
+  "certificates/",
+]
+
+[default]
+# Neither is prose, and neither can be spelled wrong. A base64 literal is a
+# key or signature payload quoted verbatim, and a `\uXXXX` escape splits the
+# word it belongs to into fragments the dictionary then rejects.
+extend-ignore-re = [
+  "[A-Za-z0-9+/]{24,}={0,2}",
+  "\\w*\\\\u[0-9a-fA-F]{4}\\w*",
+  # An OpenPGP fingerprint, in the grouped form GnuPG prints: each four-hex
+  # group starting with a digit leaves a two-letter tail the dictionary
+  # reads as a misspelling (`8BA2` -> `BA`). Matched whole, not by allowing `BA`.
+  "\\b(?:[0-9A-Fa-f]{4}[ \\t]+){4,}[0-9A-Fa-f]{4}\\b",
+]
+
+# No `locale` is set, so both spelling variants are accepted: the tree is
+# mixed and no house standard says which wins. Set a locale the day the
+# standard is written down, not before.
+
+[default.extend-words]
+# GnuPG's `--with-colons` record types, read by fiona.sm's key-renewal and
+# canary scripts. `fpr` is the fingerprint record (also the openpgp4fpr:
+# URI scheme); `tru` heads the trust-database listing. Not abbreviations chosen here.
+fpr = "fpr"
+tru = "tru"
+
+# The blog quotes its author's prose, which drops apostrophes from
+# contractions (`ive`, `theyre`). Changing it edits a published post that
+# public/posts.asc attests, rather than fixing a typo.
+theyre = "theyre"

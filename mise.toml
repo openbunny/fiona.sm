@@ -1,0 +1,40 @@
+# mise.lock is lockfile_version 2. An older mise cannot read it, skips it
+# silently, and then fails `--locked` with "not in the lockfile" for every
+# tool instead of naming the version as the cause.
+min_version = "2026.9.15"
+
+[settings]
+lockfile = true
+
+[tools]
+# aqua backends ship a prebuilt binary for every pinned tool below; none is
+# compiled from source.
+act = "0.2.89"
+actionlint = "1.7.12"
+# Installs the binary under its full name, not the `ec` alias its own docs
+# use -- `mise which editorconfig-checker` is the one that resolves.
+editorconfig-checker = "4.0.2"
+gitleaks = "8.30.1"
+just = "1.58.0"
+lychee = "0.24.2"
+# @yarnpkg/libzip@3.2.2 lost npm provenance attestation because arcanis
+# (yarnpkg/berry's own maintainer) published it by hand, confirmed via
+# `npm view @yarnpkg/libzip@3.2.2 _npmUser`, not a compromised release.
+"npm:renovate" = { version = "44.128.0", trust_policy_excludes = [
+  "@yarnpkg/libzip@3.2.2",
+] }
+osv-scanner = "2.6.0"
+pinact = "5.0.0"
+semgrep = "1.178.0"
+# semgrep installs through the pypi backend, which refuses to write a
+# dependency lock without uv 0.12.10 or newer. A runner without uv fails the
+# semgrep install, not the semgrep gate.
+uv = "0.12.21"
+typos = "1.50.3"
+zizmor = "1.30.1"
+
+[env]
+# Left unset, Playwright falls back to a machine-wide browser cache that
+# may be pinned to an older revision and read-only. "0" makes browsers
+# live under this checkout's node_modules, so the set travels with the repo.
+PLAYWRIGHT_BROWSERS_PATH = "0"

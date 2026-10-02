@@ -1,0 +1,29 @@
+name: canary renewal reminder
+on:
+  schedule:
+    # 08:37 UTC: off the top of the hour, avoiding GitHub's scheduler load spike.
+    # Exits 0 and silent while canary.renewBy is outside RENEWAL_WARNING_LEAD_DAYS;
+    # inside that window, or past expiry, every run fails and sends a notification.
+    - cron: "37 8 * * *"
+  workflow_dispatch:
+concurrency:
+  group: canary-renewal-reminder
+  cancel-in-progress: false
+permissions: {}
+jobs:
+  check:
+    name: check
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with:
+          bun-version: "1.4.2"
+      # lib/iso-date.ts and lib/canary/*.ts pull in no package, and bun
+      # resolves the tsconfig "@/*" path itself, so this runs straight off
+      # the checkout with no install step.
+      - run: bun run scripts/canary-renewal-check.ts

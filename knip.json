@@ -1,0 +1,61 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "include": [
+    "exports",
+    "types",
+    "duplicates",
+    "unresolved",
+    "files",
+    "dependencies",
+    "unlisted",
+    "binaries",
+    "enumMembers",
+    "namespaceMembers",
+    "cycles"
+  ],
+  "entry": [
+    "app/**/{page,layout,template,default,error,global-error,not-found,loading,route,robots,sitemap,manifest,opengraph-image,twitter-image,icon,apple-icon}.{ts,tsx}!",
+    "scripts/*.ts!",
+    "cli/*.ts!",
+    "e2e/**/*.spec.ts"
+  ],
+  "project": [
+    "{app,components,hooks,lib,scripts,cli}/**/*.{ts,tsx}!",
+    "app/**/*.css!",
+    "*.{ts,mjs}"
+  ],
+  "next": {
+    "entry": [
+      "app/**/{page,layout,template,default,error,global-error,not-found,loading,route,robots,sitemap,manifest,opengraph-image,twitter-image,icon,apple-icon}.{ts,tsx}",
+      "next.config.ts"
+    ]
+  },
+  "vitest": {
+    "config": ["vitest.config.ts"],
+    "entry": [
+      "**/*.{test,spec}.{ts,tsx}",
+      "test/setup.ts",
+      "test/node-realm-globals.ts"
+    ]
+  },
+  "playwright": {
+    "config": ["playwright.config.ts"],
+    "entry": ["e2e/**/*.spec.ts"]
+  },
+  "eslint": {
+    "config": ["eslint.config.mjs"]
+  },
+  "commitlint": {
+    "config": ["commitlint.config.mjs"]
+  },
+  "postcss": {
+    "config": ["postcss.config.mjs"]
+  },
+  "stylelint": {
+    "config": ["stylelint.config.mjs"]
+  },
+  "lint-staged": {
+    "config": [".lintstagedrc.mjs"]
+  },
+  "ignoreBinaries": ["editorconfig-checker", "gpg", "lychee"]
+}

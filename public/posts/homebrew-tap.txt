@@ -1,0 +1,7 @@
+if you use cli tools like the proton-cli [1], vencord [2], blacksmith [3], pgrun [4], or desktop applications like buskill [5] or kraken desktop [6], you may have noticed that theyre not available via the default homebrew [7] taps.
+for this purpose, i have created a curated and maintained homebrew tap for these and more applications to allow for cleaner declarative management of dependencies by reducing the volume of applications not managed by homebrew.
+to use the tap, you have to tap it.
+brew tap oa/tap
+then, you can install the applications you need from the tap.
+brew install oa/tap/tickerbox-cli
+-f

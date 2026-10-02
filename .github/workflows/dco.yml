@@ -1,0 +1,11 @@
+name: DCO
+on: [pull_request]
+permissions: {}
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  dco:
+    permissions:
+      contents: read
+    uses: openbunny/.github/.github/workflows/reusable-dco.yml@8a67b83aedd4176c2629ac2cb6c9f53041c23abd # v0.1.0

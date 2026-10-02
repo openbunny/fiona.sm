@@ -1,0 +1,52 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+indent_style = space
+indent_size = 2
+trim_trailing_whitespace = true
+
+[*.py]
+# Python aligns continuation lines to the opening bracket, not a fixed width;
+# ruff owns this formatting.
+indent_size = unset
+
+[*.tf]
+indent_size = unset
+
+[*.typ]
+indent_size = unset
+
+[*.rs]
+# rustfmt aligns a continued string literal to the opening quote, not a fixed
+# width; a fixed indent_size fails files rustfmt already declared correct.
+indent_size = unset
+
+[*.sh]
+# A heredoc body, continued pipeline or aligned `case` arm is indented by
+# what the shell reads; shellcheck lints these as shell.
+indent_size = unset
+
+# Git hooks are shell with no extension, so `*.sh` misses them. A pattern
+# containing `/` anchors to this directory, so it cannot fold into [*.sh].
+[.githooks/*]
+indent_size = unset
+
+[*.sql]
+# A continued CHECK expression aligns under its opening parenthesis, not a
+# fixed width.
+indent_size = unset
+
+[*.md]
+# Prettier owns Markdown layout, including list-continuation width ("1. "
+# needs three spaces, not two). Trailing spaces are a hard line break here,
+# not a mistake.
+indent_size = unset
+trim_trailing_whitespace = false
+
+[public/posts/**.txt]
+# This file's bytes are what the post content manifest hashed; a trailing
+# newline here would hash differently from what public/posts.asc attests.
+insert_final_newline = false

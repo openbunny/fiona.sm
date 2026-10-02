@@ -1,0 +1,13 @@
+{
+  "config": {
+    // No formatter reflows prose: authored wrapping is preserved, so one
+    // line-length limit would fight it.
+    "MD013": false,
+    // Inline HTML is deliberate: `<span>` in the published signature block.
+    "MD033": false,
+  },
+  "globs": ["**/*.md"],
+  // `true` follows `.gitignore`, hiding build directories and nested
+  // worktrees.
+  "gitignore": true,
+}

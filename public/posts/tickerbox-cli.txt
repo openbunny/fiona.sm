@@ -1,0 +1,11 @@
+ive been personally using a tickerbox [1] in my office for a while now. for most of the time, it has been connected to the logic of my investment operation to show current portfolio (or underlying) assets.
+now, while introducing a friend to the device, and setting it up to run in her office, i needed an easier way to interact with it and bypass its limits to her needs so i developed a cli tool for interaction with the box. [2]
+its open source and compatible with linux and macos, both arm and x86 thanks to golang.
+you can install it via homebrew
+brew install oa/tap/tickerbox-cli
+or golang directly
+go install github.com/openbunny/tickerbox-cli@latest
+feedback, bug reports and pull requests welcome.
+i am also in the process of building a fully open source version of the device with better hardware, broader data source and asset class support, a fully open source firmware and cli as well as an extension system.
+keep an eye on the openbunny github organization [3] or subscribe to the atom feed of this blog [4] to stay up to date.
+-f

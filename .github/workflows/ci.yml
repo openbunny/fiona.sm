@@ -1,0 +1,75 @@
+name: ci
+on:
+  pull_request:
+  push:
+    branches: [main]
+  merge_group:
+  workflow_dispatch:
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+permissions: {}
+jobs:
+  check:
+    name: check
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    env:
+      MISE_VERSION: "2026.9.15"
+    steps:
+      # secrets-history scans the full log (gitleaks --log-opts=--all), which
+      # a shallow checkout cannot provide.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with:
+          bun-version: "1.4.2"
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            ~/.cache/mise
+            ~/.local/share/mise/installs
+            ~/.bun/install/cache
+          key: ${{ runner.os }}-portable-${{ hashFiles('mise.lock', 'bun.lock') }}
+      - run: curl -fsSL https://mise.run | sh
+      - run: echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+      - run: echo "$HOME/.local/share/mise/shims" >> "$GITHUB_PATH"
+      - run: mise trust
+      - run: mise install --locked
+      - run: bun install --frozen-lockfile
+      - run: just quality
+  e2e:
+    name: e2e
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    env:
+      MISE_VERSION: "2026.9.15"
+      # mise.toml sets this so browsers live under node_modules, but the
+      # install step and the test step only agree if the job sets it too.
+      PLAYWRIGHT_BROWSERS_PATH: "0"
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with:
+          bun-version: "1.4.2"
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            ~/.cache/mise
+            ~/.local/share/mise/installs
+            ~/.bun/install/cache
+          key: ${{ runner.os }}-portable-${{ hashFiles('mise.lock', 'bun.lock') }}
+      - run: curl -fsSL https://mise.run | sh
+      - run: echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+      - run: echo "$HOME/.local/share/mise/shims" >> "$GITHUB_PATH"
+      - run: mise trust
+      - run: mise install --locked
+      - run: bun install --frozen-lockfile
+      - run: bunx playwright install --with-deps chromium
+      - run: just bun-e2e

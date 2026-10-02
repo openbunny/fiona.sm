@@ -1,0 +1,27 @@
+# fiona
+
+> personal site for fiona, with a blog and a pgp key canary at https://fiona.sm/canary.
+
+fiona publishes a clearsigned statement asserting sole control of one openpgp key. the live document is the signed statement, not this page: verify /canary.asc against the public key at /fiona.asc.
+
+- Name: fiona
+- Email: mail@fiona.sm
+- Fingerprint: 4820FA938BA2573DE08E4FAD45B4B5460D72A034
+- Key: Ed25519
+
+## pages
+
+- [home](https://fiona.sm/): fiona, with a link to the canary
+- [blog](https://fiona.sm/blog): posts, most recent first
+- [post verification](https://fiona.sm/blog/verify-posts): what the post content manifest attests, and how to check it
+- [post content manifest](https://fiona.sm/posts.asc): sha-256 of each published post's normalised article text, paired with its slug
+- [canary](https://fiona.sm/canary): key canary, fingerprint, signed statement, public key
+- [privacy](https://fiona.sm/privacy): what this site records about a visit, and what it does not
+- [feed](https://fiona.sm/feed.xml): atom feed of posts, most recent first
+- [post content manifest](https://fiona.sm/posts.asc): clearsigned sha-256 hashes of published post text
+- [public key](https://fiona.sm/fiona.asc): openpgp public key (Ed25519)
+- [signed statement](https://fiona.sm/canary.asc): current clearsigned statement
+- [disclosure policy](https://fiona.sm/security-policy.txt): where a vulnerability disclosure goes, what is in scope, and the rules
+- [security.txt](https://fiona.sm/.well-known/security.txt): clearsigned RFC 9116 contact file, naming the disclosure policy above
+- [web key directory key](https://fiona.sm/.well-known/openpgpkey/hu/dizb37aqa5h4skgu7jf1xjr4q71w4paq): the public key in binary form, for gpg --locate-keys mail@fiona.sm
+- [web key directory policy](https://fiona.sm/.well-known/openpgpkey/policy): the policy flags file the direct method requires

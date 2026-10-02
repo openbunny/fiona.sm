@@ -1,0 +1,47 @@
+#!/bin/sh
+# Opt in with: git config core.hooksPath .githooks
+
+# git invokes a pre-commit hook as an executable, not a config key, so this
+# has no non-script form.
+
+# Cheap checks only. The complete local gate is `just check`; this hook
+# only reports formatting drift.
+set -eu
+
+staged=$(git diff --cached --name-only --diff-filter=ACM)
+
+# nosemgrep: sh-comment-not-kept -- taplo resolves taplo.toml from the repo root and checks every TOML from there, so any staged TOML is the trigger; @taplo/cli is a bun devDependency, hence node_modules/.bin over a bare `taplo`.
+if printf '%s\n' "$staged" | grep -q '\.toml$'; then
+    if [ -x node_modules/.bin/taplo ]; then
+        node_modules/.bin/taplo fmt --check || {
+            echo "pre-commit: TOML formatting differs. Run 'taplo fmt' at the repository root." >&2
+            exit 1
+        }
+    fi
+fi
+
+# lint-staged matches each staged file to .lintstagedrc.mjs.
+
+# --no-stash: the default backup uses `git stash`, shared across every
+# worktree of this checkout -- a commit racing in another worktree could
+# apply or drop the wrong entry.
+if [ -n "$staged" ]; then
+    if [ -x node_modules/.bin/lint-staged ]; then
+        node_modules/.bin/lint-staged --no-stash
+    fi
+fi
+
+# Speed bump, not a secret scanner: a credential in a fixture is not
+# recoverable once pushed.
+fixtures=$(printf '%s\n' "$staged" | grep -E '(fixtures|tests/data)/' || true)
+if [ -n "$fixtures" ]; then
+    # One `git diff` per path -- a pathspec list built by word splitting
+    # drops any path containing a space.
+    if printf '%s\n' "$fixtures" \
+        | while IFS= read -r path; do git diff --cached -- "$path"; done \
+        | grep -nEi '(BEGIN [A-Z ]*PRIVATE KEY|"?(api[_-]?key|secret|bearer|authorization|password|private[_-]?key)"?\s*[:=])' ; then
+        echo "pre-commit: a staged fixture looks like it contains a credential." >&2
+        echo "Override with --no-verify only if it is synthetic." >&2
+        exit 1
+    fi
+fi

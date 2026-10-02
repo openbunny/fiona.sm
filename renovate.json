@@ -1,0 +1,103 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "description": [
+    "This file stays at the repository root; Renovate ignores nested copies without error.",
+    "Match paths are repository-root-relative and move with their targets; a stale path selects nothing without failing.",
+    "Minor and patch updates automerge after quarantine; major and vulnerability updates require review unless a technical constraint below overrides the policy."
+  ],
+  "extends": [
+    "github>openbunny/.github",
+    "config:recommended",
+    ":semanticCommits"
+  ],
+  "dependencyDashboard": false,
+  "timezone": "Etc/UTC",
+  "labels": ["dependencies"],
+  "minimumReleaseAge": "7 days",
+  "internalChecksFilter": "strict",
+  "prConcurrentLimit": 0,
+  "platformAutomerge": true,
+  "automergeType": "pr",
+  "automergeStrategy": "squash",
+  "platformCommit": "enabled",
+  "github-actions": {
+    "pinDigests": true
+  },
+  "lockFileMaintenance": {
+    "enabled": true,
+    "automerge": false,
+    "schedule": ["before 6am on the first day of the month"]
+  },
+  "osvVulnerabilityAlerts": true,
+  "vulnerabilityAlerts": {
+    "enabled": true,
+    "minimumReleaseAge": null,
+    "schedule": [],
+    "automerge": false,
+    "labels": ["dependencies", "security"]
+  },
+  "packageRules": [
+    {
+      "matchUpdateTypes": ["minor", "patch"],
+      "automerge": true,
+      "description": "Minor and patch automerge after quarantine and a green gate"
+    },
+    {
+      "matchUpdateTypes": ["major"],
+      "automerge": false,
+      "description": "Major updates require manual approval"
+    },
+    {
+      "matchDepTypes": ["packageManager"],
+      "matchPackageNames": ["bun"],
+      "groupName": "bun",
+      "description": "Bun packageManager version, grouped with its regex-tracked copies so the bump lands in one PR"
+    },
+    {
+      "matchManagers": ["custom.regex"],
+      "matchPackageNames": ["oven-sh/bun"],
+      "groupName": "bun",
+      "description": "Bun version wherever the regex manager finds it"
+    },
+    {
+      "description": [
+        "HOLDBACK HB-2026-003: TypeScript is held at 6.0.3.",
+        "typescript-eslint declares `typescript: \">=4.8.4 <6.1.0\"` and refuses to load on TypeScript 7.",
+        "Closes when: typescript-eslint releases with TypeScript 7 support."
+      ],
+      "matchPackageNames": ["typescript"],
+      "allowedVersions": "<6.1.0",
+      "groupName": "typescript holdback",
+      "automerge": false
+    },
+    {
+      "description": [
+        "HOLDBACK HB-2026-004: ESLint is held at 9.39.5.",
+        "eslint-plugin-react calls a rule-context API that ESLint 10 removed.",
+        "Closes when: eslint-plugin-react releases compatible with ESLint 10."
+      ],
+      "matchPackageNames": ["eslint"],
+      "allowedVersions": "<10.0.0",
+      "groupName": "eslint holdback",
+      "automerge": false
+    }
+  ],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Bun version in package.json packageManager/engines and vercel.json commands. mise.toml needs no custom manager: Renovate's own mise manager reads it and mise.lock.",
+      "managerFilePatterns": [
+        "/(^|/)package\\.json$/",
+        "/(^|/)vercel\\.json$/"
+      ],
+      "matchStrings": [
+        "\"packageManager\":\\s*\"bun@(?<currentValue>\\d+\\.\\d+\\.\\d+)\"",
+        "\"bun\":\\s*\"(?<currentValue>\\d+\\.\\d+\\.\\d+)\"",
+        "bunx bun@(?<currentValue>\\d+\\.\\d+\\.\\d+)"
+      ],
+      "depNameTemplate": "oven-sh/bun",
+      "datasourceTemplate": "github-releases",
+      "extractVersionTemplate": "^bun-v(?<version>.+)$"
+    }
+  ]
+}

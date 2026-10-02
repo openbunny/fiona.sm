@@ -1,0 +1,18 @@
+name: bad-unsafe-expression
+on:
+  pull_request_target:
+concurrency:
+  group: bad-unsafe-expression-${{ github.ref }}
+  cancel-in-progress: true
+permissions: {}
+jobs:
+  build:
+    name: build
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - run: echo "${{ github.event.pull_request.title }}"

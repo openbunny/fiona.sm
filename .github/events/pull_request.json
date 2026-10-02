@@ -1,0 +1,19 @@
+{
+  "action": "synchronize",
+  "number": 1,
+  "pull_request": {
+    "number": 1,
+    "title": "fixture pull request",
+    "draft": false,
+    "head": {
+      "ref": "feature",
+      "sha": "0000000000000000000000000000000000000f"
+    },
+    "base": { "ref": "main", "sha": "0000000000000000000000000000000000000b" }
+  },
+  "repository": {
+    "name": "fiona.sm",
+    "full_name": "OA/fiona.sm",
+    "default_branch": "main"
+  }
+}

@@ -1,0 +1,5 @@
+* text=auto eol=lf
+*.asc -text
+*.png binary
+*.ico binary
+public/.well-known/openpgpkey/hu/** binary

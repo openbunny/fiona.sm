@@ -1,0 +1,40 @@
+name: workflow policy
+on:
+  pull_request:
+    paths:
+      - ".github/**"
+  push:
+    branches: [main]
+    paths:
+      - ".github/**"
+  merge_group:
+  workflow_dispatch:
+concurrency:
+  group: workflow-policy-${{ github.ref }}
+  cancel-in-progress: true
+permissions: {}
+jobs:
+  policy:
+    name: policy
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    env:
+      MISE_VERSION: "2026.9.15"
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - run: curl -fsSL https://mise.run | sh
+      - run: echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+      # Puts mise-managed tools on PATH, not only mise itself. Without it
+      # every step below fails with `just: command not found`.
+      - run: echo "$HOME/.local/share/mise/shims" >> "$GITHUB_PATH"
+      # Source's workflow-policy.yml skips this; a stock ubuntu-24.04 runner
+      # starts with no trusted config, so `mise install` errors without it.
+      - run: mise trust
+      - run: mise install --locked
+      - run: just actions-check
+      - run: just actions-pin-verify
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
