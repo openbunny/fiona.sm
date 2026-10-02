@@ -15,8 +15,6 @@ jobs:
     runs-on: ubuntu-24.04
     permissions:
       contents: read
-    env:
-      MISE_VERSION: "2026.9.15"
     steps:
       # secrets-history scans the full log (gitleaks --log-opts=--all), which
       # a shallow checkout cannot provide.
@@ -34,11 +32,11 @@ jobs:
             ~/.local/share/mise/installs
             ~/.bun/install/cache
           key: ${{ runner.os }}-portable-${{ hashFiles('mise.lock', 'bun.lock') }}
-      - run: curl -fsSL https://mise.run | sh
-      - run: echo "$HOME/.local/bin" >> "$GITHUB_PATH"
-      - run: echo "$HOME/.local/share/mise/shims" >> "$GITHUB_PATH"
-      - run: mise trust
-      - run: mise install --locked
+      - uses: jdx/mise-action@7a4e45a543138629540c9a1616d08632b893e492 # v5.0.1
+        with:
+          version: "2026.9.15"
+          cache: false
+          install_args: --locked
       - run: bun install --frozen-lockfile
       - run: just quality
   e2e:
@@ -47,7 +45,6 @@ jobs:
     permissions:
       contents: read
     env:
-      MISE_VERSION: "2026.9.15"
       # mise.toml sets this so browsers live under node_modules, but the
       # install step and the test step only agree if the job sets it too.
       PLAYWRIGHT_BROWSERS_PATH: "0"
@@ -65,11 +62,11 @@ jobs:
             ~/.local/share/mise/installs
             ~/.bun/install/cache
           key: ${{ runner.os }}-portable-${{ hashFiles('mise.lock', 'bun.lock') }}
-      - run: curl -fsSL https://mise.run | sh
-      - run: echo "$HOME/.local/bin" >> "$GITHUB_PATH"
-      - run: echo "$HOME/.local/share/mise/shims" >> "$GITHUB_PATH"
-      - run: mise trust
-      - run: mise install --locked
+      - uses: jdx/mise-action@7a4e45a543138629540c9a1616d08632b893e492 # v5.0.1
+        with:
+          version: "2026.9.15"
+          cache: false
+          install_args: --locked
       - run: bun install --frozen-lockfile
       - run: bunx playwright install --with-deps chromium
       - run: just bun-e2e
