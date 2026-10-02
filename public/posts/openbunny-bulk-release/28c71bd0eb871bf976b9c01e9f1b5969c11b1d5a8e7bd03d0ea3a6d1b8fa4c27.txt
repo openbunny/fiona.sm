@@ -1,0 +1,6 @@
+today i released a couple of projects that i had been developing privately to the openbunny organisation [1].
+glyphmark [2] is the apple native version of the commonly used material design icons [3] for git frontends.
+scrollmark [4] lets you pick off where you left scrolling on someones twitter page instead of having to scroll down all the way. it was only tested with the control panel for twitter safari extension [5].
+the other releases are merely for ease of development [6], centralized component and style libraries [7, 8] and the source code of this site [9].
+i want to thank my boyfriend john and my best friend sasha for their exceptional continued support!
+-f
