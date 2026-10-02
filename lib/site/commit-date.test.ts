@@ -4,6 +4,26 @@ import { afterEach, describe, expect, it, vi } from "vitest"
 
 import { siteLastChangedAt } from "@/lib/site/commit-date"
 
+const syntheticCommitDate = "2019-03-04T05:06:07+00:00"
+
+function syntheticCommitSha(): string {
+  const env = {
+    ...process.env,
+    GIT_AUTHOR_NAME: "commit-date test",
+    GIT_AUTHOR_EMAIL: "commit-date@example.invalid",
+    GIT_COMMITTER_NAME: "commit-date test",
+    GIT_COMMITTER_EMAIL: "commit-date@example.invalid",
+    GIT_AUTHOR_DATE: syntheticCommitDate,
+    GIT_COMMITTER_DATE: syntheticCommitDate,
+  }
+
+  return execFileSync("git", ["commit-tree", "HEAD^{tree}", "-m", "fixture"], {
+    encoding: "utf8",
+    env,
+    stdio: ["ignore", "pipe", "ignore"],
+  }).trim()
+}
+
 afterEach(() => {
   vi.unstubAllEnvs()
 })
@@ -22,18 +42,11 @@ describe("siteLastChangedAt", () => {
   })
 
   it("reads the date of whichever commit the hash also resolves to", () => {
-    const parentSha = execFileSync("git", ["rev-parse", "HEAD~1"], {
-      encoding: "utf8",
-    }).trim()
-    vi.stubEnv("VERCEL_GIT_COMMIT_SHA", parentSha)
+    const sha = syntheticCommitSha()
+    vi.stubEnv("VERCEL_GIT_COMMIT_SHA", sha)
     vi.stubEnv("COMMIT_SHA", "")
 
-    const raw = execFileSync("git", ["log", "-1", "--format=%cI", parentSha], {
-      encoding: "utf8",
-    }).trim()
-    const expected = `${new Date(raw).toISOString().slice(0, 19)}Z`
-
-    expect(siteLastChangedAt()).toBe(expected)
+    expect(siteLastChangedAt()).toBe("2019-03-04T05:06:07Z")
   })
 
   it("fails loudly, naming the commit, for a sha git has never seen", () => {
