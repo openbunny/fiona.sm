@@ -1,5 +1,5 @@
 import { Fragment } from "react"
-import type { ReactElement } from "react"
+import type { ReactElement, ReactNode } from "react"
 
 import { CitationLink } from "@/components/blog/citation-link"
 import type { Reference } from "@/lib/blog/bibliography"
@@ -38,6 +38,42 @@ export function createCitationRegistry(): CitationRegistry {
   }
 }
 
+const MARKER_CLASS = "text-ink hover:text-sprout"
+
+function CitationAnchor({
+  id,
+  occurrence,
+  children,
+}: {
+  readonly id: string
+  readonly occurrence: number
+  readonly children: ReactNode
+}): ReactElement {
+  return (
+    <a
+      id={`cite-${id}-${occurrence}`}
+      href={`#ref-${id}`}
+      className={MARKER_CLASS}
+    >
+      {children}
+    </a>
+  )
+}
+
+function register(
+  id: string,
+  registry: CitationRegistry
+): {
+  readonly id: string
+  readonly number: number
+  readonly occurrence: number
+} {
+  const number = registry.numberOf(id)
+  const occurrence = registry.recordOccurrence(id)
+
+  return { id, number, occurrence }
+}
+
 export function Cite({
   id,
   registry,
@@ -45,17 +81,37 @@ export function Cite({
   readonly id: string
   readonly registry: CitationRegistry
 }): ReactElement {
-  const number = registry.numberOf(id)
-  const occurrence = registry.recordOccurrence(id)
+  const { number, occurrence } = register(id, registry)
 
   return (
-    <a
-      id={`cite-${id}-${occurrence}`}
-      href={`#ref-${id}`}
-      className="text-ink hover:text-sprout"
-    >
+    <CitationAnchor id={id} occurrence={occurrence}>
       [{number}]
-    </a>
+    </CitationAnchor>
+  )
+}
+
+export function CiteGroup({
+  ids,
+  registry,
+}: {
+  readonly ids: readonly string[]
+  readonly registry: CitationRegistry
+}): ReactElement {
+  const cited = ids.map((id) => register(id, registry))
+
+  return (
+    <span className="whitespace-nowrap">
+      {"["}
+      {cited.map(({ id, number, occurrence }, index) => (
+        <Fragment key={id}>
+          {index > 0 ? ", " : null}
+          <CitationAnchor id={id} occurrence={occurrence}>
+            {String(number)}
+          </CitationAnchor>
+        </Fragment>
+      ))}
+      {"]"}
+    </span>
   )
 }
 

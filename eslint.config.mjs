@@ -469,6 +469,7 @@ export default defineConfig([
       "@typescript-eslint/consistent-type-definitions": "off",
       "@typescript-eslint/consistent-type-assertions": "off",
       "@typescript-eslint/array-type": "off",
+      "@next/next/no-img-element": "off",
     },
   },
 ])

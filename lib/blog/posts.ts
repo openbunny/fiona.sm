@@ -23,6 +23,13 @@ export function postArtwork(
 
 export const posts: readonly BlogPost[] = [
   {
+    slug: "openbunny-bulk-release",
+    title: "safari extensions, component libraries and this site's source",
+    date: "2026-10-02",
+    href: "/blog/openbunny-bulk-release",
+    artwork: postArtwork("openbunny-bulk-release", 500, 500),
+  },
+  {
     slug: "homebrew-tap",
     title: "custom homebrew tap",
     date: "2026-10-02",

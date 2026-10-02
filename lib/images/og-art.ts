@@ -5,6 +5,10 @@ export const ogArtFiles = {
   home: join(process.cwd(), "app/og-bunny.png"),
   canary: join(process.cwd(), "public/canary-static.png"),
   blog: join(process.cwd(), "public/blog-static.png"),
+  openbunnyBulkRelease: join(
+    process.cwd(),
+    "public/post-art/openbunny-bulk-release-static.png"
+  ),
   homebrewTap: join(process.cwd(), "public/post-art/homebrew-tap-static.png"),
   tickerboxCli: join(process.cwd(), "public/post-art/tickerbox-cli-static.png"),
 } as const

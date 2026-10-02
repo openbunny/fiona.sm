@@ -163,6 +163,12 @@ practice this forbids, anywhere in the app:
   `'unsafe-eval'`), but `script-src-attr` does not — no `onclick="..."`
   or other inline event-handler attribute.
 
+`next/image` sets an inline style attribute on every image whose `alt` is
+empty, so the CSP blocks it on exactly the decorative images, and this
+repository uses a raw `<img>` throughout. That is why
+`@next/next/no-img-element` is off in `eslint.config.mjs`: its only
+suggested fix is the one the CSP forbids.
+
 A change that needs an exception to any of these is a change to
 `securityHeaders`, made deliberately and reviewed as a security change, not
 an inline workaround in the component that hit the wall.
