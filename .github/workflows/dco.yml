@@ -8,4 +8,4 @@ jobs:
   dco:
     permissions:
       contents: read
-    uses: openbunny/.github/.github/workflows/reusable-dco.yml@8a67b83aedd4176c2629ac2cb6c9f53041c23abd # v0.1.0
+    uses: openbunny/.github/.github/workflows/reusable-dco.yml@2383033519e5dd89bfd4e832659933a145e7acde # v0.2.0
