@@ -209,7 +209,7 @@ describe("OpenbunnyBulkReleasePage", () => {
     )
   })
 
-  it("sets an animated heart at 52.5% of the text size, in the paragraph above the thanks", async () => {
+  it("sets an animated heart at 155 by 155 pixels, in the paragraph above the thanks", async () => {
     await renderPost()
 
     const heart = document.querySelector<HTMLImageElement>(
@@ -217,7 +217,7 @@ describe("OpenbunnyBulkReleasePage", () => {
     )
     expect(heart).not.toBeNull()
     expect(heart?.getAttribute("alt")).toBe("")
-    expect(heart?.className).toContain("h-[0.525em]")
+    expect(heart?.className).toBe("")
     expect(heart?.getAttribute("width")).toBe("155")
     expect(heart?.getAttribute("height")).toBe("155")
 

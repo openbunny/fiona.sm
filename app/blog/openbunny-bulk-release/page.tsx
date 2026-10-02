@@ -124,7 +124,6 @@ export default async function OpenbunnyBulkReleasePage(): Promise<ReactElement> 
             alt=""
             width={155}
             height={155}
-            className="inline-block h-[0.525em] w-auto"
           />
         </Paragraph>
         <Paragraph>
