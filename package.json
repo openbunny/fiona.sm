@@ -2,7 +2,7 @@
   "name": "fiona.sm",
   "version": "0.0.1",
   "type": "module",
-  "private": false,
+  "private": true,
   "license": "UNLICENSED",
   "description": "personal site for fiona, with a blog and a pgp key canary at /canary.",
   "packageManager": "bun@1.4.2",
