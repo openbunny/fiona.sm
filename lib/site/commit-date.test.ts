@@ -36,6 +36,16 @@ describe("siteLastChangedAt", () => {
     expect(siteLastChangedAt()).toBe("2019-03-04T05:06:07Z")
   })
 
+  it.each(["", "tomorrow"])(
+    "rejects an invalid Docker commit date: %s",
+    (date) => {
+      vi.stubEnv("COMMIT_DATE", date)
+      vi.stubEnv("COMMIT_SHA", "a".repeat(40))
+
+      expect(() => siteLastChangedAt()).toThrow("COMMIT_DATE is invalid")
+    }
+  )
+
   it("returns the checked-out HEAD commit's own committer date", () => {
     vi.stubEnv("VERCEL_GIT_COMMIT_SHA", "")
     vi.stubEnv("COMMIT_SHA", "")

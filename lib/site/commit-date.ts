@@ -21,11 +21,17 @@ function committerDateIso(sha: string): string | undefined {
 export function siteLastChangedAt(): string {
   const sha = deployedCommitSha()
   const supplied = process.env["COMMIT_DATE"]
-  const date = supplied
-    ? Number.isNaN(new Date(supplied).getTime())
-      ? undefined
-      : `${new Date(supplied).toISOString().slice(0, 19)}Z`
-    : committerDateIso(sha)
+  if (supplied !== undefined) {
+    const parsed = new Date(supplied)
+    if (Number.isNaN(parsed.getTime())) {
+      throw new Error(
+        "COMMIT_DATE is invalid. Pass the timestamp from `git log -1 --format=%cI HEAD` as `--build-arg COMMIT_DATE`."
+      )
+    }
+    return `${parsed.toISOString().slice(0, 19)}Z`
+  }
+
+  const date = committerDateIso(sha)
 
   if (date === undefined) {
     throw new Error(
