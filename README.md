@@ -7,6 +7,18 @@ personal site for fiona, with a blog and a pgp key canary at `/canary`.
 the badge and the proof-of-date section below are rewritten by
 `bun run canary renew`; edit them there, not by hand.
 
+## shared libraries
+
+the site consumes published `@openbunny/theme` tokens, self-hosted fonts, and
+`@openbunny/react` components. `package.json` pins both packages; `bun.lock`
+pins their resolved files. tailwind scans the component package through the
+`@source` entry in `app/globals.css`.
+
+site adapters keep lowercase copy, dates, and clipboard analytics local.
+command blocks use the shared components with those adapters. the theme supplies
+woff fonts for social images and woff2 fonts for browsers. artwork and print
+rules stay in the site.
+
 ## what to verify
 
 the live document is the clearsigned statement at `https://fiona.sm/canary.asc`,

@@ -1,11 +1,10 @@
 "use client"
 
+import { ChevronIcon, StatusPage } from "@openbunny/react"
 import { useEffect } from "react"
 import type { ReactElement } from "react"
 
 import { fontClassName } from "@/app/fonts"
-import { ChevronIcon } from "@/components/chevron-icon"
-import { StatusPage } from "@/components/status-page"
 import { GLOBAL_ERROR_PLATE } from "@/lib/images/plates"
 
 import "./globals.css"

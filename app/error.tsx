@@ -1,11 +1,10 @@
 "use client"
 
+import { ChevronIcon, StatusPage } from "@openbunny/react"
 import Link from "next/link"
 import { useEffect } from "react"
 import type { ReactElement } from "react"
 
-import { ChevronIcon } from "@/components/chevron-icon"
-import { StatusPage } from "@/components/status-page"
 import { ERROR_PLATE } from "@/lib/images/plates"
 
 export default function Error({

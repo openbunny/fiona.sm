@@ -4,7 +4,7 @@ import Link from "next/link"
 
 import { Logo } from "@/components/logo"
 import { MailLink } from "@/components/mail-link"
-import { PageShell } from "@/components/page-shell"
+import { PageShell } from "@openbunny/react"
 import { SiteBar } from "@/components/site-bar"
 import { SiteFooter } from "@/components/site-footer"
 import { canary } from "@/lib/canary/canary"

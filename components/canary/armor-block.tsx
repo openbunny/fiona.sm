@@ -1,8 +1,7 @@
+import { PageSection, SectionHeading } from "@openbunny/react"
 import type { ReactElement } from "react"
 
 import { CopyButton } from "@/components/copy-button"
-import { PageSection } from "@/components/page-section"
-import { SectionHeading } from "@/components/section-heading"
 import { canary } from "@/lib/canary/canary"
 import {
   verifiedClearsignedArmor,

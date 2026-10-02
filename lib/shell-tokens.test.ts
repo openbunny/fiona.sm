@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 
-import { shellTokens } from "@/lib/shell-tokens"
+import { shellTokens } from "@openbunny/react"
 
 const kinds = (command: string): string =>
   shellTokens(command)

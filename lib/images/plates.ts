@@ -1,9 +1,6 @@
-export type PlateAsset = {
-  readonly gifSrc: string
-  readonly staticSrc: string
-  readonly width: number
-  readonly height: number
-}
+import type { PlateAsset } from "@openbunny/react"
+
+export type { PlateAsset } from "@openbunny/react"
 
 export const HOME_PLATE: PlateAsset = {
   gifSrc: "/home.gif",

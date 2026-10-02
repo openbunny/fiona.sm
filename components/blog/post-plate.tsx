@@ -1,6 +1,6 @@
 import type { ReactElement } from "react"
 
-import { Plate } from "@/components/plate"
+import { Plate } from "@openbunny/react"
 import { postBySlug } from "@/lib/blog/posts"
 
 export function PostPlate({

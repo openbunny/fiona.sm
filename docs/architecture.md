@@ -123,20 +123,18 @@ blog index). It replaced a canary-specific footer; a page that needs
 different footer content is a change to `SiteFooter` itself, not a reason
 to reintroduce a second footer component.
 
-## Blog analytics are the first client components on blog routes
+## Blog client components
 
-Blog posts render with no client JavaScript (see "Blog posts: citations"
-above) except for two components that break that pattern
-deliberately: `components/blog/post-read-marker.tsx` marks a post read when
-an `IntersectionObserver` sees its target scroll into view, with no click
-involved, and `components/blog/citation-link.tsx` fires on a citation click.
-Both call `@vercel/analytics`'s `track()` directly from the component, not
-through the `process.env.NODE_ENV === "production"` gate `app/layout.tsx`
-wraps `<Analytics />` and `<SpeedInsights />` in — a different code path
-controls whether these two events fire than controls the page-view and
-vitals collectors. A new blog feature that needs client-side behavior joins
-an otherwise server-rendered, no-JS route; it does not get to assume the
-route stays JS-free because the rest of it is.
+Blog content renders on the server. `components/blog/post-read-marker.tsx`
+tracks a post read when an `IntersectionObserver` sees its target, and
+`components/blog/citation-link.tsx` tracks citation clicks. Command and copy
+adapters render shared interactive components; `lib/copy-text.ts` records
+successful copies through the package callback.
+
+These events call `@vercel/analytics`'s `track()` outside the production gate
+around the page-view and vitals collectors in `app/layout.tsx`. Client behavior
+must remain usable with JavaScript disabled; copy controls hide themselves in
+that case.
 
 ## A module used only by its own test passes the dead-code gate
 

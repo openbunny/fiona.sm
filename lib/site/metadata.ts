@@ -1,3 +1,4 @@
+import { color } from "@openbunny/theme/tokens"
 import type { Metadata, Viewport } from "next"
 
 import { canary } from "@/lib/canary/canary"
@@ -138,7 +139,7 @@ export const metadata: Metadata = {
 }
 
 export const viewport: Viewport = {
-  themeColor: "#FFFAEB",
+  themeColor: color.paper.toUpperCase(),
   colorScheme: "light",
   width: "device-width",
   initialScale: 1,

@@ -3,7 +3,7 @@
 import { cleanup, render } from "@testing-library/react"
 import { afterEach, describe, expect, it } from "vitest"
 
-import { PlateHeader } from "@/components/plate-header"
+import { PlateHeader } from "@openbunny/react"
 import { PRIVACY_PLATE } from "@/lib/images/plates"
 
 afterEach(cleanup)

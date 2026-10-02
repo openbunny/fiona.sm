@@ -2,62 +2,11 @@
 
 @import "tailwindcss";
 @import "shadcn/tailwind.css";
+@import "@openbunny/theme/css/tokens.css";
+@import "@openbunny/theme/css/tailwind.css";
+@import "@openbunny/react/styles.css";
 
-@theme inline {
-  --font-display: "Courier Prime", monospace;
-  --font-sc: "Courier Prime", monospace;
-  --font-mono: "JetBrains Mono", monospace;
-  --font-sans: var(--font-display);
-  --color-ring: var(--ring);
-  --color-border: var(--border);
-  --color-foreground: var(--foreground);
-  --color-background: var(--background);
-  --color-paper: var(--paper);
-  --color-paper-deep: var(--paper-deep);
-  --color-paper-inset: var(--paper-inset);
-  --color-muted: var(--muted);
-  --color-line: var(--line);
-  --color-ink: var(--ink);
-  --color-ink-deep: var(--ink-deep);
-  --color-ink-mid: var(--ink-mid);
-  --color-ink-soft: var(--ink-soft);
-  --color-sprout: var(--sprout);
-  --color-sprout-fill: var(--sprout-fill);
-  --color-valid: var(--valid);
-  --color-expired: var(--expired);
-  --radius-sm: 0;
-  --radius-md: 0;
-  --radius-lg: 0;
-  --radius-xl: 0;
-  --radius-2xl: 0;
-  --radius-3xl: 0;
-  --radius-4xl: 0;
-}
-
-/* Sampled from the home plate, or darkened within its hue family. Every
-pairing was computed against its real ground: muted swatches that look alike
-differ widely in contrast, so substituting one by eye fails silently. */
-:root {
-  color-scheme: light;
-
-  --paper: #fffaeb;
-  --paper-inset: #fff8e3;
-  --paper-deep: #fff5d6;
-  --foreground: #2a2217;
-  --ink-deep: #2a2217;
-  --ink: #5c4b31;
-  --ink-mid: #786340;
-  --muted: #786340;
-  --ink-soft: #93835c;
-  --line: #93835c;
-  --sprout: #3f7a13;
-  --sprout-fill: #aedf78;
-  --valid: #3f7a13;
-  --expired: #c64900;
-  --background: var(--paper);
-  --border: var(--line);
-  --ring: #7a6a4a;
-}
+@source "../node_modules/@openbunny/react/dist";
 
 @layer base {
   * {
@@ -131,30 +80,6 @@ differ widely in contrast, so substituting one by eye fails silently. */
 
   .state-cursor[data-freshness="expired"] {
     background: var(--expired);
-  }
-
-  .tok-cmd {
-    color: var(--ink-deep);
-    font-weight: 700;
-  }
-
-  .tok-flag {
-    color: var(--ink-mid);
-  }
-
-  .tok-str {
-    color: var(--sprout);
-  }
-
-  /* Integer-scaled, so the plate's pixels stay square at any display size. */
-  .plate {
-    image-rendering: pixelated;
-  }
-}
-
-@media (scripting: none) {
-  .js-only {
-    display: none;
   }
 }
 

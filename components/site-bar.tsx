@@ -1,9 +1,8 @@
+import { ChevronIcon, cn } from "@openbunny/react"
 import Link from "next/link"
 import type { ReactElement } from "react"
 
-import { ChevronIcon } from "@/components/chevron-icon"
 import { barSpecFor, entryLabel } from "@/lib/site/navigation"
-import { cn } from "@/lib/utils"
 
 const ENTRY_COLUMNS = 2
 

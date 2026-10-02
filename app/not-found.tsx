@@ -1,9 +1,8 @@
+import { ChevronIcon, StatusPage } from "@openbunny/react"
 import type { Metadata } from "next"
 import Link from "next/link"
 import type { ReactElement } from "react"
 
-import { ChevronIcon } from "@/components/chevron-icon"
-import { StatusPage } from "@/components/status-page"
 import { NOT_FOUND_PLATE } from "@/lib/images/plates"
 import { routeSocialMetadata } from "@/lib/site/metadata"
 

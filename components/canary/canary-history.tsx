@@ -1,7 +1,6 @@
+import { PageSection, SectionHeading } from "@openbunny/react"
 import type { ReactElement } from "react"
 
-import { PageSection } from "@/components/page-section"
-import { SectionHeading } from "@/components/section-heading"
 import { canary } from "@/lib/canary/canary"
 import type { CanaryArchive } from "@/lib/canary/canary-history"
 import { formatLongDate } from "@/lib/iso-date"

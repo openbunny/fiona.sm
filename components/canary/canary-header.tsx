@@ -1,7 +1,7 @@
 import type { ReactElement } from "react"
 
 import { StateCursor } from "@/components/canary/state-cursor"
-import { Plate } from "@/components/plate"
+import { Plate } from "@openbunny/react"
 import { SiteBar } from "@/components/site-bar"
 import { canary } from "@/lib/canary/canary"
 import { formatLongDate } from "@/lib/iso-date"

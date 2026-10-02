@@ -1,10 +1,8 @@
+import { ChevronIcon, PageShell, PlateHeader } from "@openbunny/react"
 import type { ReactElement } from "react"
 
 import Link from "next/link"
 
-import { ChevronIcon } from "@/components/chevron-icon"
-import { PageShell } from "@/components/page-shell"
-import { PlateHeader } from "@/components/plate-header"
 import { SiteBar } from "@/components/site-bar"
 import { SiteFooter } from "@/components/site-footer"
 import { formatLongDate } from "@/lib/iso-date"

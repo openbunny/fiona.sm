@@ -1,7 +1,7 @@
 import type { ReactElement } from "react"
 
 import { canary } from "@/lib/canary/canary"
-import { cn } from "@/lib/utils"
+import { cn } from "@openbunny/react"
 
 export function MailLink({
   className,

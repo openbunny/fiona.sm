@@ -3,7 +3,7 @@
 import { cleanup, render, screen } from "@testing-library/react"
 import { afterEach, describe, expect, it } from "vitest"
 
-import { Plate } from "@/components/plate"
+import { Plate } from "@openbunny/react"
 import { HOME_PLATE } from "@/lib/images/plates"
 
 afterEach(() => {

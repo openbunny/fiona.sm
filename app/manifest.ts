@@ -1,3 +1,4 @@
+import { color } from "@openbunny/theme/tokens"
 import type { MetadataRoute } from "next"
 
 import { site } from "@/lib/site/site"
@@ -9,8 +10,8 @@ export default function manifest(): MetadataRoute.Manifest {
     description: site.description,
     start_url: "/",
     display: "browser",
-    background_color: "#FFFAEB",
-    theme_color: "#FFFAEB",
+    background_color: color.paper.toUpperCase(),
+    theme_color: color.paper.toUpperCase(),
     lang: site.language,
     icons: [
       {

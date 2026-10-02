@@ -1,14 +1,16 @@
+import {
+  PageSection,
+  PageShell,
+  PlateHeader,
+  SectionHeading,
+} from "@openbunny/react"
 import type { Metadata } from "next"
 import type { ReactElement } from "react"
 
 import Link from "next/link"
 
 import { CommandBlock } from "@/components/command-block"
-import { PageSection } from "@/components/page-section"
-import { PageShell } from "@/components/page-shell"
 import { PageTitle } from "@/components/page-title"
-import { PlateHeader } from "@/components/plate-header"
-import { SectionHeading } from "@/components/section-heading"
 import { SiteBar } from "@/components/site-bar"
 import { SiteFooter } from "@/components/site-footer"
 import { postsByNewest } from "@/lib/blog/posts"

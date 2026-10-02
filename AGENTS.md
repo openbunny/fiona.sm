@@ -54,15 +54,15 @@ display-name change rather than assuming the two stay in sync on their own.
 - One accent, `var(--sprout)`, used structurally — state (valid/signed),
   a rail, a rare emphasis mark. It is not a decoration color; if a use
   does not mark a state or a structural role, it does not qualify.
-- Two type families, both loaded as self-hosted `@fontsource` packages
+- Two type families, both loaded from self-hosted `@openbunny/theme` assets
   (no remote font host — the CSP forbids one; see §5): Courier Prime is
   the voice (`--font-display`, `--font-sc`, body copy, headings, prose)
   and JetBrains Mono is the machine (`--font-mono`, code, commands,
   fingerprints, anything quoting a literal value).
-- `PageShell` (`components/page-shell.tsx`) fixes the content measure at
+- `PageShell` from `@openbunny/react` fixes the content measure at
   `max-w-[65ch]`. Build new pages inside it rather than setting a
   competing max-width.
-- `Plate` (`components/plate.tsx`) renders a page's masthead artwork: an
+- `Plate` from `@openbunny/react` renders a page's masthead artwork: an
   animated GIF that swaps for a static first-frame PNG under
   `prefers-reduced-motion`, both named by a `PlateAsset` constant in
   `lib/images/plates.ts`. Keep a plate's GIF and static PNG updated
@@ -94,7 +94,7 @@ display-name change rather than assuming the two stay in sync on their own.
   unrepresentable, not merely discouraged. A GIF placed under
   `public/post-art/` must carry the Netscape loop extension — a GIF
   without it plays once and then freezes on the page. Every plate's
-  integer-scale and `image-rendering: pixelated` rules in `app/globals.css`
+  integer-scale and `image-rendering: pixelated` rules in `@openbunny/react/styles.css`
   apply here too; choose the display width once the real asset's native
   size is known, the same way `BLOG_PLATE` and `CANARY_PLATE` did.
 - `SiteFooter` (`components/site-footer.tsx`) is the one footer, rendered on
@@ -150,8 +150,8 @@ mistake caught during rehearsal aborts before either touch.
 directive scoped to `'self'`, `'none'`, or `data:` for `img-src`. In
 practice this forbids, anywhere in the app:
 
-- A font, script, or stylesheet loaded from another origin. `@fontsource`
-  packages are self-hosted for exactly this reason — do not add a
+- A font, script, or stylesheet loaded from another origin. Theme font
+  assets are self-hosted for this reason — do not add a
   `<link>` to Google Fonts, a CDN script tag, or any other cross-origin
   asset.
 - A runtime `fetch`, `XMLHttpRequest`, or `WebSocket` to another origin

@@ -10,19 +10,18 @@ afterEach(() => {
 })
 
 describe("fontFiles", () => {
-  it("resolves fontsource package files", () => {
-    expect(fontFiles.courierPrime).toContain("@fontsource/courier-prime")
-    expect(fontFiles.jetbrainsMono).toContain("@fontsource/jetbrains-mono")
+  it("resolves theme package fonts for image rendering", () => {
+    expect(fontFiles.courierPrime).toContain("@openbunny/theme/fonts")
+    expect(fontFiles.jetbrainsMono).toContain("@openbunny/theme/fonts")
     expect(fontFiles.courierPrime.endsWith(".woff")).toBe(true)
     expect(fontFiles.jetbrainsMono.endsWith(".woff")).toBe(true)
     expect(existsSync(fontFiles.courierPrime)).toBe(true)
     expect(existsSync(fontFiles.jetbrainsMono)).toBe(true)
   })
 
-  it("keeps app fonts on fontsource packages", () => {
+  it("keeps app fonts self-hosted through the theme package", () => {
     const source = readFileSync("app/fonts.ts", "utf8")
-    expect(source).toContain("@fontsource/courier-prime/latin-400.css")
-    expect(source).toContain("@fontsource/jetbrains-mono/latin-400.css")
+    expect(source).toContain("@openbunny/theme/css/fonts.css")
     expect(source).not.toContain("next/font/google")
   })
 })

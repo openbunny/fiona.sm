@@ -3,7 +3,7 @@
 import { cleanup, render, screen } from "@testing-library/react"
 import { afterEach, describe, expect, it } from "vitest"
 
-import { SectionHeading } from "@/components/section-heading"
+import { SectionHeading } from "@openbunny/react"
 
 afterEach(() => {
   cleanup()

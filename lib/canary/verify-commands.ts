@@ -1,4 +1,4 @@
-import type { CommandStep } from "@/lib/canary/command-step"
+import type { CommandStep } from "@openbunny/react"
 
 const v4Fingerprint = /^[0-9A-F]{40}$/
 

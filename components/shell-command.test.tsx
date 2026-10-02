@@ -3,7 +3,7 @@
 import { cleanup, render } from "@testing-library/react"
 import { afterEach, describe, expect, it } from "vitest"
 
-import { ShellCommand } from "@/components/shell-command"
+import { ShellCommand } from "@openbunny/react"
 
 afterEach(() => {
   cleanup()

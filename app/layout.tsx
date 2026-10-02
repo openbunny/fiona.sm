@@ -6,8 +6,8 @@ import { fontClassName } from "@/app/fonts"
 import { SkipLink } from "@/components/skip-link"
 import { site } from "@/lib/site/site"
 
-import courierPrime400 from "@fontsource/courier-prime/files/courier-prime-latin-400-normal.woff2"
-import jetbrainsMono400 from "@fontsource/jetbrains-mono/files/jetbrains-mono-latin-400-normal.woff2"
+import courierPrime400 from "@openbunny/theme/fonts/courier-prime-latin-400-normal.woff2"
+import jetbrainsMono400 from "@openbunny/theme/fonts/jetbrains-mono-latin-400-normal.woff2"
 
 import "./globals.css"
 

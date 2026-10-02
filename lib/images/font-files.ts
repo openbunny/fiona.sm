@@ -1,16 +1,16 @@
 import { join } from "node:path"
 
-const fontsourceFiles = "node_modules/@fontsource"
+const themeFonts = "node_modules/@openbunny/theme/fonts"
 
 export const fontFiles = {
   courierPrime: join(
     process.cwd(),
-    fontsourceFiles,
-    "courier-prime/files/courier-prime-latin-400-normal.woff"
+    themeFonts,
+    "courier-prime-latin-400-normal.woff"
   ),
   jetbrainsMono: join(
     process.cwd(),
-    fontsourceFiles,
-    "jetbrains-mono/files/jetbrains-mono-latin-400-normal.woff"
+    themeFonts,
+    "jetbrains-mono-latin-400-normal.woff"
   ),
 } as const

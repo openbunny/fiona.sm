@@ -1,4 +1,4 @@
-import type { CommandStep } from "@/lib/canary/command-step"
+import type { CommandStep } from "@openbunny/react"
 
 const node = "https://xmr-node.cakewallet.com:18081/json_rpc"
 
