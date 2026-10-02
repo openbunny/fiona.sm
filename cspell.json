@@ -38,9 +38,7 @@
     "/\\bdpl_[A-Za-z0-9]+/",
     "/color\\s*=\\s*\"[0-9a-f]{6}\"/g",
     "/\\boklch\\([^)]*\\)/g",
-    "/\\bprj_[A-Za-z0-9]+/",
     "/\\bsha256:[0-9a-f]{64}\\b/g",
-    "/\\bteam_[A-Za-z0-9]+/",
     "/oklch\\([^)]*\\)/"
   ],
   "dictionaries": [
