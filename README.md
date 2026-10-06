@@ -93,7 +93,8 @@ bun run canary renew
 the merge bar is `just quality`. `just check` is its offline, pre-push subset:
 `bun run check` — formatting, lint, types, docs, spelling, dead code and the
 test suite, which builds first because the build-output tests assert the
-production `.next/` output — plus a Renovate config check and semgrep.
+production `.next/` output — plus a `typos` spelling check, a Renovate config
+check and semgrep.
 `just quality` adds a lockfile dependency scan and a gitleaks history scan.
 `just exhaustive` adds the Playwright suite on top of `just quality`, and is
 not required to merge. `just actions-check` gates the workflow files.
@@ -118,8 +119,8 @@ for anything sensitive, key compromise, duress or a vulnerability, email
 this repository follows the [openbunny organisation
 defaults](https://github.com/openbunny/.github): contribution, code of
 conduct, security and support policies, plus the DCO check on pull requests.
-`just check` is the offline gate; `just quality` is what CI runs, and adds the
-dependency and history scans.
+`just check` is the offline gate; `just quality` is the merge gate and adds the
+dependency and history scans. CI runs `just quality` and `just bun-e2e`.
 
 two invariants gate the build, and a change that reaches either needs the
 owner's signing key rather than a code fix. `verify-asc` fails the build when

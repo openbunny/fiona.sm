@@ -121,10 +121,12 @@ bun run manifest generate # writes public/posts/<slug>.txt, the exact text each 
 bun run manifest sign     # regenerates public/posts.asc and clearsigns it in one step
 ```
 
-`bun run manifest generate` (`lib/manifest/manifest-generate.ts`) writes two
-things from the same pass over the build output: the unsigned manifest text,
-and, for every published post, its normalised article text to
-`public/posts/<slug>.txt`. Commit both; the `.txt` files are public
+`bun run manifest generate` (`lib/manifest/manifest-generate.ts`) writes three
+things from the same pass over the build output: the unsigned manifest text;
+for every published post, its normalised article text to
+`public/posts/<slug>.txt`; and the same text to the archive
+`public/posts/<slug>/<sha-256>.txt`, which keeps an existing file and drops
+archived revisions no signed manifest ever attested. Commit all three; the `.txt` files are public
 artifacts exactly as `public/posts.asc` is, not build output excluded from
 git.
 
@@ -196,22 +198,26 @@ attest to verify nothing.
 `bun run manifest verify` exits with a bitwise combination of these codes,
 defined in `lib/manifest/manifest-report.ts`:
 
-| Code | State                                                                                        |
-| ---- | -------------------------------------------------------------------------------------------- |
-| 0    | clean: every post, and every post's article text file, matches                               |
-| 1    | at least one post differs                                                                    |
-| 2    | at least one published post is missing from the manifest                                     |
-| 4    | at least one manifest entry is no longer published                                           |
-| 8    | the signature does not verify against the expected key                                       |
-| 16   | the manifest exists but is not signed                                                        |
-| 32   | the manifest is missing entirely                                                             |
-| 64   | the verifier itself failed (for example, the build output a published post needs is missing) |
-| 128  | the published post list is empty                                                             |
-| 256  | at least one published, manifested post has no committed `.txt` file                         |
-| 512  | at least one committed `.txt` file is stale against the build, the manifest, or both         |
-| 1024 | a committed `.txt` file exists for a post that is no longer published                        |
+| Code | State                                                                                             |
+| ---- | ------------------------------------------------------------------------------------------------- |
+| 0    | clean: every post, every post's article text file, and every archived revision matches            |
+| 1    | at least one post differs                                                                         |
+| 2    | at least one published post is missing from the manifest                                          |
+| 4    | at least one manifest entry is no longer published                                                |
+| 8    | the signature does not verify against the expected key                                            |
+| 16   | the manifest exists but is not signed                                                             |
+| 32   | the manifest is missing entirely                                                                  |
+| 64   | the verifier itself failed (for example, the build output a published post needs is missing)      |
+| 128  | the published post list is empty                                                                  |
+| 256  | at least one published, manifested post has no committed `.txt` file                              |
+| 512  | at least one committed `.txt` file is stale against the build, the manifest, or both              |
+| 1024 | a committed `.txt` file exists for a post that is no longer published                             |
+| 2048 | a published post's current digest has no archived revision at `public/posts/<slug>/<sha-256>.txt` |
+| 4096 | an archived revision does not hash to the digest in its own file name                             |
+| 2048 | a published post's current digest has no archived revision at `public/posts/<slug>/<sha-256>.txt` |
+| 4096 | an archived revision does not hash to the digest in its own file name                             |
 
-Codes 1, 2, 4, 256, and 512 can combine (for example, 3 means both a
+Codes 1, 2, 4, 256, 512, 2048, and 4096 can combine (for example, 3 means both a
 differing post and one missing from the manifest); 8, 16, 32, and 128 each
 replace the per-post checks entirely, since nothing about post content can
 be trusted once the manifest itself does not verify, or there is no post
@@ -231,14 +237,13 @@ them apart.
 
 ## This is enforced
 
-`bun run manifest verify` runs after `bun run build` in both
-`bun run build:cloudflare`, `vercel.json`'s `buildCommand`, and the `Dockerfile` — after, not before
+`bun run manifest verify` runs after `bun run build` in `bun run build:cloudflare` (against the exported site in `out/`), `vercel.json`'s `buildCommand`, and the `Dockerfile` — after, not before
 like `verify-asc`, because the manifest hashes the built `<article>` HTML,
 which the build has to produce first. `lib/manifest/manifest-policy.ts`'s
 `manifestEnforcementEnabled` is `true`, the single named place that decides
 whether drift fails the run, and `bun run manifest verify` reads it as the
-default for its `--enforce` flag: neither deploy command passes `--enforce`
-explicitly, so flipping the constant back to `false` would turn both of
+default for its `--enforce` flag: no deployment command passes `--enforce`
+explicitly, so flipping the constant back to `false` would turn all of
 them back into a report-only run. This sits alongside, and does not
 replace, the canary's own hard invariant in `lib/canary/canary.ts` and
 `scripts/verify-asc.ts`: the site refuses to build without a signed canary
@@ -255,13 +260,10 @@ required confirming one precondition first, mirroring how `verify-asc` was
 wired in deliberately rather than by default: rebuilding unchanged source
 must reproduce byte-identical normalised article text on every build.
 
-Two independent clean builds of this repository's posts were compared
-directly against this requirement: every post's normalised text, and
-therefore its hash, was identical across both builds, even though the full
-page HTML was not — the raw HTML differs build to build in content that
-sits outside `<article>` entirely (Turbopack chunk hashes, an asset query
-string), which is exactly why the manifest hashes the article element alone
-rather than the page. If a future change to how posts render ever makes two
+The manifest hashes the article element alone rather than the page because
+the raw page HTML can differ between clean builds in content outside
+`<article>` (for example, bundler chunk hashes). Two clean builds of the
+same source must produce identical normalised text for every post. If a future change to how posts render ever makes two
 clean builds of the same source disagree on a post's normalised text,
 enforcing on that is not safe: it would fail a deploy for no content reason
 and teach the owner to ignore the gate. Re-run the two-build comparison
@@ -342,10 +344,12 @@ the digest its own name claims (exit 4096). The second is the check that
 makes the archive worth citing: an archive nobody verifies is a promise, not
 a record.
 
-Archived revisions are served `immutable` with a one-year lifetime, the only
-route headers rule exempt from `must-revalidate`, because the URL names the
-digest of what it returns and so can never correctly return anything else.
-`lib/site/route-headers.test.ts` pins that exemption to this one route.
+Archived revisions are served `immutable` with a one-year lifetime, as are
+the content-addressed images under `/img/`. These are the only route headers
+rules exempt from `must-revalidate`, because each URL names the digest of
+what it returns and so can never correctly return anything else.
+`lib/site/route-headers.test.ts` pins that exemption to the content-
+addressed routes.
 
 `lib/site/metadata.ts`'s `citationMetadata` emits the Highwire
 (`citation_*`) and Dublin Core (`DC.*`) `<meta>` tags that reference
