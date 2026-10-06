@@ -1,15 +1,14 @@
-import type { ImageResponse } from "next/og"
+import { ogCardImageMetadata, ogCardResponse } from "@/lib/images/og-cards"
 
-import { ogArtFiles } from "@/lib/images/og-art"
-import { ogCard, ogContentType, ogSize } from "@/lib/images/og-card"
-
-const title = "safari extensions, component libraries and this site's source"
-
-export const alt = `a puppy swimming happily, captioned "${title}".`
-export const size = ogSize
-export const contentType = ogContentType
 export const dynamic = "force-static"
+export const dynamicParams = false
 
-export default async function OpengraphImage(): Promise<ImageResponse> {
-  return ogCard({ artwork: ogArtFiles.openbunnyBulkRelease, title })
+export function generateImageMetadata(): ReturnType<
+  typeof ogCardImageMetadata
+> {
+  return ogCardImageMetadata("openbunny-bulk-release")
+}
+
+export default function Image(): Promise<Response> {
+  return ogCardResponse("openbunny-bulk-release")
 }

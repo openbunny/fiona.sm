@@ -1,6 +1,7 @@
 import { color } from "@openbunny/theme/tokens"
 import type { MetadataRoute } from "next"
 
+import { iconUrls } from "@/lib/images/icon-urls"
 import { site } from "@/lib/site/site"
 
 export const dynamic = "force-static"
@@ -17,30 +18,30 @@ export default function manifest(): MetadataRoute.Manifest {
     lang: site.language,
     icons: [
       {
-        src: "/icon.svg",
+        src: iconUrls.svg,
         sizes: "any",
         type: "image/svg+xml",
       },
       {
-        src: "/icon-192.png",
+        src: iconUrls.png192,
         sizes: "192x192",
         type: "image/png",
         purpose: "any",
       },
       {
-        src: "/icon-512.png",
+        src: iconUrls.png512,
         sizes: "512x512",
         type: "image/png",
         purpose: "any",
       },
       {
-        src: "/icon-192-maskable.png",
+        src: iconUrls.maskable192,
         sizes: "192x192",
         type: "image/png",
         purpose: "maskable",
       },
       {
-        src: "/icon-512-maskable.png",
+        src: iconUrls.maskable512,
         sizes: "512x512",
         type: "image/png",
         purpose: "maskable",

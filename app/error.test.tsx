@@ -65,9 +65,21 @@ describe("Error", () => {
       <ErrorPage error={testError()} reset={() => undefined} />
     )
 
-    expect(container.querySelector('img[src="/error.gif"]')).not.toBeNull()
-    expect(container.querySelector('img[src="/404.gif"]')).toBeNull()
-    expect(container.querySelector('img[src="/home.gif"]')).toBeNull()
+    expect(
+      container.querySelector(
+        'img[src="/img/a71b2c5643dea06fedc5c31fea19ee4dec33b96ae669c79ff442e2e39149b90ef216fa2c54c21f2ed9fd249572369b7d0c310bd4d2193a9b88e91989d68a016c.webp"]'
+      )
+    ).not.toBeNull()
+    expect(
+      container.querySelector(
+        'img[src="/img/b41057b9974f3f139a7d8ef9c9aef7624e7229f2f34e00d1eaba271bcee8cba63fd1452a8e23de4f5003753995e4c35cfd47d46e32f2c0a2ee57f863ca222544.webp"]'
+      )
+    ).toBeNull()
+    expect(
+      container.querySelector(
+        'img[src="/img/bd0a1c582aa64034a09953f1571e2782fdae0b481ffc42371b836b1fc92611e7f02ec73b31412729aae840b832052051b5db404ecf532a3a38219451eb273c34.webp"]'
+      )
+    ).toBeNull()
 
     vi.restoreAllMocks()
   })

@@ -12,6 +12,7 @@ describe("cloudflareHeaders", () => {
       "/index.html",
       "/posts/example/deadbeef.txt",
       "/.well-known/openpgpkey/policy",
+      "/opengraph-image/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
       "/opengraph-image",
     ])
 
@@ -26,8 +27,9 @@ describe("cloudflareHeaders", () => {
     )
     expect(headers).toContain("Cross-Origin-Resource-Policy: cross-origin")
     expect(headers).toContain(
-      "/opengraph-image\n  ! Content-Type\n  Content-Type: image/png"
+      "/opengraph-image/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n  ! Content-Type\n  Content-Type: image/png\n  ! Cache-Control\n  Cache-Control: public, max-age=31536000, immutable"
     )
+    expect(headers).not.toContain("/opengraph-image\n")
     expect(headers).not.toContain("/posts/example/missing.txt")
   })
 })

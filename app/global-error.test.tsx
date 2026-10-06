@@ -53,7 +53,11 @@ describe("GlobalError", () => {
   it("renders the global-error plate with no root layout to provide it", async () => {
     const html = await renderRawHtml()
 
-    expect(html).toContain('src="/globalerror.gif"')
-    expect(html).toContain('src="/globalerror-static.png"')
+    expect(html).toContain(
+      'src="/img/4f8356cfa2c569bca6040032afe656fca3e552eafea37c76d273d4cfaa8603e624ed3286798d683b22f58ab52a7191f2717bcee24a572f36319dacdea25f9b01.webp"'
+    )
+    expect(html).toContain(
+      'srcSet="/img/7db6fc25cb8f05d489c18805d012a3a6bbc15aea35d6a1c3e3e78f8be9ce7b7f71242a6a006bbdc3ba2d3682d1579797b524f096c4f3ee7c9436170e97384014.png"'
+    )
   })
 })

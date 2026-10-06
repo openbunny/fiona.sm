@@ -1,4 +1,10 @@
-import type { PlateAsset } from "@/lib/images/plates"
+import {
+  HOMEBREW_TAP_PLATE,
+  OPENBUNNY_BULK_RELEASE_PLATE,
+  type PlateAsset,
+  TICKERBOX_CLI_PLATE,
+  WORMS_WMD_PLATE,
+} from "@/lib/images/plates"
 
 export type BlogPost = {
   readonly slug: string
@@ -8,40 +14,34 @@ export type BlogPost = {
   readonly artwork?: PlateAsset
 }
 
-export function postArtwork(
-  slug: string,
-  width: number,
-  height: number
-): PlateAsset {
-  return {
-    gifSrc: `/post-art/${slug}.gif`,
-    staticSrc: `/post-art/${slug}-static.png`,
-    width,
-    height,
-  }
-}
-
 export const posts: readonly BlogPost[] = [
+  {
+    slug: "worms-wmd",
+    title: "playing worms on my macbook",
+    date: "2026-10-06",
+    href: "/blog/worms-wmd",
+    artwork: WORMS_WMD_PLATE,
+  },
   {
     slug: "openbunny-bulk-release",
     title: "safari extensions, component libraries and this site's source",
     date: "2026-10-02",
     href: "/blog/openbunny-bulk-release",
-    artwork: postArtwork("openbunny-bulk-release", 500, 500),
+    artwork: OPENBUNNY_BULK_RELEASE_PLATE,
   },
   {
     slug: "homebrew-tap",
     title: "custom homebrew tap",
     date: "2026-10-02",
     href: "/blog/homebrew-tap",
-    artwork: postArtwork("homebrew-tap", 500, 500),
+    artwork: HOMEBREW_TAP_PLATE,
   },
   {
     slug: "tickerbox-cli",
     title: "tickerbox-cli",
     date: "2026-10-01",
     href: "/blog/tickerbox-cli",
-    artwork: postArtwork("tickerbox-cli", 500, 260),
+    artwork: TICKERBOX_CLI_PLATE,
   },
 ]
 

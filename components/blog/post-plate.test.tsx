@@ -7,7 +7,7 @@ import type { BlogPost } from "@/lib/blog/posts"
 import type * as blogPosts from "@/lib/blog/posts"
 
 const fixtureArtwork = {
-  gifSrc: "/post-art/with-art.gif",
+  animatedSrc: "/post-art/with-art.gif",
   staticSrc: "/post-art/with-art-static.png",
   width: 400,
   height: 300,
@@ -47,12 +47,14 @@ describe("PostPlate", () => {
     const { PostPlate } = await import("@/components/blog/post-plate")
     const { container } = render(<PostPlate slug="with-art" />)
 
-    const images = [...container.querySelectorAll("img")]
-    expect(images).toHaveLength(2)
-    expect(images[0]).toHaveAttribute("src", fixtureArtwork.gifSrc)
-    expect(images[0]?.className).toMatch(/motion-reduce:hidden/)
-    expect(images[1]).toHaveAttribute("src", fixtureArtwork.staticSrc)
-    expect(images[1]?.className).toMatch(/motion-reduce:block/)
+    const images = [...container.querySelectorAll("picture > img")]
+    expect(images).toHaveLength(1)
+    expect(images[0]).toHaveAttribute("src", fixtureArtwork.animatedSrc)
+    expect(
+      container.querySelector(
+        'picture > source[media="(prefers-reduced-motion: reduce)"]'
+      )
+    ).toHaveAttribute("srcset", fixtureArtwork.staticSrc)
   })
 
   it("renders nothing for a post with no declared artwork", async () => {

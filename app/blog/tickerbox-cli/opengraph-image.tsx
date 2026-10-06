@@ -1,16 +1,14 @@
-import type { ImageResponse } from "next/og"
+import { ogCardImageMetadata, ogCardResponse } from "@/lib/images/og-cards"
 
-import { ogArtFiles } from "@/lib/images/og-art"
-import { ogCard, ogContentType, ogSize } from "@/lib/images/og-card"
-
-const title = "tickerbox-cli"
-
-export const alt =
-  'a brown lop-eared rabbit lying flat, captioned "tickerbox-cli".'
-export const size = ogSize
-export const contentType = ogContentType
 export const dynamic = "force-static"
+export const dynamicParams = false
 
-export default async function OpengraphImage(): Promise<ImageResponse> {
-  return ogCard({ artwork: ogArtFiles.tickerboxCli, title })
+export function generateImageMetadata(): ReturnType<
+  typeof ogCardImageMetadata
+> {
+  return ogCardImageMetadata("tickerbox-cli")
+}
+
+export default function Image(): Promise<Response> {
+  return ogCardResponse("tickerbox-cli")
 }

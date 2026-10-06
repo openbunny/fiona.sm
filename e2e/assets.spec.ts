@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test"
 
 import { canary } from "@/lib/canary/canary"
+import { iconUrls } from "@/lib/images/icon-urls"
 import * as allPlates from "@/lib/images/plates"
 import { wkdKeyHref, wkdPolicyHref } from "@/lib/publish/wkd"
 
@@ -46,41 +47,41 @@ test("serves favicon, apple, manifest, and safari mask icons", async ({
   const favicon = await request.get("/favicon.ico")
   expect(favicon.ok()).toBe(true)
 
-  const svg = await request.get("/icon.svg")
+  const svg = await request.get(iconUrls.svg)
   expect(svg.ok()).toBe(true)
   expect(await svg.text()).toContain("<path")
   expect(await svg.text()).not.toContain("font-family")
   expect(await svg.text()).toContain("<rect")
 
-  const apple = await request.get("/apple-icon.png")
+  const apple = await request.get(iconUrls.apple)
   expect(apple.ok()).toBe(true)
   expect(apple.headers()["content-type"]).toContain("image/png")
 
-  const png192 = await request.get("/icon-192.png")
+  const png192 = await request.get(iconUrls.png192)
   expect(png192.ok()).toBe(true)
 
-  const png512 = await request.get("/icon-512.png")
+  const png512 = await request.get(iconUrls.png512)
   expect(png512.ok()).toBe(true)
 
-  const maskable = await request.get("/icon-512-maskable.png")
+  const maskable = await request.get(iconUrls.maskable512)
   expect(maskable.ok()).toBe(true)
 
-  const safari = await request.get("/safari-pinned-tab.svg")
+  const safari = await request.get(iconUrls.safari)
   expect(safari.ok()).toBe(true)
   expect(await safari.text()).toContain("<path")
   expect(await safari.text()).not.toContain("<rect")
 
   const manifest = await request.get("/manifest.webmanifest")
   expect(manifest.ok()).toBe(true)
-  expect(await manifest.text()).toContain("/icon-512.png")
+  expect(await manifest.text()).toContain(iconUrls.png512)
   expect(await manifest.text()).toContain("maskable")
 })
 
-test("serves every masthead plate's gif and static png", async ({
+test("serves every masthead plate's animation and static png", async ({
   request,
 }) => {
   const plates = Object.values(allPlates).flatMap((plate) => [
-    plate.gifSrc,
+    plate.animatedSrc,
     plate.staticSrc,
   ])
 
@@ -93,26 +94,17 @@ test("serves every masthead plate's gif and static png", async ({
     const response = await request.get(name)
     expect(response.ok(), `${name} did not respond ok`).toBe(true)
     expect(response.headers()["cache-control"]).toBe(
-      "public, max-age=3600, must-revalidate"
+      "public, max-age=31536000, immutable"
     )
   }
 })
 
-test("serves the tickerbox-cli post's gif and static png", async ({
-  request,
-}) => {
-  const postArt = [
-    "post-art/tickerbox-cli.gif",
-    "post-art/tickerbox-cli-static.png",
-  ]
-
-  for (const path of postArt) {
-    const response = await request.get(`/${path}`)
-    expect(response.ok(), `/${path} did not respond ok`).toBe(true)
-    expect(response.headers()["cache-control"]).toBe(
-      "public, max-age=3600, must-revalidate"
-    )
-  }
+test("never caches a missing /img path as immutable", async ({ request }) => {
+  const response = await request.get(`/img/${"0".repeat(128)}.png`)
+  expect(response.status()).toBe(404)
+  expect(response.headers()["cache-control"]).toBe(
+    "public, max-age=0, must-revalidate"
+  )
 })
 
 test("serves the web key directory for fiona's contact address", async ({
@@ -138,3 +130,30 @@ test("serves the web key directory for fiona's contact address", async ({
   expect(policy.headers()["access-control-allow-origin"]).toBe("*")
   expect(await policy.text()).toContain("fiona.sm")
 })
+
+for (const [motion, expected] of [
+  ["no-preference", allPlates.HOME_PLATE.animatedSrc],
+  ["reduce", allPlates.HOME_PLATE.staticSrc],
+] as const) {
+  test(`shows and fetches only the ${motion === "reduce" ? "still" : "animated"} home plate when motion is ${motion}`, async ({
+    page,
+  }) => {
+    const plateFiles: readonly string[] = [
+      allPlates.HOME_PLATE.animatedSrc,
+      allPlates.HOME_PLATE.staticSrc,
+    ]
+    const fetched: string[] = []
+    page.on("request", (request) => {
+      const { pathname } = new URL(request.url())
+      if (plateFiles.includes(pathname)) fetched.push(pathname)
+    })
+    await page.emulateMedia({ reducedMotion: motion })
+    await page.goto("/")
+
+    const plate = page.locator("picture > img").first()
+    await expect
+      .poll(() => plate.evaluate((image: HTMLImageElement) => image.currentSrc))
+      .toContain(expected)
+    expect(fetched).toEqual([expected])
+  })
+}

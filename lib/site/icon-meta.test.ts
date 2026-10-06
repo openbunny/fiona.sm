@@ -3,18 +3,14 @@ import { existsSync } from "node:fs"
 import { describe, expect, it } from "vitest"
 
 import manifest from "@/app/manifest"
-import { ink, iconPaths } from "@/lib/images/icon-files"
+import { icoPath, ink } from "@/lib/images/icon-files"
+import { iconUrls } from "@/lib/images/icon-urls"
 import { metadata } from "@/lib/site/metadata"
 import { canary } from "@/lib/canary/canary"
 import { site } from "@/lib/site/site"
 
 function filePathFor(url: string): string {
-  const name = url.replace(/^\//, "")
-  const path = Object.values(iconPaths).find((p) => p.endsWith(`/${name}`))
-  if (path === undefined) {
-    throw new Error(`no on-disk icon path registered for ${url}`)
-  }
-  return path
+  return url === "/favicon.ico" ? icoPath : `public${url}`
 }
 
 describe("manifest icons", () => {
@@ -22,27 +18,27 @@ describe("manifest icons", () => {
     const icons = manifest().icons
     expect(icons).toEqual(
       expect.arrayContaining([
-        { src: "/icon.svg", sizes: "any", type: "image/svg+xml" },
+        { src: iconUrls.svg, sizes: "any", type: "image/svg+xml" },
         {
-          src: "/icon-192.png",
+          src: iconUrls.png192,
           sizes: "192x192",
           type: "image/png",
           purpose: "any",
         },
         {
-          src: "/icon-512.png",
+          src: iconUrls.png512,
           sizes: "512x512",
           type: "image/png",
           purpose: "any",
         },
         {
-          src: "/icon-192-maskable.png",
+          src: iconUrls.maskable192,
           sizes: "192x192",
           type: "image/png",
           purpose: "maskable",
         },
         {
-          src: "/icon-512-maskable.png",
+          src: iconUrls.maskable512,
           sizes: "512x512",
           type: "image/png",
           purpose: "maskable",
@@ -70,13 +66,13 @@ describe("metadata icons", () => {
     expect(metadata.icons).toEqual({
       icon: [
         { url: "/favicon.ico", sizes: "any" },
-        { url: "/icon.svg", type: "image/svg+xml" },
+        { url: iconUrls.svg, type: "image/svg+xml" },
       ],
-      apple: [{ url: "/apple-icon.png", sizes: "180x180" }],
+      apple: [{ url: iconUrls.apple, sizes: "180x180" }],
       other: [
         {
           rel: "mask-icon",
-          url: "/safari-pinned-tab.svg",
+          url: iconUrls.safari,
           color: ink,
         },
       ],

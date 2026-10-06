@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test"
 
 import { canary } from "@/lib/canary/canary"
+import { iconUrls } from "@/lib/images/icon-urls"
 import { wkdKeyHref, wkdPolicyHref } from "@/lib/publish/wkd"
 
 const everyPath = [
@@ -18,7 +19,7 @@ const everyPath = [
   "/.well-known/security.txt",
   "/llms.txt",
   "/humans.txt",
-  "/icon-192.png",
+  iconUrls.png192,
   wkdKeyHref(canary.email),
   wkdPolicyHref,
 ]
@@ -117,8 +118,10 @@ for (const path of everyPath) {
   })
 }
 
-test("caches immutable icon assets", async ({ request }) => {
-  const headers = (await request.get("/icon-512.png")).headers()
+test("caches the fixed-url favicon with a bounded lifetime", async ({
+  request,
+}) => {
+  const headers = (await request.get("/favicon.ico")).headers()
   expect(headers["cache-control"]).toContain("max-age=86400")
   expect(headers["cache-control"]).toContain("stale-while-revalidate")
 })
@@ -172,12 +175,21 @@ test("renders with no content security policy violations", async ({ page }) => {
   await expect.poll(() => violations).toEqual([])
 })
 
-test("serves social image URLs without file extensions as png", async ({
+test("serves each hashed share card as an immutable png", async ({
+  page,
   request,
 }) => {
-  const response = await request.get("/opengraph-image")
+  await page.goto("/")
+  const card = await page
+    .locator('meta[property="og:image"]')
+    .getAttribute("content")
+  expect(card).toMatch(/\/opengraph-image\/[0-9a-f]{128}/u)
+  const response = await request.get(new URL(card ?? "").pathname)
   expect(response.status()).toBe(200)
   expect(response.headers()["content-type"]).toBe("image/png")
+  expect(response.headers()["cache-control"]).toBe(
+    "public, max-age=31536000, immutable"
+  )
 })
 
 test("revalidates an unpublished post archive", async ({ request }) => {

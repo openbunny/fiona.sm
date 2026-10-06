@@ -3,6 +3,7 @@ import type { Metadata, Viewport } from "next"
 
 import { canary } from "@/lib/canary/canary"
 import { ink } from "@/lib/images/icon-files"
+import { iconUrls } from "@/lib/images/icon-urls"
 import { absoluteUrl, site } from "@/lib/site/site"
 
 type RouteSocialMetadata = {
@@ -122,13 +123,13 @@ export const metadata: Metadata = {
   icons: {
     icon: [
       { url: "/favicon.ico", sizes: "any" },
-      { url: "/icon.svg", type: "image/svg+xml" },
+      { url: iconUrls.svg, type: "image/svg+xml" },
     ],
-    apple: [{ url: "/apple-icon.png", sizes: "180x180" }],
+    apple: [{ url: iconUrls.apple, sizes: "180x180" }],
     other: [
       {
         rel: "mask-icon",
-        url: "/safari-pinned-tab.svg",
+        url: iconUrls.safari,
         color: ink,
       },
     ],

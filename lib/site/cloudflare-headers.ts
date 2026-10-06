@@ -5,6 +5,7 @@ import { securityHeaders } from "@/lib/site/security-headers"
 
 const headerRuleLimit = 100
 const headerLineLimit = 2000
+const shareCardPath = /\/opengraph-image\/[0-9a-f]{128}$/u
 
 export function cloudflareHeaders(assetPaths: readonly string[]): string {
   if (assetPaths.length === 0) {
@@ -39,8 +40,9 @@ export function cloudflareHeaders(assetPaths: readonly string[]): string {
         headers.set(key, value)
       }
     }
-    if (path.endsWith("/opengraph-image") || path.endsWith("/twitter-image")) {
+    if (shareCardPath.test(path)) {
       headers.set("Content-Type", "image/png")
+      headers.set("Cache-Control", "public, max-age=31536000, immutable")
     }
     if (path.startsWith("/_next/static/")) continue
     if (headers.size === 0) continue

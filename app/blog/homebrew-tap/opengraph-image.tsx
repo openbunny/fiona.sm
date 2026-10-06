@@ -1,15 +1,14 @@
-import type { ImageResponse } from "next/og"
+import { ogCardImageMetadata, ogCardResponse } from "@/lib/images/og-cards"
 
-import { ogArtFiles } from "@/lib/images/og-art"
-import { ogCard, ogContentType, ogSize } from "@/lib/images/og-card"
-
-const title = "custom homebrew tap"
-
-export const alt = 'a pixel-art cat, captioned "custom homebrew tap".'
-export const size = ogSize
-export const contentType = ogContentType
 export const dynamic = "force-static"
+export const dynamicParams = false
 
-export default async function OpengraphImage(): Promise<ImageResponse> {
-  return ogCard({ artwork: ogArtFiles.homebrewTap, title })
+export function generateImageMetadata(): ReturnType<
+  typeof ogCardImageMetadata
+> {
+  return ogCardImageMetadata("homebrew-tap")
+}
+
+export default function Image(): Promise<Response> {
+  return ogCardResponse("homebrew-tap")
 }

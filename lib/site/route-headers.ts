@@ -82,8 +82,7 @@ export const routeHeaders = [
     ],
   },
   {
-    source:
-      "/:asset(icon-192\\.png|icon-512\\.png|icon-192-maskable\\.png|icon-512-maskable\\.png|safari-pinned-tab\\.svg|favicon\\.ico|icon\\.svg|apple-icon\\.png|manifest\\.webmanifest)",
+    source: "/:asset(favicon\\.ico|manifest\\.webmanifest)",
     headers: [
       {
         key: "Cache-Control",
@@ -92,21 +91,11 @@ export const routeHeaders = [
     ],
   },
   {
-    source:
-      "/:asset(home\\.gif|home-static\\.png|blog\\.gif|blog-static\\.png|canary\\.gif|canary-static\\.png|verify\\.gif|verify-static\\.png|privacy\\.gif|privacy-static\\.png|404\\.gif|404-static\\.png|error\\.gif|error-static\\.png|globalerror\\.gif|globalerror-static\\.png)",
+    source: "/img/:name",
     headers: [
       {
         key: "Cache-Control",
-        value: "public, max-age=3600, must-revalidate",
-      },
-    ],
-  },
-  {
-    source: "/post-art/:path*",
-    headers: [
-      {
-        key: "Cache-Control",
-        value: "public, max-age=3600, must-revalidate",
+        value: "public, max-age=31536000, immutable",
       },
     ],
   },

@@ -1,9 +1,9 @@
 import type { Metadata } from "next"
 import type { ReactElement } from "react"
 
-import { Cite, CiteGroup } from "@/components/blog/citations"
+import { Cite, CiteGroup, type Reference } from "@openbunny/react"
+
 import { Paragraph, PostArticle } from "@/components/blog/post-article"
-import type { Reference } from "@/lib/blog/bibliography"
 import { postMetadata } from "@/lib/blog/post-metadata"
 
 const slug = "openbunny-bulk-release"
@@ -120,7 +120,7 @@ export default async function OpenbunnyBulkReleasePage(): Promise<ReactElement> 
         </Paragraph>
         <Paragraph>
           <img
-            src="/post-art/openbunny-bulk-release/heartsign.gif"
+            src="/img/29b9bdaae2e942a116e934fbddd964e0823f23eaa1a643a5a5e9685f0fc092a16e46686a52282a14daae2cbc0317bacbb0d912acd782200a19c527ed295dbf2f.webp"
             alt=""
             width={155}
             height={155}

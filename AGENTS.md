@@ -3,6 +3,8 @@
 Rules for anyone or anything changing this repository. Read this before
 touching visitor-facing text, `app/globals.css`, or the canary pipeline.
 
+Publishing a blog post: follow `docs/adding-a-post.md`.
+
 ## 1. Lowercase
 
 All visitor-facing text is lowercase. Exceptions, and only these:
@@ -41,16 +43,22 @@ display-name change rather than assuming the two stay in sync on their own.
 ## 3. Design system
 
 - Light mode only. `:root` sets `color-scheme: light` explicitly in
-  `app/globals.css`. There is no dark variant to keep in sync.
-- Every radius token (`--radius-sm` through `--radius-4xl`) is `0`. A
-  rounded corner anywhere on the page is a regression, not a style choice.
+  `@openbunny/theme/css/tokens.css`, which `app/globals.css` imports. There
+  is no dark variant to keep in sync.
+- Every radius token (`--radius-sm` through `--radius-4xl`, defined in
+  `@openbunny/theme/css/tokens.css`) is `0`. A rounded corner anywhere on the
+  page is a regression, not a style choice.
 - One border width: `1px`, always `var(--line)`. Do not introduce a second
   border color or weight; a heavier or lighter rule reads as a second
   system next to the first.
 - At most two sections on a page carry card chrome (a filled ground,
   distinct from `--paper`, wrapping a block of content). A page that
   needs a third has confused emphasis with decoration; cut back to two
-  before adding container styling to a third section.
+  before adding container styling to a third section. A post page's two
+  are the manifest note and the cite block. The count covers page
+  sections, not blocks inside a post's body: a `CommandLine` or a
+  `Screenshot` carries the same `bg-paper-inset` ground and does not
+  count toward it.
 - One accent, `var(--sprout)`, used structurally — state (valid/signed),
   a rail, a rare emphasis mark. It is not a decoration color; if a use
   does not mark a state or a structural role, it does not qualify.
@@ -63,18 +71,20 @@ display-name change rather than assuming the two stay in sync on their own.
   `max-w-[65ch]`. Build new pages inside it rather than setting a
   competing max-width.
 - `Plate` from `@openbunny/react` renders a page's masthead artwork: an
-  animated GIF that swaps for a static first-frame PNG under
-  `prefers-reduced-motion`, both named by a `PlateAsset` constant in
-  `lib/images/plates.ts`. Keep a plate's GIF and static PNG updated
-  together — a new mark or a motion change to one needs the other changed
-  in the same commit, not the GIF alone. `Logo` (`components/logo.tsx`) is
-  `Plate` fixed to `HOME_PLATE` (`public/home.gif` /
-  `public/home-static.png`) and is the brand identity shown on the home
+  animated lossless WebP that a `<picture>` swaps for a static
+  first-frame PNG under `prefers-reduced-motion`, both named by a
+  `PlateAsset` constant (`animatedSrc`, `staticSrc`) in
+  `lib/images/plates.ts`. The browser fetches only the one it shows, and
+  React emits no preload for an image inside `<picture>`. Keep a plate's
+  animation and static PNG updated together — a new mark or a motion
+  change to one needs the other changed in the same commit. `Logo` (`components/logo.tsx`) is
+  `Plate` fixed to `HOME_PLATE` and is the brand identity shown on the home
   page and on any route added without a plate of its own. A blog post is
   the exception: it carries its own artwork or none, never `Logo`, so a
   post never shows two pieces of artwork at once. The blog index
-  (`/blog` and `/blog/page/N`), `/canary`, and `/blog/verify-posts` each carry
-  their own plate instead (`BLOG_PLATE`, `CANARY_PLATE`, `VERIFY_PLATE`),
+  (`/blog` and `/blog/page/N`), `/canary`, `/blog/verify-posts`, and
+  `/privacy` each carry their own plate instead (`BLOG_PLATE`, `CANARY_PLATE`,
+  `VERIFY_PLATE`, `PRIVACY_PLATE`),
   and the three status pages
   (`app/not-found.tsx`, `app/error.tsx`, `app/global-error.tsx`) each carry
   their own as well (`NOT_FOUND_PLATE`, `ERROR_PLATE`,
@@ -83,17 +93,18 @@ display-name change rather than assuming the two stay in sync on their own.
   site, not a hardcoded path.
 - A blog post may declare its own artwork, shown on that post's own page
   only — never on the blog index, which keeps `BLOG_PLATE` regardless.
-  Declare it on the post's entry in `lib/blog/posts.ts` with
-  `artwork: postArtwork(slug, width, height)`; a post with no `artwork`
-  field renders nothing in that position, not a fallback plate and not an
-  empty placeholder. `postArtwork` points at
-  `public/post-art/<slug>.gif` and `public/post-art/<slug>-static.png` —
-  never `public/blog/`, which would collide with the `/blog` route itself.
-  `BlogPost["artwork"]` is a `PlateAsset`, so a post cannot declare a GIF
-  without its static PNG; the type makes that incomplete declaration
-  unrepresentable, not merely discouraged. A GIF placed under
-  `public/post-art/` must carry the Netscape loop extension — a GIF
-  without it plays once and then freezes on the page. Every plate's
+  Declare it as a `PlateAsset` constant in `lib/images/plates.ts` and set
+  `artwork` to that constant on the post's entry in `lib/blog/posts.ts`; a
+  post with no `artwork` field renders nothing in that position, not a
+  fallback plate and not an empty placeholder. Its files live in
+  `public/img/` under content names (§10), never `public/blog/`, which
+  would collide with the `/blog` route itself.
+  `BlogPost["artwork"]` is a `PlateAsset`, so a post cannot declare an
+  animation without its static PNG; the type makes that incomplete
+  declaration unrepresentable, not merely discouraged. An animation must
+  loop forever (WebP loop count 0) — one that does not plays once and then
+  freezes on the page. `docs/adding-a-post.md` step 2 has the conversion
+  from GIF, which keeps every frame pixel-exact and the GIF's timing. Every plate's
   integer-scale and `image-rendering: pixelated` rules in `@openbunny/react/styles.css`
   apply here too; choose the display width once the real asset's native
   size is known, the same way `BLOG_PLATE` and `CANARY_PLATE` did.
@@ -188,10 +199,13 @@ Run from the justfile, not ad hoc:
 - `just exhaustive` — `quality` plus the Playwright end-to-end suite. Not
   required to merge.
 - `just bun` (called by the gates above and directly) runs `bun run check`,
-  which is `prettier`, `eslint`, `tsc --noEmit`, `markdownlint`, `cspell`,
-  `editorconfig-checker`, `taplo`, `knip`, `vitest` (via `bun run test`,
-  which builds the site first), `stylelint`, and `html-validate`, each
-  reported independently by `concurrently -m 1`.
+  which builds the site once and then runs `prettier`, `eslint`,
+  `tsc --noEmit`, `markdownlint`, `cspell`, `editorconfig-checker`,
+  `taplo`, `knip`, `vitest`, `stylelint`, `html-validate`, and
+  `check-pinned-deps` concurrently,
+  each reported independently by `concurrently -g`. The build comes first
+  because `tsc` reads `.next/types` and the build-output tests read `out/`;
+  running the build alongside them would race.
 
 The end-to-end suite drives local Wrangler against the exported site. Its
 header assertions cover Cloudflare asset behavior locally; verify production
@@ -292,11 +306,11 @@ run; pass `--no-enforce` to report drift without failing a single
 invocation, for diagnosis; no deployment command passes it.
 
 This is not duplicated in `just check`, `just quality`, or `just
-exhaustive`. Those gates build the site (via `bun run test`, see §6) but
+exhaustive`. Those gates build the site (via `bun run check`, see §6) but
 never run `verify-asc` either, so neither of this repository's two
 signed-artifact invariants is re-checked there: the deploy command
-sequences — `bun run build:cloudflare`, `vercel.json`, the `Dockerfile`,
-and the hosted preview build — are where a built artifact's signature is the thing
+sequences — `bun run build:cloudflare`, `vercel.json`, and the `Dockerfile` —
+are where a built artifact's signature is the thing
 under test, and `just`'s gates are where the source is. Leaving both
 invariants out of `just` is the consistent choice; wiring one in without
 the other would be the inconsistency.
@@ -397,8 +411,55 @@ would catch `bun.lock` drifting from or being tampered against
 a local `just check` or `just quality` pass does not confirm the
 lockfile is honest. Separately, `mise.toml`'s `lockfile = true` setting
 means a tool-version edit with no matching `mise.lock` update is
-resolved and silently written back the next time a gated command
-happens to invoke that tool, rather than rejected — no gate here passes
-`--locked`. Neither gap is a soft, unused, or phantom dependency, so
+resolved and silently written back the next time a local command
+happens to invoke that tool, rather than rejected — CI installs with
+`--locked` (`.github/workflows/ci.yml`), but no `just` gate does. Neither gap is a soft, unused, or phantom dependency, so
 fixing either is a separate decision, not an extension of this
 section's two checkers.
+
+## 10. Every image file is named by the SHA-512 of its content
+
+An image's file name is the lowercase hex SHA-512 digest of its bytes plus
+its extension, for example `public/img/<128 hex characters>.webp`. This
+covers every image in the repository and every image the built site
+serves. The one exception is `app/favicon.ico`: clients request
+`/favicon.ico` by fixed path without reading the page's icon links.
+
+A content name changes whenever the content does, so `/img/:name` is
+served `public, max-age=31536000, immutable`
+(`lib/site/route-headers.ts`). Replacing an image is therefore a new file
+and a new reference, never an edit in place; delete the old file in the
+same change. The Cloudflare `_headers` generator writes one block per
+existing file, so a request for a missing `/img/` path falls back to the
+default `max-age=0` rule rather than being cached as immutable.
+
+Three sources produce names, and none is hand-typed:
+
+- Committed artwork and in-body images: name the file with
+  `shasum -a 512 <file>` and reference the resulting `/img/...` path from
+  a constant (`lib/images/plates.ts`) or the page that shows it.
+- Icons: `bun run icons` (`scripts/build-favicons.ts`) writes them to
+  `public/img/` and regenerates `lib/images/icon-urls.ts`, which
+  `lib/site/metadata.ts` and `app/manifest.ts` read. Do not edit
+  `icon-urls.ts` by hand.
+- Share cards: each `opengraph-image.tsx` exports
+  `generateImageMetadata`, whose `id` is the SHA-512 of the card it
+  renders (`lib/images/og-cards.ts`), so Next writes the card to
+  `<route>/opengraph-image/<digest>`. The card is rendered during
+  `next build`; nothing is committed, and a canary renewal that changes
+  the card's dates changes its name with no extra step. The file has no
+  extension, so `lib/site/cloudflare-headers.ts` sets its `Content-Type`.
+  There is no `twitter-image.tsx`: without one, Next fills `twitter:image`
+  and its alt, type and size from the Open Graph card, and each extra
+  route would add one rendered file and one `_headers` block against the
+  100-rule limit.
+
+`tests/unit/image-names.test.ts` fails on any image in the repository
+whose name is not its digest. `tests/unit/image-references.build-output.test.ts`
+fails on any image URL the built site references that is not a content
+name or does not exist, on any `out/img/` file nothing references, and on
+any share card whose name is not the digest of its bytes.
+
+A Cloudflare zone feature that rewrites image bytes in transit, such as
+Polish, would serve bytes that no longer match the name. Nothing in the
+repository detects that; keep such features off for this zone.

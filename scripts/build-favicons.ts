@@ -1,14 +1,19 @@
-import { mkdir, writeFile } from "node:fs/promises"
+import { mkdir, rm, writeFile } from "node:fs/promises"
 import { dirname, join } from "node:path"
 
+import { format, resolveConfig } from "prettier"
+
+import { contentUrl } from "@/lib/images/content-name"
 import { pngsToIco } from "@/lib/images/ico-encode"
 import {
   appleSize,
-  iconPaths,
+  icoPath,
+  iconUrlsModule,
   ink,
   maskableSize,
   paper,
 } from "@/lib/images/icon-files"
+import { iconUrls } from "@/lib/images/icon-urls"
 import { svgToPng } from "@/lib/images/svg-png"
 
 const utf8 = new TextEncoder()
@@ -35,10 +40,9 @@ function maskIcon(d: string): string {
 `
 }
 
-const out = (rel: string): string => join(process.cwd(), rel)
 async function write(rel: string, bytes: Uint8Array): Promise<void> {
-  await mkdir(dirname(out(rel)), { recursive: true })
-  await writeFile(out(rel), bytes)
+  await mkdir(dirname(rel), { recursive: true })
+  await writeFile(rel, bytes)
   process.stdout.write(`${rel}\n`)
 }
 
@@ -46,13 +50,34 @@ const master = card(EARS, 1, 14)
 const maskable = card(EARS, 0.8, 0)
 const tiny = card(`<path fill="${TINY_ACCENT}" d="${EARS_SILHOUETTE}"/>`, 1, 14)
 
-await write(iconPaths.svg, utf8.encode(master))
-await write(iconPaths.safari, utf8.encode(maskIcon(EARS_SILHOUETTE)))
-await write(iconPaths.apple, await svgToPng(master, appleSize))
-await write(iconPaths.png192, await svgToPng(master, 192))
-await write(iconPaths.png512, await svgToPng(master, 512))
-await write(iconPaths.maskable192, await svgToPng(maskable, 192))
-await write(iconPaths.maskable512, await svgToPng(maskable, maskableSize))
+const icons = {
+  svg: { extension: "svg", bytes: utf8.encode(master) },
+  safari: {
+    extension: "svg",
+    bytes: utf8.encode(maskIcon(EARS_SILHOUETTE)),
+  },
+  apple: { extension: "png", bytes: await svgToPng(master, appleSize) },
+  png192: { extension: "png", bytes: await svgToPng(master, 192) },
+  png512: { extension: "png", bytes: await svgToPng(master, 512) },
+  maskable192: { extension: "png", bytes: await svgToPng(maskable, 192) },
+  maskable512: {
+    extension: "png",
+    bytes: await svgToPng(maskable, maskableSize),
+  },
+} as const
+
+const urls: Record<string, string> = {}
+for (const [key, { extension, bytes }] of Object.entries(icons)) {
+  const url = contentUrl(bytes, extension)
+  urls[key] = url
+  await write(join("public", url), bytes)
+}
+const current = new Set(Object.values(urls))
+for (const url of Object.values(iconUrls)) {
+  if (!current.has(url)) {
+    await rm(join("public", url), { force: true })
+  }
+}
 
 const icoPngs = await Promise.all(
   [16, 32, 48].map(async (size) => ({
@@ -60,4 +85,14 @@ const icoPngs = await Promise.all(
     png: await svgToPng(size === 16 ? tiny : master, size),
   }))
 )
-await write(iconPaths.ico, pngsToIco(icoPngs))
+await write(icoPath, pngsToIco(icoPngs))
+
+const source = `export const iconUrls = ${JSON.stringify(urls)} as const\n`
+await writeFile(
+  iconUrlsModule,
+  await format(source, {
+    ...(await resolveConfig(iconUrlsModule)),
+    filepath: iconUrlsModule,
+  })
+)
+process.stdout.write(`${iconUrlsModule}\n`)

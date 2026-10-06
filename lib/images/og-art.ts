@@ -1,16 +1,28 @@
 import { readFile } from "node:fs/promises"
 import { join } from "node:path"
 
+import {
+  BLOG_PLATE,
+  CANARY_PLATE,
+  HOMEBREW_TAP_PLATE,
+  OPENBUNNY_BULK_RELEASE_PLATE,
+  TICKERBOX_CLI_PLATE,
+  WORMS_WMD_PLATE,
+} from "@/lib/images/plates"
+
+const publicFile = (src: string): string => join(process.cwd(), "public", src)
+
 export const ogArtFiles = {
-  home: join(process.cwd(), "app/og-bunny.png"),
-  canary: join(process.cwd(), "public/canary-static.png"),
-  blog: join(process.cwd(), "public/blog-static.png"),
-  openbunnyBulkRelease: join(
+  home: join(
     process.cwd(),
-    "public/post-art/openbunny-bulk-release-static.png"
+    "lib/images/art/d4b49e453be07af728a8b3f217c000f7b5f0dbab0fb0dd8efce064a8e064b2368b4eb85f19f23e673a48de4c7d7f0c76008815a3f3f6a3f2a7feb62a5ba7b1b8.png"
   ),
-  homebrewTap: join(process.cwd(), "public/post-art/homebrew-tap-static.png"),
-  tickerboxCli: join(process.cwd(), "public/post-art/tickerbox-cli-static.png"),
+  canary: publicFile(CANARY_PLATE.staticSrc),
+  blog: publicFile(BLOG_PLATE.staticSrc),
+  openbunnyBulkRelease: publicFile(OPENBUNNY_BULK_RELEASE_PLATE.staticSrc),
+  homebrewTap: publicFile(HOMEBREW_TAP_PLATE.staticSrc),
+  tickerboxCli: publicFile(TICKERBOX_CLI_PLATE.staticSrc),
+  wormsWmd: publicFile(WORMS_WMD_PLATE.staticSrc),
 } as const
 
 export type OgArt = {

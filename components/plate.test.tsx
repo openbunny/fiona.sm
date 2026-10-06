@@ -13,16 +13,17 @@ afterEach(() => {
 describe("Plate", () => {
   it("swaps to the still frame when motion is reduced", () => {
     const { container } = render(<Plate asset={HOME_PLATE} />)
-    const images = [...container.querySelectorAll("img")]
-
-    expect(images).toHaveLength(2)
-    expect(images[0]).toHaveAttribute("src", HOME_PLATE.gifSrc)
-    expect(images[0]?.className).toMatch(/motion-reduce:hidden/)
-    expect(images[1]).toHaveAttribute("src", HOME_PLATE.staticSrc)
-    expect(images[1]?.className).toMatch(/motion-reduce:block/)
+    const images = [...container.querySelectorAll("picture > img")]
+    expect(images).toHaveLength(1)
+    expect(images[0]).toHaveAttribute("src", HOME_PLATE.animatedSrc)
+    expect(
+      container.querySelector(
+        'picture > source[media="(prefers-reduced-motion: reduce)"]'
+      )
+    ).toHaveAttribute("srcset", HOME_PLATE.staticSrc)
   })
 
-  it("carries the asset's native dimensions on both images", () => {
+  it("carries the asset's native dimensions on its image", () => {
     const { container } = render(<Plate asset={HOME_PLATE} />)
 
     for (const img of container.querySelectorAll("img")) {

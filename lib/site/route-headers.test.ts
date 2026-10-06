@@ -21,10 +21,9 @@ const everyCacheRule = routeHeaders
   )
   .filter(({ header }) => header.key === "Cache-Control")
 
-const iconAssets =
-  "/:asset(icon-192\\.png|icon-512\\.png|icon-192-maskable\\.png|icon-512-maskable\\.png|safari-pinned-tab\\.svg|favicon\\.ico|icon\\.svg|apple-icon\\.png|manifest\\.webmanifest)"
+const iconAssets = "/:asset(favicon\\.ico|manifest\\.webmanifest)"
 
-const contentAddressed = "/posts/:slug/:digest.txt"
+const contentAddressed = ["/posts/:slug/:digest.txt", "/img/:name"]
 
 describe("route cache policy", () => {
   it.each(["/", "/privacy", "/canary", "/blog", "/blog/tickerbox-cli"])(
@@ -51,7 +50,7 @@ describe("route cache policy", () => {
       .filter(({ header }) => !header.value.includes("must-revalidate"))
       .map(({ source }) => source)
 
-    expect(withoutRevalidation).toEqual([contentAddressed])
+    expect(withoutRevalidation).toEqual(contentAddressed)
   })
 
   it("allows immutable only where the url names the digest of what it serves", () => {
@@ -59,7 +58,7 @@ describe("route cache policy", () => {
       .filter(({ header }) => header.value.includes("immutable"))
       .map(({ source }) => source)
 
-    expect(immutable).toEqual([contentAddressed])
+    expect(immutable).toEqual(contentAddressed)
   })
 
   it("declares no cache lifetime for a canary date that may not exist", () => {
@@ -94,9 +93,9 @@ describe("route cache policy", () => {
     expect(contentTypeOf("/posts/:slug.txt")).toBe("text/plain; charset=utf-8")
   })
 
-  it("bounds every plate's cache lifetime, since none of their filenames carry a hash", () => {
+  it("caches every plate immutably, since each file name is the digest of its content", () => {
     const files = Object.values(plates).flatMap((plate) => [
-      plate.gifSrc,
+      plate.animatedSrc,
       plate.staticSrc,
     ])
     expect(
@@ -104,29 +103,12 @@ describe("route cache policy", () => {
       "no plate was discovered, so this test would pass having checked nothing"
     ).toBeGreaterThanOrEqual(16)
 
-    const [probe] = files.map((file) => file.slice(1).replace(".", "\\."))
-    const source = routeHeaders
-      .map((rule) => rule.source)
-      .find((candidate) => probe !== undefined && candidate.includes(probe))
-    expect(source, "the enumerated plate cache rule is gone").toBeDefined()
-
     for (const file of files) {
-      expect(
-        source,
-        `${file} is not covered by the plate cache rule, so it falls back to an unbounded policy`
-      ).toContain(file.slice(1).replace(".", "\\."))
+      expect(file).toMatch(/^\/img\/[0-9a-f]{128}\.(webp|png)$/u)
     }
-
-    const plate = cacheControlOf(source ?? "")
-    expect(plate).toBe("public, max-age=3600, must-revalidate")
-    expect(plate).not.toContain("stale-while-revalidate")
-  })
-
-  it("bounds every post-art asset's cache lifetime by prefix, not by an enumerated list", () => {
-    const postArt = cacheControlOf("/post-art/:path*")
-
-    expect(postArt).toBe("public, max-age=3600, must-revalidate")
-    expect(postArt).not.toContain("stale-while-revalidate")
+    expect(cacheControlOf("/img/:name")).toBe(
+      "public, max-age=31536000, immutable"
+    )
   })
 })
 

@@ -5,12 +5,12 @@ import {
   blogPageCount,
   blogPageHref,
   blogPostsForPage,
-  postArtwork,
   postBySlug,
   postsByNewest,
   posts,
   type BlogPost,
 } from "@/lib/blog/posts"
+import { TICKERBOX_CLI_PLATE } from "@/lib/images/plates"
 
 function makePosts(count: number): readonly BlogPost[] {
   return Array.from({ length: count }, (_, index) => ({
@@ -28,18 +28,7 @@ describe("posts", () => {
       title: "tickerbox-cli",
       date: "2026-10-01",
       href: "/blog/tickerbox-cli",
-      artwork: postArtwork("tickerbox-cli", 500, 260),
-    })
-  })
-})
-
-describe("postArtwork", () => {
-  it("builds the gif and static paths from the slug alone", () => {
-    expect(postArtwork("example-post", 400, 300)).toEqual({
-      gifSrc: "/post-art/example-post.gif",
-      staticSrc: "/post-art/example-post-static.png",
-      width: 400,
-      height: 300,
+      artwork: TICKERBOX_CLI_PLATE,
     })
   })
 })
@@ -56,7 +45,7 @@ describe("postBySlug", () => {
     title: "Second",
     date: "2026-02-01",
     href: "/blog/second",
-    artwork: postArtwork("second", 400, 300),
+    artwork: TICKERBOX_CLI_PLATE,
   }
   const source = [first, second]
 

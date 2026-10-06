@@ -3,6 +3,11 @@ import { existsSync, readFileSync } from "node:fs"
 import { describe, expect, it } from "vitest"
 
 import { blogPageCount, posts } from "@/lib/blog/posts"
+import {
+  isOgCardKey,
+  ogCardImageMetadata,
+  type OgCardKey,
+} from "@/lib/images/og-cards"
 
 const PRERENDER_MANIFEST = ".next/prerender-manifest.json"
 const ROUTES_MANIFEST = ".next/routes-manifest.json"
@@ -11,29 +16,44 @@ const ROUTES_INDEPENDENT_OF_POST_COUNT: readonly string[] = [
   "/",
   "/_global-error",
   "/_not-found",
-  "/apple-icon.png",
   "/blog",
-  "/blog/opengraph-image",
-  "/blog/twitter-image",
   "/blog/verify-posts",
   "/canary",
-  "/canary/opengraph-image",
-  "/canary/twitter-image",
   "/favicon.ico",
   "/feed.xml",
-  "/icon.svg",
   "/manifest.webmanifest",
-  "/opengraph-image",
   "/privacy",
   "/robots.txt",
-  "/twitter-image",
 ]
 
-const POST_ROUTES: readonly string[] = posts.flatMap((post) => [
-  post.href,
-  `${post.href}/opengraph-image`,
-  `${post.href}/twitter-image`,
+const POST_ROUTES: readonly string[] = posts.map((post) => post.href)
+
+const CARD_ROUTES: readonly (readonly [string, OgCardKey])[] = [
+  ["", "home"],
+  ["/blog", "blog"],
+  ["/canary", "canary"],
+  ...posts.map((post): readonly [string, OgCardKey] => {
+    if (!isOgCardKey(post.slug)) {
+      throw new Error(
+        `lib/images/og-cards.ts declares no share card for the post "${post.slug}". Add one.`
+      )
+    }
+    return [post.href, post.slug]
+  }),
+]
+
+const CARD_TEMPLATES: readonly string[] = CARD_ROUTES.flatMap(([prefix]) => [
+  `${prefix}/opengraph-image/[__metadata_id__]`,
 ])
+
+const RENDERED_CARDS: readonly string[] = (
+  await Promise.all(
+    CARD_ROUTES.map(async ([prefix, key]) => {
+      const cards = await ogCardImageMetadata(key)
+      return cards.map(({ id }) => `${prefix}/opengraph-image/${id}`)
+    })
+  )
+).flat()
 
 const PAGINATION_ROUTES: readonly string[] = Array.from(
   { length: blogPageCount() },
@@ -44,6 +64,7 @@ const EXPECTED_ROUTES: readonly string[] = [
   ...ROUTES_INDEPENDENT_OF_POST_COUNT,
   ...POST_ROUTES,
   ...PAGINATION_ROUTES,
+  ...RENDERED_CARDS,
 ].sort()
 
 const EXPECTED_STATIC_TABLE_ROUTES: readonly string[] = [
@@ -53,7 +74,8 @@ const EXPECTED_STATIC_TABLE_ROUTES: readonly string[] = [
 
 const EXPECTED_DYNAMIC_ROUTE_TEMPLATES: readonly string[] = [
   "/blog/page/[page]",
-]
+  ...CARD_TEMPLATES,
+].sort()
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value)
@@ -140,7 +162,7 @@ describe("route inventory", () => {
     ])
   })
 
-  it("declares only the pagination template as a dynamic route, fully enumerated at build time", () => {
+  it("declares only the pagination and share card templates as dynamic routes, fully enumerated at build time", () => {
     const prerender = readPrerenderManifest()
     const routes = readRoutesManifest()
 

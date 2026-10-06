@@ -2,6 +2,7 @@ import { expect, test } from "@playwright/test"
 
 import { canary } from "@/lib/canary/canary"
 import { fingerprintLine } from "@/lib/canary/fingerprint"
+import { iconUrls } from "@/lib/images/icon-urls"
 import { formatLongDateTime } from "@/lib/iso-date"
 import { site } from "@/lib/site/site"
 
@@ -48,11 +49,11 @@ test("serves identity, key material, and SEO landmarks", async ({ page }) => {
   )
   await expect(page.locator('link[rel="apple-touch-icon"]')).toHaveAttribute(
     "href",
-    /apple-icon/
+    iconUrls.apple
   )
   await expect(page.locator('link[rel="mask-icon"]')).toHaveAttribute(
     "href",
-    /safari-pinned-tab\.svg/
+    iconUrls.safari
   )
 })
 

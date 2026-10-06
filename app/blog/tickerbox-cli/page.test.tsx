@@ -137,18 +137,30 @@ describe("TickerboxCliPage", () => {
   it("shows no home plate, so a post never carries two pieces of artwork", async () => {
     await renderPost()
 
-    expect(document.querySelector('img[src="/home.gif"]')).toBeNull()
-    expect(document.querySelector('img[src="/home-static.png"]')).toBeNull()
+    expect(
+      document.querySelector(
+        'img[src="/img/bd0a1c582aa64034a09953f1571e2782fdae0b481ffc42371b836b1fc92611e7f02ec73b31412729aae840b832052051b5db404ecf532a3a38219451eb273c34.webp"]'
+      )
+    ).toBeNull()
+    expect(
+      document.querySelector(
+        'source[media="(prefers-reduced-motion: reduce)"][srcset="/img/307014014e81e15d12eede25b66d81db0b2939f99b8611072ab6c009cf9a6c6a25e41f8051552f6efb4c3c87a9c835dd55a76cb430b4632c3ef6d12e94a94841.png"]'
+      )
+    ).toBeNull()
   })
 
   it("renders its declared per-post artwork", async () => {
     await renderPost()
 
     expect(
-      document.querySelector('img[src="/post-art/tickerbox-cli.gif"]')
+      document.querySelector(
+        'img[src="/img/52547c197cc4cbaacec4144269fdc9c770fe8457e72a10f7f408a7029ccac1a2a9fd537f49932bc8dfe8f71a81c26c64491d44d3359a3b245916dd7d92703d21.webp"]'
+      )
     ).not.toBeNull()
     expect(
-      document.querySelector('img[src="/post-art/tickerbox-cli-static.png"]')
+      document.querySelector(
+        'source[media="(prefers-reduced-motion: reduce)"][srcset="/img/d98ee7c2f0b3392e6ed8a037d66d77fe17911d357d99b2305e32d0294099de13fa687ed98b2d7363ab28a997ec18b548f9b9b6ca40b8544709d661f5ee8e4fee.png"]'
+      )
     ).not.toBeNull()
   })
 

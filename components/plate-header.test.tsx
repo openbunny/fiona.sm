@@ -22,11 +22,15 @@ describe("PlateHeader", () => {
     const { container } = render(
       <PlateHeader asset={PRIVACY_PLATE} plateClassName="w-[245px]" />
     )
-    const sources = [...container.querySelectorAll("img")].map((image) =>
-      image.getAttribute("src")
+    expect(container.querySelector("picture > img")).toHaveAttribute(
+      "src",
+      PRIVACY_PLATE.animatedSrc
     )
-
-    expect(sources).toEqual([PRIVACY_PLATE.gifSrc, PRIVACY_PLATE.staticSrc])
+    expect(
+      container.querySelector(
+        'picture > source[media="(prefers-reduced-motion: reduce)"]'
+      )
+    ).toHaveAttribute("srcset", PRIVACY_PLATE.staticSrc)
   })
 
   it("passes the display width through to the plate", () => {

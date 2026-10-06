@@ -33,9 +33,21 @@ describe("Page (minimal)", () => {
   it("carries the canary plate masthead, not the home or blog one", async () => {
     await renderPage()
 
-    expect(document.querySelector('img[src="/canary.gif"]')).not.toBeNull()
-    expect(document.querySelector('img[src="/home.gif"]')).toBeNull()
-    expect(document.querySelector('img[src="/blog.gif"]')).toBeNull()
+    expect(
+      document.querySelector(
+        'img[src="/img/04c8fcd7c622920e408c9052bde20ec31f444e57f335d8f35251ccb2a440dd7047e71fbda44ab3dad8f8f3f57042ed302b1237bd49de939f4ad37cbef69e42f3.webp"]'
+      )
+    ).not.toBeNull()
+    expect(
+      document.querySelector(
+        'img[src="/img/bd0a1c582aa64034a09953f1571e2782fdae0b481ffc42371b836b1fc92611e7f02ec73b31412729aae840b832052051b5db404ecf532a3a38219451eb273c34.webp"]'
+      )
+    ).toBeNull()
+    expect(
+      document.querySelector(
+        'img[src="/img/b61842fbffc49046f48357cbff20ecf3cdabcb6a2b29aa0c24e05287cc5369436d39ff32fd3f1bde373f6375ec9e19a76305eb736fb876d90ec7c777df333d6f.webp"]'
+      )
+    ).toBeNull()
   })
 
   it("gives the fingerprint a heading that only assistive technology reads", async () => {

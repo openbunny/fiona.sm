@@ -98,7 +98,9 @@ describe("BlogPage", () => {
   it("carries the blog plate masthead above the heading", async () => {
     await renderBlogPage()
 
-    const plate = document.querySelector('img[src="/blog.gif"]')
+    const plate = document.querySelector(
+      'img[src="/img/b61842fbffc49046f48357cbff20ecf3cdabcb6a2b29aa0c24e05287cc5369436d39ff32fd3f1bde373f6375ec9e19a76305eb736fb876d90ec7c777df333d6f.webp"]'
+    )
     expect(plate).not.toBeNull()
 
     const heading = screen.getByRole("heading", { level: 1, name: "blog" })

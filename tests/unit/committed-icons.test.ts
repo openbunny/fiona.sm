@@ -3,7 +3,8 @@ import { existsSync, readFileSync } from "node:fs"
 import sharp from "sharp"
 import { describe, expect, it } from "vitest"
 
-import { iconPaths, ink, paper } from "@/lib/images/icon-files"
+import { icoPath, ink, paper } from "@/lib/images/icon-files"
+import { iconUrls } from "@/lib/images/icon-urls"
 
 async function firstPixel(
   bytes: Uint8Array
@@ -64,7 +65,10 @@ const paperRgb = {
 
 describe("committed icons", () => {
   it("keeps svg, ico, apple, manifest, maskable, and safari files", () => {
-    for (const path of Object.values(iconPaths)) {
+    for (const path of [
+      icoPath,
+      ...Object.values(iconUrls).map((url) => `public${url}`),
+    ]) {
       expect({ path, exists: existsSync(path) }).toEqual({
         path,
         exists: true,
@@ -73,7 +77,7 @@ describe("committed icons", () => {
   })
 
   it("stores the bunny ears, not a live font, in the svg favicon", () => {
-    const svg = readFileSync(iconPaths.svg, "utf8")
+    const svg = readFileSync(`public${iconUrls.svg}`, "utf8")
     expect(svg).toContain("<path ")
     expect(svg).not.toContain("font-family")
     expect(svg).not.toContain("<text")
@@ -85,16 +89,26 @@ describe("committed icons", () => {
   })
 
   it("stores apple and manifest pngs at the required sizes", async () => {
-    const apple = await sharp(readFileSync(iconPaths.apple)).metadata()
-    const png192 = await sharp(readFileSync(iconPaths.png192)).metadata()
-    const png512 = await sharp(readFileSync(iconPaths.png512)).metadata()
+    const apple = await sharp(
+      readFileSync(`public${iconUrls.apple}`)
+    ).metadata()
+    const png192 = await sharp(
+      readFileSync(`public${iconUrls.png192}`)
+    ).metadata()
+    const png512 = await sharp(
+      readFileSync(`public${iconUrls.png512}`)
+    ).metadata()
     expect(apple.width).toBe(180)
     expect(png192.width).toBe(192)
     expect(png512.width).toBe(512)
   })
 
   it("keeps rounded-corner pngs transparent at the corner and opaque paper in the field", async () => {
-    for (const path of [iconPaths.apple, iconPaths.png192, iconPaths.png512]) {
+    for (const path of [
+      `public${iconUrls.apple}`,
+      `public${iconUrls.png192}`,
+      `public${iconUrls.png512}`,
+    ]) {
       const bytes = readFileSync(path)
       expect(await firstPixel(bytes)).toEqual({ r: 0, g: 0, b: 0, a: 0 })
       expect(await pixelAt(bytes, 0, 0)).toEqual(paperRgb)
@@ -102,7 +116,10 @@ describe("committed icons", () => {
   })
 
   it("keeps maskable pngs full-bleed opaque paper", async () => {
-    for (const path of [iconPaths.maskable192, iconPaths.maskable512]) {
+    for (const path of [
+      `public${iconUrls.maskable192}`,
+      `public${iconUrls.maskable512}`,
+    ]) {
       const bytes = readFileSync(path)
       expect(await firstPixel(bytes)).toEqual(paperRgb)
       expect(await pixelAt(bytes, 0, 0)).toEqual(paperRgb)
@@ -110,7 +127,7 @@ describe("committed icons", () => {
   })
 
   it("keeps the safari mask icon a silhouette without a paper card", () => {
-    const safari = readFileSync(iconPaths.safari, "utf8")
+    const safari = readFileSync(`public${iconUrls.safari}`, "utf8")
     expect(safari).toContain("<path ")
     expect(safari).not.toContain("<rect")
     expect(safari).toContain(ink)

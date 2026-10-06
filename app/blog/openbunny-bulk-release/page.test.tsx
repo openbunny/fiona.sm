@@ -154,19 +154,29 @@ describe("OpenbunnyBulkReleasePage", () => {
   it("shows no home plate, so a post never carries two pieces of artwork", async () => {
     await renderPost()
 
-    expect(document.querySelector('img[src="/home.gif"]')).toBeNull()
-    expect(document.querySelector('img[src="/home-static.png"]')).toBeNull()
+    expect(
+      document.querySelector(
+        'img[src="/img/bd0a1c582aa64034a09953f1571e2782fdae0b481ffc42371b836b1fc92611e7f02ec73b31412729aae840b832052051b5db404ecf532a3a38219451eb273c34.webp"]'
+      )
+    ).toBeNull()
+    expect(
+      document.querySelector(
+        'source[media="(prefers-reduced-motion: reduce)"][srcset="/img/307014014e81e15d12eede25b66d81db0b2939f99b8611072ab6c009cf9a6c6a25e41f8051552f6efb4c3c87a9c835dd55a76cb430b4632c3ef6d12e94a94841.png"]'
+      )
+    ).toBeNull()
   })
 
   it("renders its declared per-post artwork", async () => {
     await renderPost()
 
     expect(
-      document.querySelector('img[src="/post-art/openbunny-bulk-release.gif"]')
+      document.querySelector(
+        'img[src="/img/43c22554795f17ebcccf5713973c3809e2c4c82e079b5ffe6e93f9fd4768a02f8e4d464fec293c1b794393aca8974557e6f6584fb7ea1f00b7109e812fe86571.webp"]'
+      )
     ).not.toBeNull()
     expect(
       document.querySelector(
-        'img[src="/post-art/openbunny-bulk-release-static.png"]'
+        'source[media="(prefers-reduced-motion: reduce)"][srcset="/img/4db7ef22e9a5060fc1eb60d57b3a407c2c5cac07b77e0dd9662827b6d8266a33b92888ed5d76441119ca6bd44552d7fc579e74dd3daf3fc1c5d41922b37c2672.png"]'
       )
     ).not.toBeNull()
   })
@@ -213,7 +223,7 @@ describe("OpenbunnyBulkReleasePage", () => {
     await renderPost()
 
     const heart = document.querySelector<HTMLImageElement>(
-      'img[src="/post-art/openbunny-bulk-release/heartsign.gif"]'
+      'img[src="/img/29b9bdaae2e942a116e934fbddd964e0823f23eaa1a643a5a5e9685f0fc092a16e46686a52282a14daae2cbc0317bacbb0d912acd782200a19c527ed295dbf2f.webp"]'
     )
     expect(heart).not.toBeNull()
     expect(heart?.getAttribute("alt")).toBe("")
