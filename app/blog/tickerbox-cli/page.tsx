@@ -1,10 +1,10 @@
 import type { Metadata } from "next"
 import type { ReactElement } from "react"
 
-import { Cite } from "@/components/blog/citations"
+import { Cite, type Reference } from "@openbunny/react"
+
 import { Paragraph, PostArticle } from "@/components/blog/post-article"
 import { CommandLine } from "@/components/command-line"
-import type { Reference } from "@/lib/blog/bibliography"
 import { postMetadata } from "@/lib/blog/post-metadata"
 import { absoluteUrl, site } from "@/lib/site/site"
 

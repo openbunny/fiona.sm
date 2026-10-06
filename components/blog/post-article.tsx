@@ -1,14 +1,18 @@
 import type { ReactElement, ReactNode } from "react"
 
 import { CiteBlock } from "@/components/blog/cite-block"
-import type { CitationRegistry } from "@/components/blog/citations"
-import { References, createCitationRegistry } from "@/components/blog/citations"
 import { PostPlate } from "@/components/blog/post-plate"
 import { PostVerifyNote } from "@/components/blog/post-verify-note"
-import { PageShell } from "@openbunny/react"
+import {
+  PageShell,
+  References,
+  createCitationRegistry,
+  type BackLinkLabel,
+  type CitationRegistry,
+  type Reference,
+} from "@openbunny/react"
 import { SiteBar } from "@/components/site-bar"
 import { SiteFooter } from "@/components/site-footer"
-import type { Reference } from "@/lib/blog/bibliography"
 import { requirePostBySlug } from "@/lib/blog/posts"
 import { formatLongDate } from "@/lib/iso-date"
 import {
@@ -16,6 +20,11 @@ import {
   readManifestLookup,
 } from "@/lib/manifest/manifest-lookup"
 import { manifestSignedAt } from "@/lib/manifest/manifest-signed-at"
+
+const backLinkLabel: BackLinkLabel = (number, occurrence, occurrences) =>
+  occurrences > 1
+    ? `back to citation ${String(number)}, occurrence ${String(occurrence)} of ${String(occurrences)}`
+    : `back to citation ${String(number)}`
 
 export function Paragraph({
   children,
@@ -66,7 +75,12 @@ export async function PostArticle({
         >
           references
         </h2>
-        <References items={references} registry={citations} />
+        <References
+          items={references}
+          registry={citations}
+          sourceLabel="source"
+          backLinkLabel={backLinkLabel}
+        />
         <CiteBlock
           id="cite"
           citation={{
