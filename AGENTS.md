@@ -403,6 +403,20 @@ changes the moment a future config extends the recommended set. Both the pin
 and the eslint 9 constraint lift together when that issue closes; neither
 lifts alone.
 
+`package.json`'s `overrides` field pins a transitive dependency past a
+published advisory when the parent package still pins the vulnerable
+version. Each entry is an exact version, and each stays only until its
+parent's own release resolves the fixed version: check with
+`bun pm why <package>` and delete the entry then. `just osv` is what
+reports the advisory, so an override is never added without that scan
+naming it. An advisory with no fixed version gets no override. It gets an
+entry in `osv-scanner.toml` only when `bun pm why <package>` shows every
+path starting at a devDependency and the vulnerable code never sees
+untrusted input. The entry names the one advisory id, states that
+evidence as its `reason`, and carries an `ignoreUntil` date, so the scan
+fails again on that date and the entry is re-checked rather than
+forgotten. Any other advisory without a fix keeps the scan red.
+
 This section is about `package.json`'s own content, not the files next
 to it. Two adjacent gaps are known and deliberately unaddressed by
 either checker: `bun install --frozen-lockfile`, the only command that

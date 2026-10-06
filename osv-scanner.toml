@@ -1,0 +1,4 @@
+[[IgnoredVulns]]
+id = "GHSA-vfj7-8cjw-p6xm"
+ignoreUntil = 2027-01-04T00:00:00Z
+reason = "braces 3.0.3 is the last release and no fixed version exists. `bun pm why braces` reaches it only through devDependencies (markdownlint-cli2, eslint-config-next, eslint-plugin-check-file, stylelint, shadcn), which expand glob patterns written in this repository, never untrusted input; the built site in out/ contains none of its code. Remove this entry when braces publishes a fix or the expiry date passes."

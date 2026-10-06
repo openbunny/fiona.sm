@@ -59,5 +59,5 @@ Wrangler's remote development session followed the existing Vercel route. A name
 
 ## Merge gate
 
-- [ ] `just quality` reports the [braces advisory](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm). `bun pm why braces` identifies its development-tool dependency path; `just osv` prints the live finding and whether an upstream fix exists. Keep the scan enabled and report this gate as failing until a remediation exists.
+- [x] `just quality` reported the [braces advisory](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm), which has no fixed release. Every path to braces starts at a devDependency, so `osv-scanner.toml` ignores that one advisory until its `ignoreUntil` date (AGENTS.md §9). The five advisories with fixed versions are resolved through `overrides` in `package.json`.
 - [x] Run CodeRabbit against tracked and untracked migration changes under the `openbunny` plan. Its review found a preview configuration mismatch and duplicate reports of the `/blog/page/1` redirect mismatch. Both changes are applied locally; a fresh follow-up review completed with no findings. `just check` and the local Wrangler end-to-end suite passed after the fixes.
