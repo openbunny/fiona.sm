@@ -10,6 +10,8 @@ RUN --mount=type=cache,target=/root/.bun/install/cache \
 
 FROM deps AS builder
 
+ENV NEXT_OUTPUT=standalone
+
 COPY . .
 
 ARG COMMIT_SHA

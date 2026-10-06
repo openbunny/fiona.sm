@@ -232,7 +232,7 @@ them apart.
 ## This is enforced
 
 `bun run manifest verify` runs after `bun run build` in both
-`vercel.json`'s `buildCommand` and the `Dockerfile` — after, not before
+`bun run build:cloudflare`, `vercel.json`'s `buildCommand`, and the `Dockerfile` — after, not before
 like `verify-asc`, because the manifest hashes the built `<article>` HTML,
 which the build has to produce first. `lib/manifest/manifest-policy.ts`'s
 `manifestEnforcementEnabled` is `true`, the single named place that decides
@@ -246,11 +246,11 @@ statement exactly as before, and now also refuses to build without a
 manifest whose signature verifies and whose hashes match.
 
 Pass `--no-enforce` to report drift without failing a single invocation,
-for diagnosis; neither `vercel.json` nor the `Dockerfile` does.
+for diagnosis; none of the deployment commands does.
 
 ### What had to hold before enforcement could gate a deploy
 
-Wiring `bun run manifest verify` into `vercel.json` and the `Dockerfile`
+Wiring `bun run manifest verify` into each deployment build
 required confirming one precondition first, mirroring how `verify-asc` was
 wired in deliberately rather than by default: rebuilding unchanged source
 must reproduce byte-identical normalised article text on every build.

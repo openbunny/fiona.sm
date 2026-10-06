@@ -14,6 +14,8 @@ const commonExclude = [
   "**/*.config.{ts,mts,mjs,js}", // nosemgrep
   "vitest.setup.ts",
   ".next/**",
+  "out/**",
+  ".wrangler/**",
   "coverage/**",
   "next-env.d.ts",
   "**/*.d.ts", // nosemgrep

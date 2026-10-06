@@ -13,6 +13,7 @@ const note = `signed ${signedOn} · renew by ${renewBy}`
 export const alt = `a white cat stretched out asleep, captioned "key canary", above the line "${note}".`
 export const size = ogSize
 export const contentType = ogContentType
+export const dynamic = "force-static"
 
 export default async function OpengraphImage(): Promise<ImageResponse> {
   return ogCard({ artwork: ogArtFiles.canary, title, note })

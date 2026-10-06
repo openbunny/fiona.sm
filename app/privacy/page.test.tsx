@@ -62,10 +62,10 @@ describe("PrivacyPage", () => {
     }
   })
 
-  it("names the production-only measurement and the contact address", async () => {
+  it("discloses browser analytics and names the contact address", async () => {
     await renderPrivacyPage()
 
-    expect(screen.getByText(/run in production only/)).toBeTruthy()
+    expect(screen.getByText(/can record page views/)).toBeTruthy()
     expect(screen.getAllByRole("link", { name: canary.email })).toHaveLength(2)
   })
 
@@ -93,60 +93,52 @@ describe("PrivacyPage", () => {
       screen.getByText(/it has no separate no-script version/)
     ).toBeTruthy()
     expect(
-      screen.getByText(/needs javascript to run, and\s+nothing is\s+stored/)
+      screen.getByText(/require javascript to run, and\s+nothing is\s+stored/)
     ).toBeTruthy()
   })
 
-  it("claims no off-origin request anywhere in the device policy", async () => {
+  it("names the off-origin beacon and excludes verification endpoints", async () => {
     await renderPrivacyPage()
 
     expect(
-      screen.getByText(/asks this browser to\s+contact any other host/)
+      screen.getByText(/analytics beacon is the only\s+off-origin script/)
     ).toBeTruthy()
     expect(screen.queryByText(/Monero check/)).toBeNull()
   })
 
-  it("stores nothing in the browser and discloses the page view", async () => {
+  it("states the beacon storage policy and excludes custom events", async () => {
     await renderPrivacyPage()
 
     expect(screen.getByText(/nothing is stored in this\s+browser/)).toBeTruthy()
     expect(screen.queryByText(/fiona-theme/)).toBeNull()
     expect(
-      screen.getByText(/record a page view on every page load/)
-    ).toBeTruthy()
-  })
-
-  it("distinguishes an event the reader triggers from one observed without any action", async () => {
-    await renderPrivacyPage()
-
-    expect(
       screen.getByText(
-        /triggered by something the reader does, such as pressing a copy button/
+        /copy actions, citation clicks and reading progress are not\s+reported/
       )
     ).toBeTruthy()
     expect(
-      screen.getByText(
-        /triggered by nothing more than reaching a point in the page, with no action from the reader required/
-      )
+      screen.getByText(/beacon uses no cookies or browser storage/)
     ).toBeTruthy()
   })
 
-  it("discloses that a no-JS visitor gets no reference to any measurement script", async () => {
+  it("links the hosting provider's privacy policy", async () => {
     await renderPrivacyPage()
-
     expect(
-      screen.getByText(/no script tag is present in the html/)
-    ).toBeTruthy()
-    expect(
-      screen.getByText(/receives no reference to any of them/)
-    ).toBeTruthy()
+      screen
+        .getByRole("link", { name: "cloudflare privacy policy" })
+        .getAttribute("href")
+    ).toBe("https://www.cloudflare.com/privacypolicy/")
   })
 
-  it("states that the page contacts no other host", async () => {
+  it("links the analytics vendor documentation", async () => {
     await renderPrivacyPage()
 
-    expect(screen.getByText(/never requests them/).textContent).toMatch(
-      /asks this browser to contact any other host/
+    expect(
+      screen
+        .getByRole("link", { name: "beacon privacy documentation" })
+        .getAttribute("href")
+    ).toBe(
+      "https://developers.cloudflare.com/speed/observatory/rum-beacon/#privacy-information"
     )
   })
 })

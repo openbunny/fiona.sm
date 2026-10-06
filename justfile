@@ -79,6 +79,12 @@ secrets-history:
 bun-e2e:
     bun run test:e2e
 
+cloudflare-build:
+    bun run build:cloudflare
+
+cloudflare-deploy:
+    bun run deploy
+
 actions_gates := "actions-target actions-lint actions-pin actions-audit actions-events actions-check-selftest"
 
 actions-check: (_all actions_gates)

@@ -8,6 +8,7 @@ const title = "blog"
 export const alt = 'a white cat dozing under a pink heart, captioned "blog".'
 export const size = ogSize
 export const contentType = ogContentType
+export const dynamic = "force-static"
 
 export default async function OpengraphImage(): Promise<ImageResponse> {
   return ogCard({ artwork: ogArtFiles.blog, title })

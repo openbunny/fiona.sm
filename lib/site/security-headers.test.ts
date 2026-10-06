@@ -47,7 +47,7 @@ describe("content security policy", () => {
   it("is exactly the assessed directive set", () => {
     expect(directives(csp)).toEqual([
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline'",
+      "script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com/beacon.min.js",
       "script-src-attr 'none'",
       "style-src 'self'",
       "style-src-attr 'none'",
@@ -75,9 +75,10 @@ describe("content security policy", () => {
     expect(connectSrc?.split(" ")).toEqual(["connect-src", "'self'"])
   })
 
-  it("names no off-origin host anywhere in the policy", () => {
-    expect(csp).not.toContain("//")
-    expect(csp).not.toContain("http")
+  it("permits only the Cloudflare analytics beacon off origin", () => {
+    expect(csp.match(/https?:\/\/[^\s;]+/g)).toEqual([
+      "https://static.cloudflareinsights.com/beacon.min.js",
+    ])
     expect(csp).not.toContain("*")
   })
 
@@ -104,7 +105,7 @@ describe("content security policy", () => {
     expect(headerValue("Report-To")).toBe("")
   })
 
-  it("requires no trusted type, because the first-party analytics loaders set script.src", () => {
+  it("requires no trusted type", () => {
     expect(csp).not.toContain("require-trusted-types-for")
     expect(csp).not.toContain("trusted-types")
   })
@@ -122,6 +123,7 @@ describe("content security policy", () => {
     expect(developmentCsp).toContain(
       "script-src 'self' 'unsafe-inline' 'unsafe-eval'"
     )
+    expect(developmentCsp).not.toContain("static.cloudflareinsights.com")
     expect(developmentCsp).not.toContain("style-src 'self' 'unsafe-inline'")
   })
 })

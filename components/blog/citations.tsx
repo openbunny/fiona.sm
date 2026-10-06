@@ -146,7 +146,7 @@ export function References({
             {reference.url !== undefined ? (
               <>
                 {" "}
-                <CitationLink id={id} href={reference.url} className="link">
+                <CitationLink href={reference.url} className="link">
                   source
                 </CitationLink>
               </>

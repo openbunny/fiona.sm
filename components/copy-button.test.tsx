@@ -12,15 +12,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import { CopyButton } from "@/components/copy-button"
 
-const analytics = vi.hoisted(() => ({ track: vi.fn() }))
-
-vi.mock("@vercel/analytics", () => ({ track: analytics.track }))
-
 const writeText = vi.fn()
 
 beforeEach(() => {
   writeText.mockReset()
-  analytics.track.mockReset()
   Object.defineProperty(window.navigator, "clipboard", {
     configurable: true,
     value: { writeText },
@@ -174,36 +169,6 @@ describe("CopyButton", () => {
     expect(button.textContent).toBe("copy")
     expect(button.getAttribute("aria-label")).toBe("copy statement")
     vi.useRealTimers()
-  })
-
-  it("still reports success when the analytics call throws", async () => {
-    writeText.mockResolvedValue(undefined)
-    analytics.track.mockImplementation(() => {
-      throw new Error("analytics unavailable")
-    })
-    const error = vi.spyOn(console, "error").mockImplementation(() => undefined)
-    render(
-      <CopyButton
-        text="secret-block"
-        label="copy statement"
-        failureHint="use the download link above this block."
-      />
-    )
-
-    fireEvent.click(screen.getByRole("button", { name: "copy statement" }))
-
-    await waitFor(() => {
-      expect(writeText).toHaveBeenCalledWith("secret-block")
-    })
-    const button = screen.getByRole("button", { name: "copy statement" })
-    await waitFor(() => {
-      expect(button.textContent).toBe("copied")
-    })
-    expect(screen.getByRole("status").className).toMatch(/sr-only/)
-    expect(screen.getByRole("status").textContent).not.toContain(
-      "use the download link above this block."
-    )
-    error.mockRestore()
   })
 
   it("states the failure, names a fallback, and does not revert", async () => {

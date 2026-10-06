@@ -4,7 +4,6 @@ import { CiteBlock } from "@/components/blog/cite-block"
 import type { CitationRegistry } from "@/components/blog/citations"
 import { References, createCitationRegistry } from "@/components/blog/citations"
 import { PostPlate } from "@/components/blog/post-plate"
-import { PostReadMarker } from "@/components/blog/post-read-marker"
 import { PostVerifyNote } from "@/components/blog/post-verify-note"
 import { PageShell } from "@openbunny/react"
 import { SiteBar } from "@/components/site-bar"
@@ -60,7 +59,6 @@ export async function PostArticle({
         </div>
         {post.artwork === undefined ? null : <PostPlate slug={slug} />}
         <article className="mt-8 flex flex-col gap-5">{article}</article>
-        <PostReadMarker post={slug} />
         <PostVerifyNote slug={slug} />
         <h2
           id="references"

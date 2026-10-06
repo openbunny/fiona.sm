@@ -1,14 +1,30 @@
 import { execFileSync } from "node:child_process"
 
-import { afterEach, describe, expect, it, vi } from "vitest"
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import { commitHash } from "@/lib/site/commit-hash"
+
+beforeEach(() => {
+  vi.stubEnv("WORKERS_CI_COMMIT_SHA", "")
+})
 
 afterEach(() => {
   vi.unstubAllEnvs()
 })
 
 describe("commitHash", () => {
+  it("prefers the Workers Builds commit over fallback sources", () => {
+    vi.stubEnv(
+      "WORKERS_CI_COMMIT_SHA",
+      "abcdef0123456789abcdef0123456789abcdef01"
+    )
+    vi.stubEnv(
+      "VERCEL_GIT_COMMIT_SHA",
+      "1234567890abcdef1234567890abcdef12345678"
+    )
+    expect(commitHash()).toBe("abcdef0")
+  })
+
   it("prefers VERCEL_GIT_COMMIT_SHA, trimmed to the first seven characters", () => {
     vi.stubEnv(
       "VERCEL_GIT_COMMIT_SHA",

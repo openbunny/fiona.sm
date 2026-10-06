@@ -8,6 +8,7 @@ const title = "custom homebrew tap"
 export const alt = 'a pixel-art cat, captioned "custom homebrew tap".'
 export const size = ogSize
 export const contentType = ogContentType
+export const dynamic = "force-static"
 
 export default async function OpengraphImage(): Promise<ImageResponse> {
   return ogCard({ artwork: ogArtFiles.homebrewTap, title })

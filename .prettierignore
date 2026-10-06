@@ -7,3 +7,6 @@ signature.html
 
 # Emitted by `next build`.
 next-env.d.ts
+
+out/
+.wrangler/

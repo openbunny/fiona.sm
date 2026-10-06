@@ -20,7 +20,7 @@ async function renderRawHtml(): Promise<string> {
 }
 
 describe("RootLayout without JavaScript", () => {
-  it("carries no analytics or speed-insights beacon reference, even in production", async () => {
+  it("carries no application analytics beacon reference, even in production", async () => {
     vi.stubEnv("NODE_ENV", "production")
 
     const html = await renderRawHtml()

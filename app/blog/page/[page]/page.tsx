@@ -13,9 +13,9 @@ export const dynamicParams = false
 type BlogPageParams = { readonly page: string }
 
 export async function generateStaticParams(): Promise<BlogPageParams[]> {
-  const extraPageCount = blogPageCount() - 1
+  const extraPageCount = blogPageCount()
   return Array.from({ length: Math.max(0, extraPageCount) }, (_, index) => ({
-    page: String(index + 2),
+    page: String(index + 1),
   }))
 }
 

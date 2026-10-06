@@ -3,7 +3,12 @@ import type { NextConfig } from "next"
 import { routeHeaders } from "@/lib/site/route-headers"
 
 const nextConfig: NextConfig = {
-  ...(process.env["VERCEL"] ? {} : { output: "standalone" as const }),
+  ...(process.env["VERCEL"]
+    ? {}
+    : {
+        output:
+          process.env["NEXT_OUTPUT"] === "standalone" ? "standalone" : "export",
+      }),
   agentRules: false,
   poweredByHeader: false,
   compress: true,
@@ -26,18 +31,23 @@ const nextConfig: NextConfig = {
       bodySizeLimit: "8kb",
     },
   },
-  async headers() {
-    return routeHeaders
-  },
-  async redirects() {
-    return [
-      {
-        source: "/plain",
-        destination: "/",
-        permanent: true,
-      },
-    ]
-  },
+  ...(process.env["VERCEL"] || process.env["NEXT_OUTPUT"] === "standalone"
+    ? {
+        async headers() {
+          return routeHeaders
+        },
+        async redirects() {
+          return [
+            { source: "/plain", destination: "/", permanent: true },
+            {
+              source: "/blog/page/1",
+              destination: "/blog",
+              permanent: true,
+            },
+          ]
+        },
+      }
+    : {}),
 }
 
 export default nextConfig

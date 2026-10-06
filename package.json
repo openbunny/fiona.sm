@@ -18,11 +18,14 @@
   "scripts": {
     "dev": "next dev --experimental-https",
     "build": "next build",
-    "start": "next start",
+    "start": "wrangler dev --local",
+    "build:cloudflare": "bun run verify-asc && bun run build && bun run scripts/build-cloudflare-headers.ts && bun run manifest verify --build-output out/blog --article-text-dir out/posts --manifest out/posts.asc --public-key out/fiona.asc",
+    "deploy": "bun run build:cloudflare && wrangler deploy",
+    "preview": "bun run build:cloudflare && wrangler dev --local",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "bun run build && vitest run --coverage",
-    "test:e2e": "bun run build && playwright test",
+    "test:e2e": "bun run build:cloudflare && playwright test",
     "test:watch": "vitest --project unit",
     "lint-staged": "lint-staged --no-stash",
     "format:check": "prettier --check .",
@@ -46,8 +49,6 @@
     "@base-ui/react": "1.7.0",
     "@openbunny/react": "0.1.1",
     "@openbunny/theme": "0.1.1",
-    "@vercel/analytics": "2.0.1",
-    "@vercel/speed-insights": "2.0.0",
     "next": "16.3.6",
     "openpgp": "6.3.1",
     "react": "19.3.0",
@@ -89,6 +90,7 @@
     "knip": "6.38.0",
     "lint-staged": "17.6.0",
     "markdownlint-cli2": "0.23.3",
+    "path-to-regexp": "6.3.0",
     "prettier": "3.9.9",
     "prettier-plugin-tailwindcss": "0.8.1",
     "shadcn": "4.21.0",
@@ -98,6 +100,7 @@
     "tailwindcss": "4.3.3",
     "typescript": "6.0.3",
     "typescript-eslint": "8.70.1",
-    "vitest": "5.0.2"
+    "vitest": "5.0.2",
+    "wrangler": "4.144.0"
   }
 }

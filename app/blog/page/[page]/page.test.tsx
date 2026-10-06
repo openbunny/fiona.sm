@@ -148,16 +148,20 @@ describe("BlogPageByNumber given an out-of-range page", () => {
 })
 
 describe("generateStaticParams", () => {
-  it("generates no extra pages when the whole list fits on page one", async () => {
+  it("generates the page-one redirect target when the whole list fits", async () => {
     mockPosts.current = makePosts(BLOG_POSTS_PER_PAGE)
 
-    expect(await generateStaticParams()).toEqual([])
+    expect(await generateStaticParams()).toEqual([{ page: "1" }])
   })
 
-  it("generates one param per page after the first", async () => {
+  it("generates every page, including the page-one redirect target", async () => {
     mockPosts.current = makePosts(BLOG_POSTS_PER_PAGE * 2 + 1)
 
-    expect(await generateStaticParams()).toEqual([{ page: "2" }, { page: "3" }])
+    expect(await generateStaticParams()).toEqual([
+      { page: "1" },
+      { page: "2" },
+      { page: "3" },
+    ])
   })
 })
 

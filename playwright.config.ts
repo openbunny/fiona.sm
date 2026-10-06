@@ -39,7 +39,7 @@ export default defineConfig({
   ],
 
   webServer: {
-    command: `bun run start -- --port ${port}`,
+    command: `bun run start -- --port ${port} --ip 127.0.0.1`,
     url: baseUrl,
     reuseExistingServer: !isCi,
     timeout: 120_000,

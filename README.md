@@ -14,7 +14,7 @@ the site consumes published `@openbunny/theme` tokens, self-hosted fonts, and
 pins their resolved files. tailwind scans the component package through the
 `@source` entry in `app/globals.css`.
 
-site adapters keep lowercase copy, dates, and clipboard analytics local.
+site adapters keep lowercase copy, dates, and clipboard actions local.
 command blocks use the shared components with those adapters. the theme supplies
 woff fonts for social images and woff2 fonts for browsers. artwork and print
 rules stay in the site.
@@ -78,7 +78,7 @@ bun dev
 ```
 
 `bun dev` serves `https://localhost:3000` with a self-signed certificate.
-production TLS is Vercel's.
+production TLS is Cloudflare's. see [deployment](docs/deployment.md) for the build and migration checklist.
 
 `bun run verify-asc` checks the published key and statement against the
 fingerprint pinned in `lib/canary/canary.ts`. it runs before the production

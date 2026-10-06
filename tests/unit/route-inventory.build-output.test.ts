@@ -2,7 +2,7 @@ import { existsSync, readFileSync } from "node:fs"
 
 import { describe, expect, it } from "vitest"
 
-import { blogPageCount, blogPageHref, posts } from "@/lib/blog/posts"
+import { blogPageCount, posts } from "@/lib/blog/posts"
 
 const PRERENDER_MANIFEST = ".next/prerender-manifest.json"
 const ROUTES_MANIFEST = ".next/routes-manifest.json"
@@ -36,8 +36,8 @@ const POST_ROUTES: readonly string[] = posts.flatMap((post) => [
 ])
 
 const PAGINATION_ROUTES: readonly string[] = Array.from(
-  { length: Math.max(0, blogPageCount() - 1) },
-  (_, index) => blogPageHref(index + 2)
+  { length: blogPageCount() },
+  (_, index) => `/blog/page/${index + 1}`
 )
 
 const EXPECTED_ROUTES: readonly string[] = [

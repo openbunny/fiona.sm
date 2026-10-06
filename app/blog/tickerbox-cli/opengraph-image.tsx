@@ -9,6 +9,7 @@ export const alt =
   'a brown lop-eared rabbit lying flat, captioned "tickerbox-cli".'
 export const size = ogSize
 export const contentType = ogContentType
+export const dynamic = "force-static"
 
 export default async function OpengraphImage(): Promise<ImageResponse> {
   return ogCard({ artwork: ogArtFiles.tickerboxCli, title })

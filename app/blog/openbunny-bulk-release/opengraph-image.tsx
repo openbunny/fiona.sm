@@ -8,6 +8,7 @@ const title = "safari extensions, component libraries and this site's source"
 export const alt = `a puppy swimming happily, captioned "${title}".`
 export const size = ogSize
 export const contentType = ogContentType
+export const dynamic = "force-static"
 
 export default async function OpengraphImage(): Promise<ImageResponse> {
   return ogCard({ artwork: ogArtFiles.openbunnyBulkRelease, title })

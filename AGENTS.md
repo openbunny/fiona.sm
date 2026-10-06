@@ -115,7 +115,8 @@ display-name change rather than assuming the two stay in sync on their own.
 
 The site does not build without a signed statement at `public/canary.asc`,
 deliberately. `bun run verify-asc` (`scripts/verify-asc.ts`) runs before
-`next build` in both `vercel.json`'s `buildCommand` and the `Dockerfile`,
+`next build` in `bun run build:cloudflare`, `vercel.json`'s
+`buildCommand`, and the `Dockerfile`,
 and it fails the pipeline if `public/canary.asc` is missing, malformed, or
 does not clearsign-verify against `public/fiona.asc`, or if the statement's
 claims (origin, key location, fingerprint, dates, chained hash) disagree
@@ -144,16 +145,19 @@ against a fabricated or stale one. Renewal needs two YubiKey touches: the
 command rehearses every output file against provisional values first, so a
 mistake caught during rehearsal aborts before either touch.
 
-## 5. The CSP is strict and self-only
+## 5. The CSP has one external script exception
 
 `lib/site/security-headers.ts` sets `default-src 'self'` with every other
-directive scoped to `'self'`, `'none'`, or `data:` for `img-src`. In
-practice this forbids, anywhere in the app:
+directive scoped to `'self'`, `'none'`, or `data:` for `img-src`, except
+production `script-src` permits the exact Cloudflare Web Analytics beacon
+URL. Cloudflare injects that script at the edge with an integrity attribute;
+the application does not add a script tag. Its reports use the same-origin
+`/cdn-cgi/rum` endpoint, so `connect-src 'self'` stays in place. In practice
+this forbids, anywhere in the app:
 
-- A font, script, or stylesheet loaded from another origin. Theme font
-  assets are self-hosted for this reason — do not add a
-  `<link>` to Google Fonts, a CDN script tag, or any other cross-origin
-  asset.
+- A font or stylesheet loaded from another origin, or any external script
+  besides the named beacon. Theme font assets are self-hosted for this
+  reason.
 - A runtime `fetch`, `XMLHttpRequest`, or `WebSocket` to another origin
   (`connect-src 'self'`).
 - An inline `style` attribute. `style-src-attr 'none'` blocks it outright,
@@ -189,20 +193,14 @@ Run from the justfile, not ad hoc:
   which builds the site first), `stylelint`, and `html-validate`, each
   reported independently by `concurrently -m 1`.
 
-The end-to-end suite drives `next start`, not the deployed site, so a header
-it observes is the one that server sends. Vercel serves the prerendered
-not-found response as a static asset and sets its own `Cache-Control` on it,
-which is why `e2e/headers.spec.ts` asserts the invariant a 404 must hold —
-`max-age=0`, `must-revalidate`, no `stale-while-revalidate`, no non-zero
-`s-maxage`, so no 404 is ever served stale — rather than one exact header
-string. Both environments satisfy that invariant; only one of them satisfies
-`next start`'s `private, no-store` default, and that default is not a policy
-this repository chose. `lib/site/route-headers.ts` configures
-`/canary/:date.asc` as `public, max-age=0, must-revalidate`, production
-sends exactly that, and `next start` overrides it for the not-found path.
-Pinning the exact string again would assert local behaviour and claim it as
-evidence about production. Verify a header against the deployed origin with
-`curl -I` when the header itself is the thing under test.
+The end-to-end suite drives local Wrangler against the exported site. Its
+header assertions cover Cloudflare asset behavior locally; verify production
+headers against the deployed origin with `curl -I` after cutover. The export's
+`_headers` is generated from `lib/site/route-headers.ts`, preserving the
+security and caching policies. The default cache rule applies to missing
+paths, so a missing signed archive is never cached as immutable. The
+`/canary/:date.asc` not-found response must retain `max-age=0` and
+`must-revalidate` without a positive `s-maxage` or `stale-while-revalidate`.
 
 A colocated `*.test.ts(x)` tests the file beside it. `tests/unit/*.test.ts`
 tests a cross-cutting or build-output invariant with no single colocated
@@ -231,7 +229,8 @@ document depends on.
 
 The site does not build without a manifest that verifies, the same
 invariant §4 states for the canary. `bun run manifest verify` runs after
-`next build` in both `vercel.json`'s `buildCommand` and the `Dockerfile` —
+`next build` in `bun run build:cloudflare`, `vercel.json`'s
+`buildCommand`, and the `Dockerfile` —
 after, not before like `verify-asc`, because the manifest hashes the built
 `<article>` HTML, which does not exist until `next build` has produced it.
 It fails the pipeline on any of, each a distinct state in
@@ -290,15 +289,14 @@ reads it as the default for its `--enforce` flag, so it is what makes the
 deploy commands above fail on drift rather than only report it. Flipping
 the constant back to `false` turns both of them back into a report-only
 run; pass `--no-enforce` to report drift without failing a single
-invocation, for diagnosis, which neither `vercel.json` nor the `Dockerfile`
-does.
+invocation, for diagnosis; no deployment command passes it.
 
 This is not duplicated in `just check`, `just quality`, or `just
 exhaustive`. Those gates build the site (via `bun run test`, see §6) but
 never run `verify-asc` either, so neither of this repository's two
 signed-artifact invariants is re-checked there: the deploy command
-sequences — `vercel.json`, the `Dockerfile`, and Vercel's own preview build
-of a pull request — are where a built artifact's signature is the thing
+sequences — `bun run build:cloudflare`, `vercel.json`, the `Dockerfile`,
+and the hosted preview build — are where a built artifact's signature is the thing
 under test, and `just`'s gates are where the source is. Leaving both
 invariants out of `just` is the consistent choice; wiring one in without
 the other would be the inconsistency.

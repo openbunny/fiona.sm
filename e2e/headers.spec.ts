@@ -38,7 +38,7 @@ test("sets security headers", async ({ request }) => {
   expect(headers["content-security-policy"]).toContain("object-src 'none'")
   expect(headers["content-security-policy"]).toContain("connect-src 'self'")
   expect(headers["content-security-policy"]).toContain(
-    "script-src 'self' 'unsafe-inline'"
+    "script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com/beacon.min.js"
   )
   expect(headers["content-security-policy"]).toContain("style-src 'self'")
   expect(headers["content-security-policy"]).toContain("base-uri 'none'")
@@ -90,12 +90,14 @@ for (const path of everyPath) {
     expect(policy).toContain("form-action 'none'")
   })
 
-  test(`names no off-origin host on ${path}`, async ({ request }) => {
-    const policy = (await request.get(path)).headers()[
-      "content-security-policy"
-    ]
-    expect(policy).not.toContain("//")
-    expect(policy).not.toContain("http")
+  test(`permits only the Cloudflare analytics beacon off origin on ${path}`, async ({
+    request,
+  }) => {
+    const policy =
+      (await request.get(path)).headers()["content-security-policy"] ?? ""
+    expect(policy.match(/https?:\/\/[^\s;]+/g)).toEqual([
+      "https://static.cloudflareinsights.com/beacon.min.js",
+    ])
     expect(policy).not.toContain("*")
   })
 
@@ -146,12 +148,10 @@ for (const path of ["/does-not-exist", "/canary/2020-01-01.asc"]) {
   })
 }
 
-test("labels the unpublished archive 404 as the statement it is not", async ({
-  request,
-}) => {
+test("labels the unpublished archive 404 as html", async ({ request }) => {
   const response = await request.get("/canary/2020-01-01.asc")
   expect(response.status()).toBe(404)
-  expect(response.headers()["content-type"]).toBe("text/plain; charset=utf-8")
+  expect(response.headers()["content-type"]).toBe("text/html; charset=utf-8")
   expect(await response.text()).toContain("<html")
 })
 
@@ -170,4 +170,20 @@ test("renders with no content security policy violations", async ({ page }) => {
   })
   await page.goto("/")
   await expect.poll(() => violations).toEqual([])
+})
+
+test("serves social image URLs without file extensions as png", async ({
+  request,
+}) => {
+  const response = await request.get("/opengraph-image")
+  expect(response.status()).toBe(200)
+  expect(response.headers()["content-type"]).toBe("image/png")
+})
+
+test("revalidates an unpublished post archive", async ({ request }) => {
+  const response = await request.get("/posts/tickerbox-cli/missing.txt")
+  expect(response.status()).toBe(404)
+  expect(response.headers()["cache-control"]).toBe(
+    "public, max-age=0, must-revalidate"
+  )
 })

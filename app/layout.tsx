@@ -1,5 +1,3 @@
-import { Analytics } from "@vercel/analytics/next"
-import { SpeedInsights } from "@vercel/speed-insights/next"
 import type { ReactElement, ReactNode } from "react"
 
 import { fontClassName } from "@/app/fonts"
@@ -45,12 +43,6 @@ export default function RootLayout({
         />
         <SkipLink />
         {children}
-        {process.env.NODE_ENV === "production" ? (
-          <>
-            <Analytics />
-            <SpeedInsights />
-          </>
-        ) : null}
       </body>
     </html>
   )
