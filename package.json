@@ -39,7 +39,7 @@
     "lint:css": "stylelint '**/*.css'",
     "lint:html": "html-validate '**/*.html'",
     "check-pinned-deps": "bun run scripts/check-pinned-deps.ts",
-    "check": "concurrently -m 1 -n format,lint,typecheck,markdownlint,cspell,editorconfig,taplo,knip,test,css,html,pinned-deps \"bun run format:check\" \"bun run lint\" \"bun run typecheck\" \"bun run markdownlint\" \"bun run cspell\" \"bun run editorconfig\" \"bun run taplo\" \"bun run knip\" \"bun run test\" \"bun run lint:css\" \"bun run lint:html\" \"bun run check-pinned-deps\"",
+    "check": "bun run build && concurrently -g -n format,lint,typecheck,markdownlint,cspell,editorconfig,taplo,knip,test,css,html,pinned-deps \"bun run format:check\" \"bun run lint\" \"bun run typecheck\" \"bun run markdownlint\" \"bun run cspell\" \"bun run editorconfig\" \"bun run taplo\" \"bun run knip\" \"vitest run --coverage\" \"bun run lint:css\" \"bun run lint:html\" \"bun run check-pinned-deps\"",
     "verify-asc": "bun run scripts/verify-asc.ts",
     "icons": "bun run scripts/build-favicons.ts",
     "canary": "bun run cli/canary.ts",

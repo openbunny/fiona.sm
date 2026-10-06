@@ -53,14 +53,11 @@ semgrep:
         printf 'semgrep matched no .semgrep*.yml config.\n' >&2
         exit 1
     fi
-    failed=""
+    args=()
     for config in "${configs[@]}"; do
-        semgrep scan --config "$config" --error --quiet --metrics=off . || failed="$failed $config"
+        args+=(--config "$config")
     done
-    if [ -n "$failed" ]; then
-        printf 'semgrep failed for:%s\n' "$failed" >&2
-        exit 1
-    fi
+    semgrep scan "${args[@]}" --error --quiet --metrics=off .
 
 osv:
     osv-scanner scan source --lockfile=bun.lock
