@@ -123,11 +123,12 @@ describe("PrivacyPage", () => {
 
   it("links the hosting provider's privacy policy", async () => {
     await renderPrivacyPage()
-    expect(
-      screen
-        .getByRole("link", { name: "cloudflare privacy policy" })
-        .getAttribute("href")
-    ).toBe("https://www.cloudflare.com/privacypolicy/")
+    const link = screen.getByRole("link", { name: "cloudflare privacy policy" })
+    expect(link.getAttribute("href")).toBe(
+      "https://www.cloudflare.com/privacypolicy/"
+    )
+    expect(link.getAttribute("target")).toBe("_blank")
+    expect(link.getAttribute("rel")).toBe("noopener noreferrer")
   })
 
   it("links the analytics vendor documentation", async () => {

@@ -62,7 +62,7 @@ function VendorLink({
   readonly children: ReactNode
 }): ReactElement {
   return (
-    <a href={href} rel="noopener noreferrer" className="link">
+    <a href={href} target="_blank" rel="noopener noreferrer" className="link">
       {children}
     </a>
   )

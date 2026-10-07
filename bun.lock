@@ -6,7 +6,7 @@
       "name": "fiona.sm",
       "dependencies": {
         "@base-ui/react": "1.7.0",
-        "@openbunny/react": "0.3.0",
+        "@openbunny/react": "0.3.1",
         "@openbunny/theme": "0.1.1",
         "next": "16.3.6",
         "openpgp": "6.3.1",
@@ -572,7 +572,7 @@
 
     "@nolyfill/is-core-module": ["@nolyfill/is-core-module@1.0.39", "", {}, "sha512-nn5ozdjYQpUCZlWGuxcJY/KpxkWQs4DcbMCmKojjyrYDEAGy4Ce19NN4v5MduafTwJlbKc99UA8YhSVqq9yPZA=="],
 
-    "@openbunny/react": ["@openbunny/react@0.3.0", "", { "dependencies": { "@types/react": "19.3.0", "class-variance-authority": "0.7.1", "clsx": "2.1.1", "tailwind-merge": "3.7.0", "typescript": "6.0.3" }, "peerDependencies": { "@base-ui/react": "^1.7.0", "react": "^19.3.0", "react-dom": "^19.3.0" } }, "sha512-yh7cRUb/C7moUZBg3QerQ619bVK7BcNesggWphpxutRo/vvfGin/wotsHnlND2z9oa0SgUvZZ9VCcEojqqiU0g=="],
+    "@openbunny/react": ["@openbunny/react@0.3.1", "", { "dependencies": { "@types/react": "19.3.0", "class-variance-authority": "0.7.1", "clsx": "2.1.1", "tailwind-merge": "3.7.0", "typescript": "6.0.3" }, "peerDependencies": { "@base-ui/react": "^1.7.0", "react": "^19.3.0", "react-dom": "^19.3.0" } }, "sha512-VhPYS7xOSUqxRKKjtbmHZ9NxVpJ/HbtUAEOuKXMLCTllfgiUhTWt66uTCWKjVvv66bVdJ6C7unr9BsAQP9vrXQ=="],
 
     "@openbunny/theme": ["@openbunny/theme@0.1.1", "", {}, "sha512-JGZI2NQn8OIe4EJIcdUHZJmj26Dt133lCVcgREKWIOKELFFj0A87B+bt61ko/R5qvI+0k+lGYWM5SRq6QwTrKw=="],
 
