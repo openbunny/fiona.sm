@@ -1,0 +1,8 @@
+when trying to drop into a game of worms wmd [1] on my macbook, i ran into issues running the game, since all that was produced was a black screen.
+some googling later, i learned about the issue being apples legacy opengl framework, agl, which isnt shipped by macos 26 and 27 [2].
+based on an existing fix [3], which i found to be rather clunky and unstable in execution, but fully functional as a concept, i tasked a few agents to write a cli tool [4] to apply the fixes brought to you by the authors of the original project [3], in a more stable and secure manner.
+you can install it via homebrew and play worms on your arm mac too!
+brew install oa/tap/wormswmd
+finally, nothing stood between my friends and i blasting each other off the island!
+old screenshot, i didnt win this time
+-f
