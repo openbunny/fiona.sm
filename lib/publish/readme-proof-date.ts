@@ -22,18 +22,18 @@ export function buildReadmeProofDate(input: ReadmeProofDateInput): string {
   const height = input.moneroBlockHeight
   return `${sectionStart}
 
-the last line of the statement names a Monero block and its hash:
+The last line of the statement names a Monero block and its hash:
 
 \`\`\`text
 Proof of date: Monero block ${height}
 ${input.moneroBlockHash}
 \`\`\`
 
-that block did not exist until it was mined, so the pairing puts a floor under
-the signing time: the statement cannot have been written before that block. the
+That block did not exist until it was mined, so the pairing puts a floor under
+the signing time: the statement cannot have been written before that block. The
 number is the height of the top block itself, **not** the chain height a daemon
 reports in its \`height\` field -- chain height is one greater, and quoting it
-names a block nobody had mined yet. ask any public Monero node whether that
+names a block nobody had mined yet. Ask any public Monero node whether that
 height carries that hash:
 
 \`\`\`bash
@@ -42,9 +42,9 @@ curl --max-time 20 -s https://xmr-node.cakewallet.com:18081/json_rpc \\
   -d '{"jsonrpc":"2.0","id":"0","method":"get_block_header_by_height","params":{"height":${height}}}'
 \`\`\`
 
-in the reply, \`result.block_header.hash\` must equal the hash in the statement,
+In the reply, \`result.block_header.hash\` must equal the hash in the statement,
 and \`result.block_header.timestamp\` (Unix seconds, UTC) must fall at or before
-the signing instant the statement stamps. a block explorer answers the same
+the signing instant the statement stamps. A block explorer answers the same
 question in a browser: <https://xmrchain.net/block/${height}>.
 
 ${sectionEnd}`
