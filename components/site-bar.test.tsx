@@ -18,10 +18,10 @@ describe("SiteBar on /", () => {
   it("marks ~/fiona.sm current, with no parent to link", () => {
     render(<SiteBar route="/" />)
 
-    const current = screen.getByText("~/fiona.sm")
+    const current = screen.getByText("fiona.sm")
     expect(current.tagName.toLowerCase()).toBe("span")
     expect(current.getAttribute("aria-current")).toBe("page")
-    expect(screen.queryByRole("link", { name: "~/fiona.sm" })).toBeNull()
+    expect(screen.queryByRole("link", { name: "fiona.sm" })).toBeNull()
   })
 
   it("lists blog and canary as directories, in that order", () => {
@@ -48,7 +48,7 @@ describe("SiteBar on /canary", () => {
   it("links ~/fiona.sm and marks canary current", () => {
     render(<SiteBar route="/canary" />)
 
-    const root = screen.getByRole("link", { name: "~/fiona.sm" })
+    const root = screen.getByRole("link", { name: "fiona.sm" })
     expect(root).toHaveAttribute("href", "/")
 
     const current = screen.getByText("canary")
@@ -92,7 +92,7 @@ describe("SiteBar on /blog", () => {
   it("links ~/fiona.sm and marks blog current", () => {
     render(<SiteBar route="/blog" />)
 
-    expect(screen.getByRole("link", { name: "~/fiona.sm" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "fiona.sm" })).toHaveAttribute(
       "href",
       "/"
     )
@@ -139,7 +139,7 @@ describe("SiteBar on /privacy", () => {
   it("links ~/fiona.sm and marks privacy current, with no children", () => {
     render(<SiteBar route="/privacy" />)
 
-    expect(screen.getByRole("link", { name: "~/fiona.sm" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "fiona.sm" })).toHaveAttribute(
       "href",
       "/"
     )
@@ -173,7 +173,7 @@ describe("SiteBar on /blog/page/2", () => {
   it("marks ~/fiona.sm, blog, and p2 as the ancestors and current segment", () => {
     render(<SiteBar route="/blog/page/2" />)
 
-    expect(screen.getByRole("link", { name: "~/fiona.sm" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "fiona.sm" })).toHaveAttribute(
       "href",
       "/"
     )
@@ -219,7 +219,7 @@ describe("SiteBar on /blog/tickerbox-cli", () => {
   it("links ~/fiona.sm and blog, and marks the post current", () => {
     render(<SiteBar route="/blog/tickerbox-cli" />)
 
-    expect(screen.getByRole("link", { name: "~/fiona.sm" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "fiona.sm" })).toHaveAttribute(
       "href",
       "/"
     )

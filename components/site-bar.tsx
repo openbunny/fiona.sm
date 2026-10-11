@@ -3,6 +3,7 @@ import Link from "next/link"
 import type { ReactElement } from "react"
 
 import { barSpecFor, entryLabel } from "@/lib/site/navigation"
+import { PathTrail } from "@/components/path-link"
 
 const ENTRY_COLUMNS = 2
 
@@ -26,7 +27,11 @@ export function SiteBar({ route }: { readonly route: string }): ReactElement {
         )}
       >
         {spec.entries.map((entry) => (
-          <Link key={entry.href} href={entry.href} className="hover:text-ink">
+          <Link
+            key={entry.href}
+            href={entry.href}
+            className="no-underline hover:text-ink hover:underline"
+          >
             {entryLabel(entry)}
           </Link>
         ))}
@@ -53,18 +58,10 @@ export function SiteBar({ route }: { readonly route: string }): ReactElement {
       )}
     >
       <p className="chip">
-        {spec.segments.map((segment, index) => (
-          <span key={segment.label}>
-            {index > 0 ? "/" : null}
-            {segment.href === null ? (
-              <span aria-current="page">{segment.label}</span>
-            ) : (
-              <Link href={segment.href} className="hover:text-ink">
-                {segment.label}
-              </Link>
-            )}
-          </span>
-        ))}
+        <PathTrail
+          segments={spec.segments}
+          linkClassName="no-underline hover:text-ink hover:underline"
+        />
       </p>
       {wrapsToRows ? (
         entries

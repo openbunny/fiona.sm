@@ -6,6 +6,7 @@ import { afterEach, describe, expect, it } from "vitest"
 
 import Page from "@/app/page"
 import { canary } from "@/lib/canary/canary"
+import { formatLongDate } from "@/lib/iso-date"
 
 afterEach(() => {
   document.body.innerHTML = ""
@@ -18,13 +19,27 @@ async function renderPage(): Promise<void> {
 }
 
 describe("Page (personal home)", () => {
-  it("opens with the canary's display name as the only heading", async () => {
+  it("opens with the canary's display name as the main heading", async () => {
     await renderPage()
 
-    const headings = screen.getAllByRole("heading")
-    expect(headings).toHaveLength(1)
-    expect(headings[0]?.tagName.toLowerCase()).toBe("h1")
-    expect(headings[0]?.textContent).toBe(canary.displayName)
+    const h1 = screen.getByRole("heading", { level: 1 })
+    expect(h1.textContent).toBe(canary.displayName)
+  })
+
+  it("links the newest post in a top banner, with its date alongside", async () => {
+    await renderPage()
+
+    expect(screen.getByRole("link", { name: "blog" })).toHaveAttribute(
+      "href",
+      "/blog"
+    )
+    expect(screen.getByRole("link", { name: "worms-wmd" })).toHaveAttribute(
+      "href",
+      "/blog/worms-wmd"
+    )
+    expect(
+      screen.getByText(`· ${formatLongDate("2026-10-06")}`)
+    ).toBeInTheDocument()
   })
 
   it("links to the canary route as a path, with its description alongside", async () => {
@@ -74,7 +89,7 @@ describe("Page (personal home)", () => {
   it("shows the site bar with the home entry current and blog and canary listed", async () => {
     await renderPage()
 
-    const home = screen.getByText("~/fiona.sm")
+    const home = screen.getByText("fiona.sm")
     expect(home.tagName.toLowerCase()).toBe("span")
     expect(home.getAttribute("aria-current")).toBe("page")
 

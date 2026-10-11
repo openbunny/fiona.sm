@@ -119,7 +119,7 @@ describe("BlogPage", () => {
     expect(current.getAttribute("aria-current")).toBe("page")
 
     expect(
-      screen.getByRole("link", { name: "~/fiona.sm" }).getAttribute("href")
+      screen.getByRole("link", { name: "fiona.sm" }).getAttribute("href")
     ).toBe("/")
 
     const nav = screen.getByRole("navigation", {

@@ -5,17 +5,33 @@ import Link from "next/link"
 import { Logo } from "@/components/logo"
 import { MailLink } from "@/components/mail-link"
 import { PageShell } from "@openbunny/react"
+import { PathTrail, pathSegments } from "@/components/path-link"
 import { SiteBar } from "@/components/site-bar"
 import { SiteFooter } from "@/components/site-footer"
 import { canary } from "@/lib/canary/canary"
 import { fingerprintRows } from "@/lib/canary/fingerprint"
+import { formatLongDate } from "@/lib/iso-date"
+import { postsByNewest } from "@/lib/blog/posts"
 import { linkLabel } from "@/lib/site/navigation"
 
 export default function Page(): ReactElement {
   const rows = fingerprintRows(canary.fingerprint)
+  const newestPost = postsByNewest()[0]
 
   return (
     <PageShell>
+      {newestPost !== undefined ? (
+        <div className="chip bg-sprout-fill/18.33 mb-4 w-full justify-center gap-x-2">
+          <span>newest post</span>
+          <PathTrail
+            segments={pathSegments(newestPost.href)}
+            linkClassName="link no-underline hover:underline"
+          />
+          <span className="text-muted">
+            · {formatLongDate(newestPost.date)}
+          </span>
+        </div>
+      ) : null}
       <SiteBar route="/" />
       <header className="mt-6 border-b border-line">
         <Logo className="w-44 translate-y-px md:w-56" />
