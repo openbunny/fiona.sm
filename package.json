@@ -7,7 +7,7 @@
   "description": "personal site for fiona, with a blog and a pgp key canary at /canary.",
   "packageManager": "bun@1.4.2",
   "engines": {
-    "bun": "1.4.2"
+    "bun": "1.4.4"
   },
   "browserslist": [
     "chrome 111",
