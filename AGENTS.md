@@ -411,8 +411,9 @@ published advisory when the parent package still pins the vulnerable
 version. Each entry is an exact version, and each stays only until its
 parent's own release resolves the fixed version: check with
 `bun pm why <package>` and delete the entry then. `just osv` is what
-reports the advisory, so an override is never added without that scan
-naming it. An advisory with no fixed version gets no override. It gets an
+reports the advisory, so an override is never added without a scan
+naming it; `bun audit` reads the same advisories from the npm registry
+and is the one to use when osv-scanner cannot reach `api.osv.dev`. An advisory with no fixed version gets no override. It gets an
 entry in `osv-scanner.toml` only when `bun pm why <package>` shows every
 path starting at a devDependency and the vulnerable code never sees
 untrusted input. The entry names the one advisory id, states that
