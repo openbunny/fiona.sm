@@ -76,6 +76,9 @@
           default = pkgs.mkShellNoCC {
             name = "fiona.sm";
             packages = gateTools ++ editorServers ++ runtimes;
+            # mise.toml's [env] block does not reach this shell, and `next build`
+            # posts anonymous usage data without it.
+            NEXT_TELEMETRY_DISABLED = "1";
           };
         }
       );

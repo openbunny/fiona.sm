@@ -11,6 +11,7 @@ RUN --mount=type=cache,target=/root/.bun/install/cache \
 FROM deps AS builder
 
 ENV NEXT_OUTPUT=standalone
+ENV NEXT_TELEMETRY_DISABLED=1
 
 COPY . .
 
