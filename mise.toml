@@ -23,7 +23,7 @@ lychee = "0.24.2"
 "npm:renovate" = { version = "44.128.0", trust_policy_excludes = [
   "@yarnpkg/libzip@3.2.2",
 ] }
-osv-scanner = "2.6.0"
+osv-scanner = "2.7.0"
 pinact = "5.0.0"
 semgrep = "1.178.0"
 # semgrep installs through the pypi backend, which refuses to write a
