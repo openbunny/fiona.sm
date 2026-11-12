@@ -190,6 +190,13 @@ an inline workaround in the component that hit the wall.
 
 ## 6. Gates
 
+`direnv allow` enters the environment `flake.nix` defines: the language servers
+Gram launches in this repository, and `bun`, `node` and `mise` itself. mise owns
+every gate tool and pins it in `mise.lock` (section 9), so `flake.nix` declares
+none of them; the two would otherwise be separate pins for one version. Gram
+sets `load_direnv` to disabled, so it sees this environment only when launched
+from a shell that already has it -- `gram .` from this directory, not the Dock.
+
 Run from the justfile, not ad hoc:
 
 - `just check` — the pre-push gate: spelling, Renovate config validation,

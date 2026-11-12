@@ -58,3 +58,6 @@ secrets*.json
 
 # Emitted by `next build`.
 next-env.d.ts
+
+# direnv + nix develop
+/.direnv/
