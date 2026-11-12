@@ -87,7 +87,7 @@
     "globals": "17.12.0",
     "html-validate": "11.16.1",
     "jsdom": "30.1.1",
-    "knip": "6.38.0",
+    "knip": "6.44.1",
     "lint-staged": "17.6.0",
     "markdownlint-cli2": "0.23.3",
     "path-to-regexp": "6.3.0",
