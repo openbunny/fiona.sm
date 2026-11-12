@@ -5,7 +5,7 @@ export const routeHeaders = [
     source: "/:path*",
     headers: [...securityHeaders],
   },
-  ...["/", "/privacy", "/canary", "/blog", "/blog/tickerbox-cli"].map(
+  ...["/", "/cv", "/privacy", "/canary", "/blog", "/blog/tickerbox-cli"].map(
     (source) => ({
       source,
       headers: [

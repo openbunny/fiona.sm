@@ -37,9 +37,17 @@ export default function Page(): ReactElement {
         <Logo className="w-44 translate-y-px md:w-56" />
       </header>
       <main id="main" className="mt-8 flex flex-col gap-10">
-        <h1 className="font-display text-[clamp(2rem,9vw,3.25rem)] leading-[1.05]">
-          {canary.displayName}
-        </h1>
+        <div className="flex flex-wrap items-baseline gap-x-4 gap-y-2">
+          <h1 className="font-display text-[clamp(2rem,9vw,3.25rem)] leading-[1.05]">
+            {canary.displayName}
+          </h1>
+          <Link
+            href="/cv"
+            className="chip bg-sprout-fill no-underline hover:underline"
+          >
+            hire me
+          </Link>
+        </div>
         <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-3 font-mono text-[0.78rem] leading-[1.6]">
           <Row label="mail">
             <MailLink className="text-[0.78rem]" />
