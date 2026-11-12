@@ -389,11 +389,14 @@ exactly as it applies to a module — closing it is the same reading task
 
 `eslint-plugin-unicorn` is held at the last release that accepts eslint 9,
 which is a pin against a peer range rather than a soft version, so
-`check-pinned-deps` passes it and nothing else reports it. Later releases
-require eslint 10, and eslint 10 is itself held back by
+`check-pinned-deps` passes it. Later releases declare `eslint: ">=10.4"`, and
+eslint 10 is itself held back by
 [eslint-plugin-react#4022](https://github.com/jsx-eslint/eslint-plugin-react/issues/4022).
 Taking the newer unicorn alone would mean an unsatisfied peer range, not a
-working upgrade.
+working upgrade. The hold is enforced in `renovate.json` as HOLDBACK
+HB-2026-005 (`allowedVersions: "<66.0.0"`), alongside the typescript and
+eslint holdbacks it depends on; until that rule existed this paragraph was
+the only thing recording the hold, and Renovate went on proposing the major.
 
 Holding it costs nothing measurable here: this repository never extends
 unicorn's recommended config, so only the rules `eslint.config.mjs` names
