@@ -360,10 +360,9 @@ url_api = "https://api.github.com/repos/suzuki-shunsuke/pinact/releases/assets/5
 provenance = "github-attestations"
 
 [[tools.semgrep]]
-version = "1.178.0"
+version = "1.183.0"
 backend = "pypi:semgrep"
-specifiers = ["1.178.0"]
-uv = { path = ".mise/locks/semgrep/1.178.0", digest = "sha256:2a670f28d5ce2b2243052ed84d1b5f6ffd332af0519692cbac89bb4ad2c2a776" }
+specifiers = ["1.183.0"]
 
 [[tools.typos]]
 version = "1.52.0"

@@ -25,7 +25,7 @@ lychee = "0.24.2"
 ] }
 osv-scanner = "2.7.0"
 pinact = "5.0.0"
-semgrep = "1.178.0"
+semgrep = "1.183.0"
 # semgrep installs through the pypi backend, which refuses to write a
 # dependency lock without uv 0.12.10 or newer. A runner without uv fails the
 # semgrep install, not the semgrep gate.
