@@ -1,4 +1,4 @@
-# syntax=docker/dockerfile:1.27
+# syntax=docker/dockerfile:1.28
 
 FROM oven/bun:1.4.2 AS deps
 WORKDIR /app
