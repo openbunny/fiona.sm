@@ -29,7 +29,7 @@ semgrep = "1.178.0"
 # semgrep installs through the pypi backend, which refuses to write a
 # dependency lock without uv 0.12.10 or newer. A runner without uv fails the
 # semgrep install, not the semgrep gate.
-uv = "0.12.21"
+uv = "0.13.7"
 typos = "1.52.0"
 zizmor = "1.30.1"
 
