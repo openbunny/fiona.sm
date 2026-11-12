@@ -26,7 +26,7 @@ const iconAssets = "/:asset(favicon\\.ico|manifest\\.webmanifest)"
 const contentAddressed = ["/posts/:slug/:digest.txt", "/img/:name"]
 
 describe("route cache policy", () => {
-  it.each(["/", "/privacy", "/canary", "/blog", "/blog/tickerbox-cli"])(
+  it.each(["/", "/cv", "/privacy", "/canary", "/blog", "/blog/tickerbox-cli"])(
     "never serves the %s document from a stale cache",
     (source) => {
       const document = cacheControlOf(source)

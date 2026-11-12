@@ -26,6 +26,35 @@ describe("Page (personal home)", () => {
     expect(h1.textContent).toBe(canary.displayName)
   })
 
+  it("offers a hire-me badge beside the heading, linking to the cv route", async () => {
+    await renderPage()
+
+    const badge = screen.getByRole("link", { name: "hire me" })
+    expect(badge).toHaveAttribute("href", "/cv")
+
+    const h1 = screen.getByRole("heading", { level: 1 })
+    expect(h1.parentElement).toBe(badge.parentElement)
+    expect(h1.compareDocumentPosition(badge)).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING
+    )
+  })
+
+  it("gives the hire-me badge the chip shape at the site bar's type size, filled in the accent", async () => {
+    await renderPage()
+
+    const badge = screen.getByRole("link", { name: "hire me" })
+    const classes = badge.className.split(" ")
+
+    expect(classes).toContain("chip")
+    expect(classes).toContain("bg-sprout-fill")
+    expect(classes).toContain("no-underline")
+
+    const breadcrumb = screen
+      .getByRole("navigation", { name: "path and directory listing" })
+      .querySelector(".chip")
+    expect(breadcrumb).not.toBeNull()
+  })
+
   it("links the newest post in a top banner, with its date alongside", async () => {
     await renderPage()
 

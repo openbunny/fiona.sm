@@ -80,6 +80,17 @@ describe("barSpecFor", () => {
     expect(spec.parentHref).toBe("/")
   })
 
+  it("gives /cv no entries and a parent of /", () => {
+    const spec = barSpecFor("/cv")
+
+    expect(spec.segments).toEqual([
+      { label: "~/fiona.sm", href: "/" },
+      { label: "cv", href: null },
+    ])
+    expect(spec.entries).toEqual([])
+    expect(spec.parentHref).toBe("/")
+  })
+
   it("gives a blog post its ancestors, no entries, and a parent of /blog", () => {
     const spec = barSpecFor("/blog/tickerbox-cli")
 

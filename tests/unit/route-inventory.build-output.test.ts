@@ -19,6 +19,7 @@ const ROUTES_INDEPENDENT_OF_POST_COUNT: readonly string[] = [
   "/blog",
   "/blog/verify-posts",
   "/canary",
+  "/cv",
   "/favicon.ico",
   "/feed.xml",
   "/manifest.webmanifest",

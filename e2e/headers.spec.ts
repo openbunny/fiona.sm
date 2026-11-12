@@ -6,6 +6,7 @@ import { wkdKeyHref, wkdPolicyHref } from "@/lib/publish/wkd"
 
 const everyPath = [
   "/",
+  "/cv",
   "/privacy",
   "/blog",
   "/blog/tickerbox-cli",
@@ -126,7 +127,13 @@ test("caches the fixed-url favicon with a bounded lifetime", async ({
   expect(headers["cache-control"]).toContain("stale-while-revalidate")
 })
 
-for (const path of ["/canary", "/privacy", "/blog", "/blog/tickerbox-cli"]) {
+for (const path of [
+  "/canary",
+  "/cv",
+  "/privacy",
+  "/blog",
+  "/blog/tickerbox-cli",
+]) {
   test(`never serves ${path} from a stale cache`, async ({ request }) => {
     const headers = (await request.get(path)).headers()
     expect(headers["cache-control"]).toBe(
