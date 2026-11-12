@@ -190,12 +190,25 @@ an inline workaround in the component that hit the wall.
 
 ## 6. Gates
 
-`direnv allow` enters the environment `flake.nix` defines: the language servers
-Gram launches in this repository, and `bun`, `node` and `mise` itself. mise owns
-every gate tool and pins it in `mise.lock` (section 9), so `flake.nix` declares
-none of them; the two would otherwise be separate pins for one version. Gram
-sets `load_direnv` to disabled, so it sees this environment only when launched
-from a shell that already has it -- `gram .` from this directory, not the Dock.
+`direnv allow` enters the environment `flake.nix` defines. With `bun install`
+it is the whole environment: every binary a recipe below or a `package.json`
+script invokes, except the ones `bun install` puts in `node_modules/.bin`. That
+covers `just` itself, so `just quality` and `just actions-check` run from a bare
+checkout with nothing installed by hand. It also supplies the language servers
+Gram launches here, which it cannot install for itself because
+`node.allow_binary_download` and `node.allow_npm_install` are both false in the
+owner's settings. `gnupg` is excluded on purpose, so the system installation
+keeps answering the YubiKey calls `lib/renew/gpg-card.ts` makes.
+
+`mise.toml` pins the same gate tools for CI, which installs them with
+`mise install --locked` rather than from this shell. The two can disagree on a
+version: nixpkgs carries `actionlint` 1.7.12, matching section 9's pin, and
+`zizmor` 1.31.1 against the 1.30.1 pinned there. Treat `mise.lock` as the pin of
+record and this shell as the local convenience until one of them owns both.
+
+Gram sets `load_direnv` to disabled, so it sees this environment only when
+launched from a shell that already has it -- `gram .` from this directory, not
+the Dock.
 
 Run from the justfile, not ad hoc:
 
