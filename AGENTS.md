@@ -434,6 +434,23 @@ happens to invoke that tool, rather than rejected — CI installs with
 fixing either is a separate decision, not an extension of this
 section's two checkers.
 
+A third gap sits in `.mise/locks/`. mise writes that tree, and the
+directory name encodes the tool version, so a bump needs a new directory
+rather than an edit: `mise.lock`'s `npm:renovate` entry carries
+`aube = { path, digest }` and its `semgrep` entry carries
+`uv = { path, digest }`, each naming one. Renovate updates the npm backend's
+correctly — it renamed the directory and recomputed the digest when
+`npm:renovate` went to 44.216.5 — but for the pypi backend it deletes the
+old directory and drops the `uv` line instead of generating the new one,
+which silently unpins semgrep's own Python dependencies while leaving
+`mise.lock` valid. That is why semgrep is still at 1.178.0 here. Bump it
+by editing `mise.toml` and running `mise install` so mise writes
+`.mise/locks/semgrep/<version>/` and the matching digest, then commit
+both; do not merge a semgrep bump whose diff removes the `uv` line.
+`renovate.json`'s `ignorePaths` keeps Renovate from reading anything in
+that tree as a manifest, which is a separate matter from its inability to
+regenerate one.
+
 ## 10. Every image file is named by the SHA-512 of its content
 
 An image's file name is the lowercase hex SHA-512 digest of its bytes plus
