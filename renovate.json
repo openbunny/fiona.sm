@@ -3,31 +3,22 @@
   "description": [
     "This file stays at the repository root; Renovate ignores nested copies without error.",
     "Match paths are repository-root-relative and move with their targets; a stale path selects nothing without failing.",
-    "Minor and patch updates automerge after quarantine; major and vulnerability updates require review unless a technical constraint below overrides the policy."
+    "Minor and patch updates automerge after quarantine; major and vulnerability updates require review unless a technical constraint below overrides the policy.",
+    "What the shared github>openbunny/.github preset already sets is not repeated here: dependencyDashboard, timezone, schedule, the three concurrency limits, rangeStrategy, and github-actions digest pinning. Only what differs from it or adds to it appears below."
   ],
-  "extends": [
-    "github>openbunny/.github",
-    "config:recommended",
-    ":semanticCommits"
-  ],
+  "extends": ["github>openbunny/.github"],
+  "labels": ["dependencies"],
+  "minimumReleaseAge": "7 days",
+  "internalChecksFilter": "strict",
+  "platformAutomerge": true,
+  "automergeType": "pr",
+  "automergeStrategy": "squash",
+  "platformCommit": "enabled",
   "ignorePaths": [
     "**/node_modules/**",
     "**/bower_components/**",
     ".mise/locks/**"
   ],
-  "dependencyDashboard": false,
-  "timezone": "Etc/UTC",
-  "labels": ["dependencies"],
-  "minimumReleaseAge": "7 days",
-  "internalChecksFilter": "strict",
-  "prConcurrentLimit": 0,
-  "platformAutomerge": true,
-  "automergeType": "pr",
-  "automergeStrategy": "squash",
-  "platformCommit": "enabled",
-  "github-actions": {
-    "pinDigests": true
-  },
   "lockFileMaintenance": {
     "enabled": true,
     "automerge": false,
@@ -43,26 +34,52 @@
   },
   "packageRules": [
     {
+      "description": "Minor and patch automerge after quarantine and a green gate. The preset automerges only github-actions and custom.regex; this widens it to every manager.",
       "matchUpdateTypes": ["minor", "patch"],
-      "automerge": true,
-      "description": "Minor and patch automerge after quarantine and a green gate"
+      "automerge": true
     },
     {
-      "matchUpdateTypes": ["major"],
-      "automerge": false,
-      "description": "Major updates require manual approval"
+      "description": [
+        "One bun version lives in six places: packageManager and engines.bun in package.json,",
+        "the setup-bun bun-version input in ci.yml (twice) and canary-renewal-reminder.yml, and",
+        "both oven/bun stages in the Dockerfile. Renovate reaches them through three managers",
+        "(npm, github-actions, dockerfile) under three package names. Before this rule each one",
+        "opened its own branch against the same package.json lines, which produced the duplicate",
+        "renovate/bun and renovate/bun-1.x pair and the 'Detected empty commit' warning."
+      ],
+      "matchPackageNames": ["bun", "oven-sh/bun", "oven/bun"],
+      "groupName": "bun"
     },
     {
-      "matchDepTypes": ["packageManager"],
-      "matchPackageNames": ["bun"],
-      "groupName": "bun",
-      "description": "Bun packageManager version, grouped with its regex-tracked copies so the bump lands in one PR"
+      "description": [
+        "jdx/mise and oven-sh/bun reach Renovate through the github-actions manager as the",
+        "version INPUTS of jdx/mise-action and oven-sh/setup-bun, not as action refs, so the",
+        "preset's github-actions digest pinning applied to them and the lookup failed: both",
+        "projects tag releases with a prefix (v2026.9.15, bun-v1.4.2), so no git object exists",
+        "for the bare version. That was the 'Could not determine new digest for update ... did",
+        "you maybe mean the suggestedValue, with a v prefix?' dashboard warning. A digest would",
+        "say nothing here anyway: the action resolves the version against the upstream release",
+        "at run time, not against a git object pinned in this repository."
+      ],
+      "matchManagers": ["github-actions"],
+      "matchDatasources": ["github-releases"],
+      "matchPackageNames": ["jdx/mise", "oven-sh/bun"],
+      "pinDigests": false
     },
     {
-      "matchManagers": ["custom.regex"],
-      "matchPackageNames": ["oven-sh/bun"],
-      "groupName": "bun",
-      "description": "Bun version wherever the regex manager finds it"
+      "description": [
+        "HOLDBACK: the ubuntu runner label stays on 24.04.",
+        "ubuntu-26.04 is generally available, but actionlint recognises it in no release, not",
+        "1.7.12 and not on its main branch, and reports it as unknown for every job that names",
+        "it. workflow-policy.yml runs `just actions-check`, which runs actionlint, so the move",
+        "is red with no upgrade available. Listing the label under self-hosted-runner.labels in",
+        "an actionlint.yaml would silence that only by calling a GitHub-hosted runner",
+        "self-hosted. ubuntu-24.04 is still fully supported. Same hold as openbunny/theme.",
+        "Closes when: actionlint ships a release that recognises ubuntu-26.04."
+      ],
+      "matchDatasources": ["github-runners"],
+      "matchPackageNames": ["ubuntu"],
+      "allowedVersions": "<26"
     },
     {
       "description": [
@@ -88,41 +105,11 @@
     },
     {
       "description": [
-        "jdx/mise and oven-sh/bun reach Renovate through the github-actions manager as the",
-        "version INPUTS of jdx/mise-action and oven-sh/setup-bun, not as action refs.",
-        "github-actions.pinDigests above therefore applied to them too, and the digest lookup",
-        "failed: both projects tag releases with a prefix (v2026.9.15, bun-v1.4.2), so there is",
-        "no git object for the bare version. That is the 'Could not determine new digest for",
-        "update ... did you maybe mean the suggestedValue, with a v prefix?' dashboard warning.",
-        "A digest would be meaningless here anyway: the action resolves the version against the",
-        "upstream release at run time, not against a git object pinned in this repository."
-      ],
-      "matchManagers": ["github-actions"],
-      "matchDatasources": ["github-releases"],
-      "matchPackageNames": ["jdx/mise", "oven-sh/bun"],
-      "pinDigests": false
-    },
-    {
-      "description": [
-        "One bun version lives in six places: packageManager and engines.bun in package.json,",
-        "the setup-bun bun-version input in ci.yml (twice) and canary-renewal-reminder.yml, and",
-        "both oven/bun stages in the Dockerfile. Renovate reaches them through four managers",
-        "(npm, custom.regex, github-actions, dockerfile) under three package names, and the two",
-        "rules above this one grouped only the first two. The rest opened their own branches",
-        "against the same package.json lines, which is what produced the duplicate renovate/bun",
-        "and renovate/bun-1.x pair and the 'Detected empty commit - aborting git push' warning.",
-        "Matching every name with no manager filter keeps the whole bump in one PR."
-      ],
-      "matchPackageNames": ["bun", "oven-sh/bun", "oven/bun"],
-      "groupName": "bun"
-    },
-    {
-      "description": [
         "HOLDBACK HB-2026-005: eslint-plugin-unicorn is held at 65.x.",
         "66.0.0 and later declare `eslint: \">=10.4\"`, and ESLint is held at 9 by HB-2026-004,",
         "so taking unicorn alone would leave an unsatisfied peer range rather than an upgrade.",
-        "AGENTS.md section 9 already documented this hold in prose; nothing enforced it, so",
-        "Renovate kept proposing the major. Closes when: HB-2026-004 closes."
+        "AGENTS.md section 9 documented this hold in prose before this rule enforced it.",
+        "Closes when: HB-2026-004 closes."
       ],
       "matchPackageNames": ["eslint-plugin-unicorn"],
       "allowedVersions": "<66.0.0",
@@ -133,16 +120,14 @@
   "customManagers": [
     {
       "customType": "regex",
-      "description": "Bun version in package.json packageManager/engines and vercel.json commands. mise.toml needs no custom manager: Renovate's own mise manager reads it and mise.lock.",
-      "managerFilePatterns": [
-        "/(^|/)package\\.json$/",
-        "/(^|/)vercel\\.json$/"
+      "description": [
+        "The bun version in vercel.json's commands. package.json needs no custom manager:",
+        "the npm manager already extracts packageManager and engines.bun, and matching them",
+        "here as well created a second dep for the same lines and a second branch for it.",
+        "mise.toml needs none either; Renovate's mise manager reads it and mise.lock."
       ],
-      "matchStrings": [
-        "\"packageManager\":\\s*\"bun@(?<currentValue>\\d+\\.\\d+\\.\\d+)\"",
-        "\"bun\":\\s*\"(?<currentValue>\\d+\\.\\d+\\.\\d+)\"",
-        "bunx bun@(?<currentValue>\\d+\\.\\d+\\.\\d+)"
-      ],
+      "managerFilePatterns": ["/(^|/)vercel\\.json$/"],
+      "matchStrings": ["bunx bun@(?<currentValue>\\d+\\.\\d+\\.\\d+)"],
       "depNameTemplate": "oven-sh/bun",
       "datasourceTemplate": "github-releases",
       "extractVersionTemplate": "^bun-v(?<version>.+)$"
