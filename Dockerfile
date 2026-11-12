@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1.27
 
-FROM oven/bun:1.4.2 AS deps
+FROM oven/bun:1.4.4 AS deps
 WORKDIR /app
 
 COPY package.json bun.lock ./
@@ -23,7 +23,7 @@ RUN bun run verify-asc
 RUN bun run build
 RUN bun run manifest verify
 
-FROM oven/bun:1.4.2-slim AS runner
+FROM oven/bun:1.4.4-slim AS runner
 WORKDIR /app
 
 COPY --from=builder --chown=bun:bun /app/.next/standalone ./
