@@ -108,7 +108,7 @@
     "katex": "0.18.2",
     "sharp": "0.35.5",
     "shell-quote": "1.11.0",
-    "smol-toml": "1.9.0",
+    "smol-toml": "1.9.1",
     "source-map-js": "1.2.2"
   }
 }
