@@ -51,8 +51,8 @@
     "@openbunny/theme": "0.1.1",
     "next": "16.4.6",
     "openpgp": "6.3.2",
-    "react": "19.3.0",
-    "react-dom": "19.3.0"
+    "react": "19.3.1",
+    "react-dom": "19.3.1"
   },
   "devDependencies": {
     "@commitlint/cli": "21.2.3",
