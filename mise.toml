@@ -24,7 +24,7 @@ lychee = "0.24.2"
   "@yarnpkg/libzip@3.2.2",
 ] }
 osv-scanner = "2.7.0"
-pinact = "5.0.0"
+pinact = "5.0.2"
 semgrep = "1.178.0"
 # semgrep installs through the pypi backend, which refuses to write a
 # dependency lock without uv 0.12.10 or newer. A runner without uv fails the
