@@ -20,7 +20,7 @@ lychee = "0.24.2"
 # @yarnpkg/libzip@3.2.2 lost npm provenance attestation because arcanis
 # (yarnpkg/berry's own maintainer) published it by hand, confirmed via
 # `npm view @yarnpkg/libzip@3.2.2 _npmUser`, not a compromised release.
-"npm:renovate" = { version = "44.216.5", trust_policy_excludes = [
+"npm:renovate" = { version = "44.222.0", trust_policy_excludes = [
   "@yarnpkg/libzip@3.2.2",
 ] }
 osv-scanner = "2.7.0"
