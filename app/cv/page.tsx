@@ -5,16 +5,31 @@ import type { ReactElement, ReactNode } from "react"
 import { CvViewer } from "@/components/cv-viewer"
 import { SiteBar } from "@/components/site-bar"
 import { SiteFooter } from "@/components/site-footer"
-import { routeSocialMetadata } from "@/lib/site/metadata"
+import {
+  publicRecruitmentRobots,
+  routeSocialMetadata,
+} from "@/lib/site/metadata"
 import { PageShell } from "@openbunny/react"
 
-const title = "cv"
+const title = "principal software engineer cv"
 const description =
-  "software engineering, platform infrastructure, quantitative trading, and security research."
+  "principal software engineer with eight years of production experience in go, rust, aws and kubernetes. explore platform engineering, security, and quantitative trading work."
 
 export const metadata: Metadata = {
   title,
   description,
+  robots: publicRecruitmentRobots,
+  keywords: [
+    "principal software engineer",
+    "platform engineering",
+    "distributed systems",
+    "go",
+    "rust",
+    "kubernetes",
+    "aws",
+    "security engineering",
+    "quantitative trading",
+  ],
   alternates: { canonical: "/cv" },
   ...routeSocialMetadata({
     title,
@@ -37,7 +52,7 @@ function Section({
     <section
       id={id}
       aria-labelledby={`${id}-heading`}
-      className="border-t border-line pt-5"
+      className="border-t border-line pt-5 first:border-t-0 first:pt-0"
     >
       <h2 id={`${id}-heading`} className="mb-5 font-display text-xl">
         {title}
