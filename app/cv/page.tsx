@@ -10,6 +10,7 @@ import {
   routeSocialMetadata,
 } from "@/lib/site/metadata"
 import { PageShell } from "@openbunny/react"
+import { absoluteUrl } from "@/lib/site/site"
 
 const title = "principal software engineer cv"
 const description =
@@ -108,8 +109,32 @@ function Entry({
 }
 
 export default function CvPage(): ReactElement {
+  const personSchema = {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    name: "fiona",
+    url: absoluteUrl("/"),
+    mainEntityOfPage: absoluteUrl("/cv"),
+    jobTitle: "principal software engineer",
+    email: "mailto:mail@fiona.sm",
+    sameAs: ["https://www.linkedin.com/in/fionapesch/"],
+    knowsAbout: [
+      "distributed systems",
+      "platform engineering",
+      "go",
+      "rust",
+      "kubernetes",
+      "cloud infrastructure",
+      "security engineering",
+    ],
+  }
+
   return (
     <PageShell>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(personSchema) }}
+      />
       <SiteBar route="/cv" />
       <main id="main" className="mt-8">
         <header className="border-b border-line pb-7">
