@@ -7,6 +7,7 @@ if (!globalCsp?.includes("worker-src 'none'")) {
   throw new Error("Unexpected global worker policy")
 }
 const cvCsp = globalCsp.replace("worker-src 'none'", "worker-src 'self'")
+const publicRobotsHeader = { key: "X-Robots-Tag", value: "index, follow" }
 
 export const routeHeaders = [
   {
@@ -27,12 +28,17 @@ export const routeHeaders = [
   {
     source: "/cv",
     headers: [
+      publicRobotsHeader,
       { key: "Content-Security-Policy", value: cvCsp },
       {
         key: "Cache-Control",
         value: "public, max-age=0, s-maxage=60, must-revalidate",
       },
     ],
+  },
+  {
+    source: "/",
+    headers: [publicRobotsHeader],
   },
   ...["/", "/privacy", "/canary", "/blog", "/blog/tickerbox-cli"].map(
     (source) => ({

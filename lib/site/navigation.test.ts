@@ -3,11 +3,12 @@ import { afterEach, describe, expect, it, vi } from "vitest"
 import { barSpecFor, entryLabel, linkLabel } from "@/lib/site/navigation"
 
 describe("barSpecFor", () => {
-  it("gives / a single current segment, its two sections, and no parent", () => {
+  it("gives / a single current segment, its three sections, and no parent", () => {
     const spec = barSpecFor("/")
 
     expect(spec.segments).toEqual([{ label: "~/fiona.sm", href: null }])
     expect(spec.entries).toEqual([
+      { name: "cv", href: "/cv", kind: "dir" },
       { name: "blog", href: "/blog", kind: "dir" },
       { name: "canary", href: "/canary", kind: "dir" },
     ])
@@ -143,6 +144,7 @@ describe("barSpecFor / with an empty post list", () => {
     const spec = barSpecForEmptyBlog("/")
 
     expect(spec.entries).toEqual([
+      { name: "cv", href: "/cv", kind: "dir" },
       { name: "canary", href: "/canary", kind: "dir" },
     ])
   })

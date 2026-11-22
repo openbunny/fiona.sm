@@ -1,4 +1,5 @@
 import type { ReactElement, ReactNode } from "react"
+import type { Metadata } from "next"
 
 import Link from "next/link"
 
@@ -13,6 +14,11 @@ import { fingerprintRows } from "@/lib/canary/fingerprint"
 import { formatLongDate } from "@/lib/iso-date"
 import { postsByNewest } from "@/lib/blog/posts"
 import { linkLabel } from "@/lib/site/navigation"
+import { publicRecruitmentRobots } from "@/lib/site/metadata"
+
+export const metadata: Metadata = {
+  robots: publicRecruitmentRobots,
+}
 
 export default function Page(): ReactElement {
   const rows = fingerprintRows(canary.fingerprint)
@@ -35,11 +41,13 @@ export default function Page(): ReactElement {
       <SiteBar route="/" />
       <header className="mt-6 flex items-center gap-4 border-b border-line pb-2 sm:gap-6">
         <Logo className="w-32 shrink-0 translate-y-px sm:w-44 md:w-56" />
-        <a href="/cv" className="hire-me-banner">
-          <span className="hire-me-banner-text" data-shine="hire me">
-            hire me
-          </span>
-        </a>
+        <div className="flex min-w-0 flex-1 justify-center">
+          <a href="/cv" className="hire-me-banner">
+            <span className="hire-me-banner-text" data-shine="hire me">
+              hire me
+            </span>
+          </a>
+        </div>
       </header>
       <main id="main" className="mt-8 flex flex-col gap-10">
         <h1 className="font-display text-[clamp(2rem,9vw,3.25rem)] leading-[1.05]">

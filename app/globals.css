@@ -73,15 +73,14 @@
     flex: 0 0 auto;
     align-items: center;
     justify-content: center;
-    width: 8.5rem;
-    height: 3.9rem;
-    margin-left: 0.5rem;
+    width: 6.8rem;
+    height: 3.12rem;
     overflow: hidden;
     border: 1px solid var(--line);
     background: var(--sprout-fill);
     color: var(--ink-deep);
     font-family: var(--font-display);
-    font-size: 1.45rem;
+    font-size: 1.16rem;
     font-weight: 400;
     text-decoration: none;
   }
@@ -104,16 +103,16 @@
     inset: 0;
     background: linear-gradient(
       110deg,
-      transparent 38%,
+      transparent 45%,
       rgb(255 255 255 / 85%) 50%,
-      transparent 62%
+      transparent 55%
     );
     background-clip: text;
-    background-position: 140% 0;
-    background-size: 260% 100%;
+    background-position: 150% 0;
+    background-size: 350% 100%;
     color: transparent;
     content: attr(data-shine);
-    animation: hire-me-sheen 8s ease-in-out infinite;
+    animation: hire-me-sheen 7s linear infinite;
     pointer-events: none;
   }
 
@@ -279,29 +278,29 @@
 
 @keyframes hire-me-sheen {
   0%,
-  67% {
-    background-position: 140% 0;
+  65% {
+    background-position: 150% 0;
   }
 
-  83%,
+  85%,
   100% {
-    background-position: -140% 0;
+    background-position: -150% 0;
   }
 }
 
 @media (width >= 640px) {
   .hire-me-banner {
-    width: 10rem;
-    height: 5.25rem;
-    font-size: 1.75rem;
+    width: 8rem;
+    height: 4.2rem;
+    font-size: 1.4rem;
   }
 }
 
 @media (width >= 768px) {
   .hire-me-banner {
-    width: 11rem;
-    height: 6.75rem;
-    font-size: 2rem;
+    width: 8.8rem;
+    height: 5.4rem;
+    font-size: 1.6rem;
   }
 }
 

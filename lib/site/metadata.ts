@@ -66,6 +66,18 @@ export function routeSocialMetadata({
   }
 }
 
+export const publicRecruitmentRobots: Metadata["robots"] = {
+  index: true,
+  follow: true,
+  googleBot: {
+    index: true,
+    follow: true,
+    "max-snippet": -1,
+    "max-image-preview": "large",
+    "max-video-preview": -1,
+  },
+}
+
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
   title: {
@@ -77,7 +89,15 @@ export const metadata: Metadata = {
   authors: [{ name: site.name, url: `mailto:${canary.email}` }],
   creator: site.name,
   publisher: site.name,
-  keywords: [site.name, canary.email],
+  keywords: [
+    site.name,
+    "principal software engineer",
+    "platform engineer",
+    "distributed systems",
+    "go",
+    "rust",
+    "kubernetes",
+  ],
   referrer: "strict-origin-when-cross-origin",
   formatDetection: {
     email: false,

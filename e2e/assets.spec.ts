@@ -5,7 +5,7 @@ import { iconUrls } from "@/lib/images/icon-urls"
 import * as allPlates from "@/lib/images/plates"
 import { wkdKeyHref, wkdPolicyHref } from "@/lib/publish/wkd"
 
-test("exposes robots, key, and security files, and no sitemap", async ({
+test("exposes robots, key, and security files, and the recruitment sitemap", async ({
   request,
 }) => {
   const robots = await request.get("/robots.txt")
@@ -14,10 +14,11 @@ test("exposes robots, key, and security files, and no sitemap", async ({
   expect(robotsText).toContain("User-Agent: *\nAllow: /")
   expect(robotsText).toContain("User-Agent: GPTBot")
   expect(robotsText).toContain("Disallow: /")
-  expect(robotsText).not.toContain("Sitemap:")
+  expect(robotsText).toContain("Sitemap: https://fiona.sm/sitemap.xml")
 
   const sitemap = await request.get("/sitemap.xml")
-  expect(sitemap.status()).toBe(404)
+  expect(sitemap.status()).toBe(200)
+  expect(await sitemap.text()).toContain("https://fiona.sm/cv")
 
   const key = await request.get("/fiona.asc")
   expect(key.ok()).toBe(true)

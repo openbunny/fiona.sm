@@ -24,17 +24,19 @@ describe("SiteBar on /", () => {
     expect(screen.queryByRole("link", { name: "fiona.sm" })).toBeNull()
   })
 
-  it("lists blog and canary as directories, in that order", () => {
+  it("lists cv, blog and canary as directories, in that order", () => {
     render(<SiteBar route="/" />)
 
     const nav = screen.getByRole("navigation")
     const entries = within(nav).getAllByRole("link")
     expect(entries.map((entry) => entry.textContent)).toEqual([
+      "/cv",
       "/blog",
       "/canary",
     ])
-    expect(entries[0]).toHaveAttribute("href", "/blog")
-    expect(entries[1]).toHaveAttribute("href", "/canary")
+    expect(entries[0]).toHaveAttribute("href", "/cv")
+    expect(entries[1]).toHaveAttribute("href", "/blog")
+    expect(entries[2]).toHaveAttribute("href", "/canary")
   })
 
   it("omits the back control entirely: no root has a parent", () => {
