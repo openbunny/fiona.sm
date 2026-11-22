@@ -1,3 +1,4 @@
+// cspell:ignore ocaml modeling chronext symfony connectrpc laudert vreden shopware oxid ahaus limassol duckdb microvm grapheneos bocholt münster
 import type { Metadata } from "next"
 import type { ReactElement, ReactNode } from "react"
 
