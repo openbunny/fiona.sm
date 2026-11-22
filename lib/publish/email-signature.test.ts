@@ -19,13 +19,13 @@ const rotated = {
 }
 
 const approved = [
-  "--",
+  "---",
   "",
-  "please find my pgp key attached. other attachments may include signatures for transmitted files.",
+  "Please find my PGP key attached. Other attachments may include signatures for transmitted files.",
   "Fingerprint: 4820 FA93 8BA2 573D E08E  4FAD 45B4 B546 0D72 A034",
-  "Key and signed canary: https://fiona.sm",
+  "Key and signed canary: https://fiona.sm/canary",
   "",
-  "this email contains confidential information. unauthorised disclosure or distribution is prohibited. opinions expressed are for informational purposes only and do not constitute investment, financial, tax, legal, or medical advice.",
+  "This email contains confidential information. Unauthorized disclosure or distribution is prohibited. Opinions expressed are for informational purposes only and do not constitute investment, financial, tax, legal, or medical advice.",
   "",
 ].join("\n")
 
@@ -38,10 +38,10 @@ describe("buildEmailSignatureText", () => {
     expect(buildEmailSignatureText(input)).toBe(approved)
   })
 
-  it("opens with the rfc 3676 delimiter on a line of its own", () => {
+  it("opens with the approved three-hyphen separator", () => {
     const lines = buildEmailSignatureText(input).split("\n")
 
-    expect(lines[0]).toBe("--")
+    expect(lines[0]).toBe("---")
     expect(lines[1]).toBe("")
   })
 
@@ -175,15 +175,15 @@ describe("buildEmailSignatureHtml", () => {
 })
 
 describe("the disclaimer", () => {
-  it("uses the British form in both renderings", () => {
-    expect(buildEmailSignatureText(input)).toContain("unauthorised disclosure")
+  it("preserves the approved US spelling in plain text", () => {
+    expect(buildEmailSignatureText(input)).toContain("Unauthorized disclosure")
+    expect(buildEmailSignatureText(input)).not.toContain("unauthorised disclosure")
+  })
+
+  it("preserves the original British spelling in HTML", () => {
     expect(parsed(buildEmailSignatureHtml(input)).body.textContent).toContain(
       "unauthorised disclosure"
     )
-  })
-
-  it("carries the US form nowhere", () => {
-    expect(buildEmailSignatureText(input)).not.toContain("Unauthorized")
     expect(buildEmailSignatureHtml(input)).not.toContain("Unauthorized")
   })
 })
