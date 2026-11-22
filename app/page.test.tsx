@@ -98,7 +98,7 @@ describe("Page (personal home)", () => {
     ).toBe(`mailto:${canary.email}`)
   })
 
-  it("shows the site bar with the home entry current and blog and canary listed", async () => {
+  it("shows the site bar with the home entry current and cv, blog, canary listed", async () => {
     await renderPage()
 
     const home = screen.getByText("fiona.sm")
@@ -110,11 +110,13 @@ describe("Page (personal home)", () => {
     )
     const entries = nav.getAllByRole("link")
     expect(entries.map((entry) => entry.textContent)).toEqual([
+      "/cv",
       "/blog",
       "/canary",
     ])
-    expect(entries[0]).toHaveAttribute("href", "/blog")
-    expect(entries[1]).toHaveAttribute("href", "/canary")
-    expect(entries).toHaveLength(2)
+    expect(entries[0]).toHaveAttribute("href", "/cv")
+    expect(entries[1]).toHaveAttribute("href", "/blog")
+    expect(entries[2]).toHaveAttribute("href", "/canary")
+    expect(entries).toHaveLength(3)
   })
 })
