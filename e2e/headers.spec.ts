@@ -267,6 +267,7 @@ test("zooms the CV with compact controls and pans while dragging", async ({
     element.scrollTop = 80
   })
 
+  await scroll.scrollIntoViewIfNeeded()
   const bounds = await scroll.boundingBox()
   expect(bounds).not.toBeNull()
   const x = (bounds?.x ?? 0) + Math.min((bounds?.width ?? 0) / 2, 180)
