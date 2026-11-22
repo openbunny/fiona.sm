@@ -1,17 +1,17 @@
 import { securityHeaders } from "./security-headers"
 
+const globalCsp = securityHeaders.find(
+  ({ key }) => key === "Content-Security-Policy"
+)?.value
+if (!globalCsp?.includes("worker-src 'none'")) {
+  throw new Error("Unexpected global worker policy")
+}
+const cvCsp = globalCsp.replace("worker-src 'none'", "worker-src 'self'")
+
 export const routeHeaders = [
   {
     source: "/:path*",
     headers: [...securityHeaders],
-  },
-  {
-    source: "/cv",
-    headers: [
-      { key: "Content-Type", value: "application/pdf" },
-      { key: "Content-Disposition", value: 'inline; filename="fiona-cv.pdf"' },
-      { key: "Cache-Control", value: "public, max-age=0, must-revalidate" },
-    ],
   },
   {
     source: "/cv.pdf",
@@ -22,6 +22,16 @@ export const routeHeaders = [
         value: 'inline; filename="fiona-cv.pdf"',
       },
       { key: "Cache-Control", value: "public, max-age=0, must-revalidate" },
+    ],
+  },
+  {
+    source: "/cv",
+    headers: [
+      { key: "Content-Security-Policy", value: cvCsp },
+      {
+        key: "Cache-Control",
+        value: "public, max-age=0, s-maxage=60, must-revalidate",
+      },
     ],
   },
   ...["/", "/privacy", "/canary", "/blog", "/blog/tickerbox-cli"].map(

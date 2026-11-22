@@ -85,17 +85,28 @@ describe("route cache policy", () => {
     )
   })
 
-  it("serves the CV as an inline PDF and requires cache revalidation", () => {
-    for (const path of ["/cv", "/cv.pdf"]) {
-      expect(contentTypeOf(path)).toBe("application/pdf")
-      expect(cacheControlOf(path)).toBe("public, max-age=0, must-revalidate")
-      expect(
-        routeHeaders
-          .find((rule) => rule.source === path)
-          ?.headers.find((header) => header.key === "Content-Disposition")
-          ?.value
-      ).toBe('inline; filename="fiona-cv.pdf"')
-    }
+  it("permits a same-origin PDF worker only on /cv", () => {
+    const cvCsp = routeHeaders
+      .find((rule) => rule.source === "/cv")
+      ?.headers.find(
+        (header) => header.key === "Content-Security-Policy"
+      )?.value
+    expect(cvCsp).toContain("worker-src 'self'")
+    expect(cvCsp).toContain("frame-src 'none'")
+  })
+
+  it("serves a CV page and keeps the original PDF available inline", () => {
+    expect(contentTypeOf("/cv")).toBe("")
+    expect(cacheControlOf("/cv")).toBe(
+      "public, max-age=0, s-maxage=60, must-revalidate"
+    )
+    expect(contentTypeOf("/cv.pdf")).toBe("application/pdf")
+    expect(cacheControlOf("/cv.pdf")).toBe("public, max-age=0, must-revalidate")
+    expect(
+      routeHeaders
+        .find((rule) => rule.source === "/cv.pdf")
+        ?.headers.find((header) => header.key === "Content-Disposition")?.value
+    ).toBe('inline; filename="fiona-cv.pdf"')
   })
 
   it("serves the clearsigned post manifest as plain text, not a detached signature", () => {

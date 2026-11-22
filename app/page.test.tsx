@@ -31,10 +31,11 @@ describe("Page (personal home)", () => {
 
     const badge = screen.getByRole("link", { name: "hire me" })
     expect(badge.getAttribute("href")).toBe("/cv")
-    expect(badge.className.split(" ")).toContain("bg-sprout-fill")
+    expect(badge.className.split(" ")).toContain("hire-me-banner")
 
-    const heading = screen.getByRole("heading", { level: 1 })
-    expect(badge.parentElement).toBe(heading.parentElement)
+    const animatedPlate = document.querySelector("header picture")
+    expect(animatedPlate).not.toBeNull()
+    expect(badge.closest("header")).toBe(animatedPlate?.closest("header"))
   })
 
   it("links the newest post in a top banner, with its date alongside", async () => {
