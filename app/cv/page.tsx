@@ -34,7 +34,9 @@ function Section({
 }): ReactElement {
   return (
     <section id={id} aria-labelledby={`${id}-heading`} className="border-t border-line pt-5">
-      <h2 id={`${id}-heading`} className="mb-5 font-display text-xl">{title}</h2>
+      <h2 id={`${id}-heading`} className="mb-5 font-display text-xl">
+        {title}
+      </h2>
       {children}
     </section>
   )
@@ -93,7 +95,9 @@ export default function CvPage(): ReactElement {
         <header className="border-b border-line pb-7">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
-              <p className="mb-2 font-mono text-xs text-muted">curriculum vitae</p>
+              <p className="mb-2 font-mono text-xs text-muted">
+                curriculum vitae
+              </p>
               <h1 className="font-display text-[clamp(2rem,9vw,3.25rem)] leading-tight">
                 fiona
               </h1>
@@ -108,8 +112,12 @@ export default function CvPage(): ReactElement {
             </a>
           </div>
           <div className="mt-5 flex flex-wrap gap-x-4 gap-y-2 font-mono text-xs">
-            <a className="link" href="mailto:mail@fiona.sm">mail@fiona.sm</a>
-            <a className="link" href="tel:+46727729346">+46 72-772 93 46</a>
+            <a className="link" href="mailto:mail@fiona.sm">
+              mail@fiona.sm
+            </a>
+            <a className="link" href="tel:+46727729346">
+              +46 72-772 93 46
+            </a>
             <a className="link" href="https://www.linkedin.com/in/fionapesch/">
               linkedin
             </a>
@@ -139,20 +147,47 @@ export default function CvPage(): ReactElement {
               meta="remote, germany"
               period="apr 2023 – oct 2026"
             >
-              <Role title="principal software engineer" period="feb 2025 – oct 2026">
-                <li>technical due diligence on acquisitions with the ceo and cfo, followed by integration or replacement of acquired platforms</li>
-                <li>architecture and operation of go and rust grpc services on aws and kubernetes, with postgresql, mysql, mongodb, redis, and rabbitmq; infrastructure as code across aws, azure, and github; ci/cd, observability, and on-call</li>
-                <li>for acquired subsidiary chronext, moved gitlab to github at approximately 86% lower cost per seat; introduced git lfs for approximately 80% faster clones and pulls and 37.5% faster docker builds</li>
-                <li>security assessments of partner api integrations and bot-mitigation vendors; mentoring for approximately 15 developers</li>
+              <Role
+                title="principal software engineer"
+                period="feb 2025 – oct 2026"
+              >
+                <li>
+                  technical due diligence on acquisitions with the ceo and cfo, followed by integration or replacement of acquired platforms
+                </li>
+                <li>
+                  architecture and operation of go and rust grpc services on aws and kubernetes, with postgresql, mysql, mongodb, redis, and rabbitmq; infrastructure as code across aws, azure, and github; ci/cd, observability, and on-call
+                </li>
+                <li>
+                  for acquired subsidiary chronext, moved gitlab to github at approximately 86% lower cost per seat; introduced git lfs for approximately 80% faster clones and pulls and 37.5% faster docker builds
+                </li>
+                <li>
+                  security assessments of partner api integrations and bot-mitigation vendors; mentoring for approximately 15 developers
+                </li>
               </Role>
-              <Role title="software engineer & product owner" period="mar 2024 – feb 2025">
-                <li>product owner of the group erp rewrite with approximately 10 developers, responsible for technical architecture and technology planning</li>
-                <li>established go and rust as service languages and wrote go and symfony service templates</li>
-                <li>built connectrpc services for document generation, authentication, authorization, and data transformation and transfer</li>
+              <Role
+                title="software engineer & product owner"
+                period="mar 2024 – feb 2025"
+              >
+                <li>
+                  product owner of the group erp rewrite with approximately 10 developers, responsible for technical architecture and technology planning
+                </li>
+                <li>
+                  established go and rust as service languages and wrote go and symfony service templates
+                </li>
+                <li>
+                  built connectrpc services for document generation, authentication, authorization, and data transformation and transfer
+                </li>
               </Role>
-              <Role title="software engineer" period="apr 2023 – mar 2024">
-                <li>maintained integrations keeping millions of records synchronized across more than 50 marketplaces, shops, carriers, erp and pim systems, using php, go, rust, rest, soap, file transfer, and rabbitmq</li>
-                <li>migrated engineering workflows from azure devops to github, jira, and confluence</li>
+              <Role
+                title="software engineer"
+                period="apr 2023 – mar 2024"
+              >
+                <li>
+                  maintained integrations keeping millions of records synchronized across more than 50 marketplaces, shops, carriers, erp and pim systems, using php, go, rust, rest, soap, file transfer, and rabbitmq
+                </li>
+                <li>
+                  migrated engineering workflows from azure devops to github, jira, and confluence
+                </li>
               </Role>
             </Entry>
 
@@ -161,9 +196,16 @@ export default function CvPage(): ReactElement {
               meta="vreden, germany"
               period="oct 2019 – apr 2023"
             >
-              <Role title="software developer" period="oct 2019 – apr 2023">
-                <li>built shopware, oxid, and symfony e-commerce applications with typescript, vue, react, next.js, docker, and ci/cd</li>
-                <li>trained apprentices in development, architecture, and devops</li>
+              <Role
+                title="software developer"
+                period="oct 2019 – apr 2023"
+              >
+                <li>
+                  built shopware, oxid, and symfony e-commerce applications with typescript, vue, react, next.js, docker, and ci/cd
+                </li>
+                <li>
+                  trained apprentices in development, architecture, and devops
+                </li>
               </Role>
             </Entry>
 
@@ -172,9 +214,16 @@ export default function CvPage(): ReactElement {
               meta="ahaus, germany · full-time until sep 2019, then part-time"
               period="apr 2018 – sep 2025"
             >
-              <Role title="software engineer & systems administrator" period="apr 2018 – sep 2025">
-                <li>developed a healthcare mobile application with a go backend using aws lambda, api gateway, and ecs fargate, with a react native frontend</li>
-                <li>developed shopware plugins and webshops; administered nas and telephone systems</li>
+              <Role
+                title="software engineer & systems administrator"
+                period="apr 2018 – sep 2025"
+              >
+                <li>
+                  developed a healthcare mobile application with a go backend using aws lambda, api gateway, and ecs fargate, with a react native frontend
+                </li>
+                <li>
+                  developed shopware plugins and webshops; administered nas and telephone systems
+                </li>
               </Role>
             </Entry>
           </Section>
@@ -186,10 +235,18 @@ export default function CvPage(): ReactElement {
               period="mar 2022 – present"
             >
               <ul className="list-disc space-y-2 pl-5 text-sm leading-relaxed">
-                <li>live perpetual-futures funding-rate arbitrage between decentralized exchanges, executed by an ocaml engine with exact arithmetic, write-ahead order journal, crash recovery, and liquidation guards</li>
-                <li>rust market-data infrastructure covering approximately 100 crypto, macroeconomic, and regulatory sources, plus a funding-rate arbitrage scanner</li>
-                <li>leakage-safe strategy evaluation using day-partitioned parquet, duckdb, and purged time-series folds with embargo</li>
-                <li>contract-first grpc services for execution, pricing, and risk management</li>
+                <li>
+                  live perpetual-futures funding-rate arbitrage between decentralized exchanges, executed by an ocaml engine with exact arithmetic, write-ahead order journal, crash recovery, and liquidation guards
+                </li>
+                <li>
+                  rust market-data infrastructure covering approximately 100 crypto, macroeconomic, and regulatory sources, plus a funding-rate arbitrage scanner
+                </li>
+                <li>
+                  leakage-safe strategy evaluation using day-partitioned parquet, duckdb, and purged time-series folds with embargo
+                </li>
+                <li>
+                  contract-first grpc services for execution, pricing, and risk management
+                </li>
               </ul>
             </Entry>
             <Entry
@@ -198,9 +255,15 @@ export default function CvPage(): ReactElement {
               period="2025 – present"
             >
               <ul className="list-disc space-y-2 pl-5 text-sm leading-relaxed">
-                <li>microvm sandbox for autonomous coding agents without host access; verified egress policies, gateway-held credentials, and offline verification of returned commits</li>
-                <li>nix-declared agent harness with deterministic task routing, crash-safe coordination, and a headless mac studio agent server</li>
-                <li>declarative grapheneos hardening with a go controller, kotlin device-owner app, signed policies, and threat modeling; nix-declared macos workstation hardening</li>
+                <li>
+                  microvm sandbox for autonomous coding agents without host access; verified egress policies, gateway-held credentials, and offline verification of returned commits
+                </li>
+                <li>
+                  nix-declared agent harness with deterministic task routing, crash-safe coordination, and a headless mac studio agent server
+                </li>
+                <li>
+                  declarative grapheneos hardening with a go controller, kotlin device-owner app, signed policies, and threat modeling; nix-declared macos workstation hardening
+                </li>
               </ul>
             </Entry>
           </Section>
@@ -211,14 +274,18 @@ export default function CvPage(): ReactElement {
               meta="westphalian university of applied sciences · bocholt, germany · bachelor's coursework, degree not completed"
               period="aug 2019 – jan 2024"
             >
-              <p className="text-sm leading-relaxed">top grade (1.0 on the german scale) in cloud programming, mobile applications, internet applications, and software engineering; coursework in kubernetes, helm, and aws eks.</p>
+              <p className="text-sm leading-relaxed">
+                top grade (1.0 on the german scale) in cloud programming, mobile applications, internet applications, and software engineering; coursework in kubernetes, helm, and aws eks.
+              </p>
             </Entry>
             <Entry
               title="it specialist – application development"
               meta="chamber of industry and commerce · münster, germany"
               period="aug 2019 – jun 2021"
             >
-              <p className="text-sm leading-relaxed">final project: symfony middleware integrating fuel-card services from several vendors.</p>
+              <p className="text-sm leading-relaxed">
+                final project: symfony middleware integrating fuel-card services from several vendors.
+              </p>
             </Entry>
             <Entry
               title="electrical & electronics engineering diploma"
