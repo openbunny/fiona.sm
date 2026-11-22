@@ -82,21 +82,85 @@ describe("CV document viewer", () => {
     expect(mocks.pageRender).toHaveBeenCalledTimes(2)
   })
 
-  it("updates the zoom display without refetching the PDF", async () => {
+  it("zooms with plus and minus and resets without refetching", async () => {
     const { container } = render(<CvViewer />)
     await waitFor(() => {
       expect(container.querySelectorAll("canvas")).toHaveLength(2)
     })
 
-    fireEvent.change(screen.getByLabelText("pdf zoom"), {
-      target: { value: "130" },
-    })
-
+    expect(
+      screen.getByRole("button", { name: "reset zoom" })
+    ).toHaveTextContent("100%")
+    fireEvent.click(screen.getByRole("button", { name: "zoom in" }))
     expect(container.querySelector(".cv-pages")).toHaveAttribute(
       "data-zoom",
-      "130"
+      "125"
+    )
+    expect(
+      screen.getByRole("button", { name: "reset zoom" })
+    ).toHaveTextContent("125%")
+    fireEvent.click(screen.getByRole("button", { name: "zoom in" }))
+    expect(container.querySelector(".cv-pages")).toHaveAttribute(
+      "data-zoom",
+      "150"
+    )
+    fireEvent.click(screen.getByRole("button", { name: "zoom out" }))
+    expect(container.querySelector(".cv-pages")).toHaveAttribute(
+      "data-zoom",
+      "125"
+    )
+    fireEvent.click(screen.getByRole("button", { name: "reset zoom" }))
+    expect(container.querySelector(".cv-pages")).toHaveAttribute(
+      "data-zoom",
+      "100"
     )
     expect(mocks.getDocument).toHaveBeenCalledTimes(1)
+  })
+
+  it("pans the zoomed PDF by dragging, but not at default zoom", async () => {
+    const { container } = render(<CvViewer />)
+    await waitFor(() =>
+      expect(container.querySelectorAll("canvas")).toHaveLength(2)
+    )
+
+    const scroll = container.querySelector<HTMLElement>(".cv-scroll")
+    expect(scroll).not.toBeNull()
+    if (!scroll) throw new Error("Missing CV scroll container")
+    scroll.setPointerCapture = vi.fn()
+    scroll.hasPointerCapture = vi.fn(() => true)
+    scroll.releasePointerCapture = vi.fn()
+    scroll.scrollLeft = 70
+    scroll.scrollTop = 90
+
+    fireEvent.pointerDown(scroll, {
+      pointerId: 4,
+      pointerType: "mouse",
+      button: 0,
+      clientX: 120,
+      clientY: 120,
+    })
+    expect(scroll).toHaveAttribute("data-dragging", "false")
+
+    fireEvent.click(screen.getByRole("button", { name: "zoom in" }))
+    expect(scroll).toHaveAttribute("data-draggable", "true")
+    fireEvent.pointerDown(scroll, {
+      pointerId: 4,
+      pointerType: "mouse",
+      button: 0,
+      clientX: 120,
+      clientY: 120,
+    })
+    expect(scroll).toHaveAttribute("data-dragging", "true")
+    fireEvent.pointerMove(scroll, {
+      pointerId: 4,
+      clientX: 100,
+      clientY: 80,
+    })
+    expect(scroll.scrollLeft).toBe(90)
+    expect(scroll.scrollTop).toBe(130)
+    fireEvent.pointerUp(scroll, { pointerId: 4 })
+    expect(scroll).toHaveAttribute("data-dragging", "false")
+    expect(scroll.releasePointerCapture).toHaveBeenCalledWith(4)
   })
 
   it("saves the unchanged original PDF on click, Ctrl+S and Command+S", () => {

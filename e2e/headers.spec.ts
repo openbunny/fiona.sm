@@ -244,6 +244,45 @@ test("opens the CV as a browser-rendered HTML page", async ({
   expect(await page.locator(".cv-canvas").count()).toBeGreaterThan(0)
 })
 
+test("zooms the CV with compact controls and pans while dragging", async ({
+  page,
+}) => {
+  await page.goto("/cv")
+  await expect(page.locator(".cv-canvas").first()).toBeVisible()
+  await page.getByRole("button", { name: "zoom in" }).click()
+  await expect(page.getByRole("button", { name: "reset zoom" })).toHaveText(
+    "125%"
+  )
+  await expect(page.locator(".cv-scroll")).toHaveAttribute(
+    "data-draggable",
+    "true"
+  )
+
+  const scroll = page.locator(".cv-scroll")
+  await scroll.evaluate((element) => {
+    element.scrollLeft = 50
+    element.scrollTop = 80
+  })
+
+  const bounds = await scroll.boundingBox()
+  expect(bounds).not.toBeNull()
+  const x = (bounds?.x ?? 0) + Math.min((bounds?.width ?? 0) / 2, 180)
+  const y = (bounds?.y ?? 0) + Math.min((bounds?.height ?? 0) / 2, 180)
+  await page.mouse.move(x, y)
+  await page.mouse.down()
+  await page.mouse.move(x - 35, y - 30, { steps: 5 })
+  await page.mouse.up()
+
+  await expect
+    .poll(async () => scroll.evaluate((el) => el.scrollLeft))
+    .toBeGreaterThan(50)
+  await page.getByRole("button", { name: "reset zoom" }).click()
+  await expect(scroll).toHaveAttribute("data-draggable", "false")
+  await expect(page.getByRole("button", { name: "reset zoom" })).toHaveText(
+    "100%"
+  )
+})
+
 test("downloads the original PDF from the viewer save button", async ({
   page,
 }) => {

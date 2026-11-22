@@ -1,11 +1,18 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import type { ReactElement } from "react"
+import type { PointerEvent as ReactPointerEvent, ReactElement } from "react"
 
 const pdfPath = "/cv.pdf"
 const filename = "fiona-cv.pdf"
-type Zoom = "85" | "100" | "115" | "130"
+const zoomLevels = [75, 100, 125, 150, 175, 200] as const
+type PanStart = {
+  readonly pointerId: number
+  readonly x: number
+  readonly y: number
+  readonly left: number
+  readonly top: number
+}
 
 function saveOriginalPdf(): void {
   const download = document.createElement("a")
@@ -18,7 +25,9 @@ function saveOriginalPdf(): void {
 
 export function CvViewer(): ReactElement {
   const pagesRef = useRef<HTMLDivElement>(null)
-  const [zoom, setZoom] = useState<Zoom>("100")
+  const [zoom, setZoom] = useState(100)
+  const panStart = useRef<PanStart | null>(null)
+  const [dragging, setDragging] = useState(false)
   const [pageCount, setPageCount] = useState(0)
   const [message, setMessage] = useState("loading cv…")
 
@@ -111,6 +120,48 @@ export function CvViewer(): ReactElement {
     return () => window.removeEventListener("keydown", saveShortcut)
   }, [])
 
+  function changeZoom(direction: -1 | 1): void {
+    setZoom((current) => {
+      const index = zoomLevels.findIndex((level) => level === current)
+      const next = Math.max(
+        0,
+        Math.min(zoomLevels.length - 1, index + direction)
+      )
+      return zoomLevels[next] ?? 100
+    })
+  }
+
+  function beginPan(event: ReactPointerEvent<HTMLDivElement>): void {
+    if (zoom <= 100 || event.pointerType === "touch" || event.button !== 0)
+      return
+    const element = event.currentTarget
+    panStart.current = {
+      pointerId: event.pointerId,
+      x: event.clientX,
+      y: event.clientY,
+      left: element.scrollLeft,
+      top: element.scrollTop,
+    }
+    element.setPointerCapture(event.pointerId)
+    setDragging(true)
+  }
+
+  function movePan(event: ReactPointerEvent<HTMLDivElement>): void {
+    const start = panStart.current
+    if (!start || start.pointerId !== event.pointerId) return
+    event.currentTarget.scrollLeft = start.left - (event.clientX - start.x)
+    event.currentTarget.scrollTop = start.top - (event.clientY - start.y)
+  }
+
+  function endPan(event: ReactPointerEvent<HTMLDivElement>): void {
+    if (panStart.current?.pointerId !== event.pointerId) return
+    panStart.current = null
+    setDragging(false)
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId)
+    }
+  }
+
   return (
     <section className="cv-viewer" aria-label="curriculum vitae">
       <div className="cv-toolbar">
@@ -118,19 +169,35 @@ export function CvViewer(): ReactElement {
           {pageCount > 0 ? `${pageCount} pages` : "pdf viewer"}
         </span>
         <div className="cv-toolbar-actions">
-          <label className="cv-zoom">
-            <span>zoom</span>
-            <select
-              aria-label="pdf zoom"
-              value={zoom}
-              onChange={(event) => setZoom(event.target.value as Zoom)}
+          <div className="cv-zoom" role="group" aria-label="pdf zoom">
+            <button
+              type="button"
+              className="cv-action"
+              aria-label="zoom out"
+              disabled={zoom === zoomLevels[0]}
+              onClick={() => changeZoom(-1)}
             >
-              <option value="85">85%</option>
-              <option value="100">100%</option>
-              <option value="115">115%</option>
-              <option value="130">130%</option>
-            </select>
-          </label>
+              −
+            </button>
+            <button
+              type="button"
+              className="cv-action"
+              aria-label="reset zoom"
+              disabled={zoom === 100}
+              onClick={() => setZoom(100)}
+            >
+              {zoom}%
+            </button>
+            <button
+              type="button"
+              className="cv-action"
+              aria-label="zoom in"
+              disabled={zoom === zoomLevels[zoomLevels.length - 1]}
+              onClick={() => changeZoom(1)}
+            >
+              +
+            </button>
+          </div>
           <button
             className="cv-action"
             type="button"
@@ -142,7 +209,20 @@ export function CvViewer(): ReactElement {
           </button>
         </div>
       </div>
-      <div className="cv-scroll" aria-busy={message === "loading cv…"}>
+      <div
+        className="cv-scroll"
+        aria-busy={message === "loading cv…"}
+        data-draggable={zoom > 100}
+        data-dragging={dragging}
+        onPointerDown={beginPan}
+        onPointerMove={movePan}
+        onPointerUp={endPan}
+        onPointerCancel={endPan}
+        onLostPointerCapture={() => {
+          panStart.current = null
+          setDragging(false)
+        }}
+      >
         {message ? (
           <p role="status" className="cv-message">
             {message}
