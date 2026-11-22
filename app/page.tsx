@@ -57,6 +57,15 @@ export default function Page(): ReactElement {
           <Row label="mail">
             <MailLink className="text-[0.78rem]" />
           </Row>
+          <Row label="linkedin">
+            <a
+              href="https://www.linkedin.com/in/fionapesch/"
+              className="link"
+              rel="me"
+            >
+              linkedin.com/in/fionapesch
+            </a>
+          </Row>
           <Row label="key">
             {canary.algorithm},{" "}
             <a href={canary.publicKeyHref} className="link">
