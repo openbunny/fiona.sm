@@ -212,18 +212,57 @@ test("redirects resume aliases permanently to the canonical PDF URL", async ({
   }
 })
 
-test("opens the CV as an inline PDF rather than a download", async ({
+test("permits a same-origin rendering worker on the CV page only", async ({
   request,
 }) => {
-  for (const path of ["/cv", "/cv.pdf"]) {
-    const response = await request.get(path)
-    expect(response.status()).toBe(200)
-    expect(response.headers()["content-type"]).toContain("application/pdf")
-    expect(response.headers()["content-disposition"]).toContain("inline")
-    expect(response.headers()["content-disposition"]).not.toContain(
-      "attachment"
-    )
-    const bytes = await response.body()
-    expect(bytes.subarray(0, 5).toString()).toBe("%PDF-")
-  }
+  const cv = await request.get("/cv")
+  expect(cv.headers()["content-security-policy"]).toContain("worker-src 'self'")
+
+  const home = await request.get("/")
+  expect(home.headers()["content-security-policy"]).toContain(
+    "worker-src 'none'"
+  )
+})
+
+test("opens the CV as a browser-rendered HTML page", async ({
+  page,
+  request,
+}) => {
+  const html = await request.get("/cv")
+  expect(html.status()).toBe(200)
+  expect(html.headers()["content-type"]).toContain("text/html")
+
+  const source = await request.get("/cv.pdf")
+  expect(source.status()).toBe(200)
+  expect(source.headers()["content-type"]).toContain("application/pdf")
+  expect(source.headers()["content-disposition"]).toContain("inline")
+
+  await page.goto("/cv")
+  await expect(page.getByRole("heading", { name: "cv" })).toBeVisible()
+  await expect(page.locator(".cv-canvas").first()).toBeVisible()
+  await expect(page.getByRole("button", { name: "save pdf" })).toBeVisible()
+  expect(await page.locator(".cv-canvas").count()).toBeGreaterThan(0)
+})
+
+test("downloads the original PDF from the viewer save button", async ({
+  page,
+}) => {
+  await page.goto("/cv")
+  const saved = page.waitForEvent("download")
+  await page.getByRole("button", { name: "save pdf" }).click()
+  expect((await saved).suggestedFilename()).toBe("fiona-cv.pdf")
+})
+
+test("saves the original PDF with Ctrl+S", async ({ page }) => {
+  await page.goto("/cv")
+  const saved = page.waitForEvent("download")
+  await page.keyboard.press("Control+s")
+  expect((await saved).suggestedFilename()).toBe("fiona-cv.pdf")
+})
+
+test("serves the self-hosted PDF rendering worker", async ({ request }) => {
+  const worker = await request.get("/vendor/pdf.worker.min.mjs")
+  expect(worker.status()).toBe(200)
+  expect(worker.headers()["content-type"]).toMatch(/javascript/u)
+  expect((await worker.body()).length).toBeGreaterThan(10_000)
 })

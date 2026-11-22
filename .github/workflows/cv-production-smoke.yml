@@ -4,6 +4,9 @@ on:
     branches: [main]
     paths:
       - "public/cv.pdf"
+      - "app/cv/**"
+      - "components/cv-viewer.tsx"
+      - "scripts/copy-pdf-worker.ts"
       - "public/_redirects"
       - "lib/site/route-headers.ts"
       - "lib/site/cloudflare-headers.ts"
@@ -52,10 +55,9 @@ jobs:
             fi
             if [[ "$path" == /cv ]]; then
               if [[ "$status" != 200 ]] ||
-                ! grep -Eiq '^content-type:[[:space:]]*application/pdf' "$RUNNER_TEMP/route.headers" ||
-                ! grep -Eiq '^content-disposition:[[:space:]]*inline' "$RUNNER_TEMP/route.headers" ||
-                [[ "$(sha256sum "$RUNNER_TEMP/route.body" | cut -d ' ' -f1)" != "$expected" ]]; then
-                echo "Unexpected response from /cv: HTTP $status" >&2
+                ! grep -Eiq '^content-type:[[:space:]]*text/html' "$RUNNER_TEMP/route.headers" ||
+                ! grep -q 'curriculum vitae' "$RUNNER_TEMP/route.body"; then
+                echo "Unexpected HTML viewer response from /cv: HTTP $status" >&2
                 exit 1
               fi
             elif [[ "$status" != 308 ]] ||

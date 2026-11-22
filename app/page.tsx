@@ -33,21 +33,18 @@ export default function Page(): ReactElement {
         </div>
       ) : null}
       <SiteBar route="/" />
-      <header className="mt-6 border-b border-line">
-        <Logo className="w-44 translate-y-px md:w-56" />
+      <header className="mt-6 flex items-center gap-4 border-b border-line pb-2 sm:gap-6">
+        <Logo className="w-32 shrink-0 translate-y-px sm:w-44 md:w-56" />
+        <a href="/cv" className="hire-me-banner">
+          <span className="hire-me-banner-text" data-shine="hire me">
+            hire me
+          </span>
+        </a>
       </header>
       <main id="main" className="mt-8 flex flex-col gap-10">
-        <div className="flex flex-wrap items-baseline gap-x-4 gap-y-2">
-          <h1 className="font-display text-[clamp(2rem,9vw,3.25rem)] leading-[1.05]">
-            {canary.displayName}
-          </h1>
-          <a
-            href="/cv"
-            className="chip bg-sprout-fill no-underline hover:underline"
-          >
-            hire me
-          </a>
-        </div>
+        <h1 className="font-display text-[clamp(2rem,9vw,3.25rem)] leading-[1.05]">
+          {canary.displayName}
+        </h1>
         <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-3 font-mono text-[0.78rem] leading-[1.6]">
           <Row label="mail">
             <MailLink className="text-[0.78rem]" />

@@ -31,11 +31,7 @@ export function cloudflareHeaders(assetPaths: readonly string[]): string {
     "/_next/static/*\n  ! Cache-Control\n  Cache-Control: public, max-age=31536000, immutable",
   ]
 
-  const headerPaths = assetPaths.includes("/cv.pdf")
-    ? [...assetPaths, "/cv"]
-    : assetPaths
-
-  for (const assetPath of [...new Set(headerPaths)].sort()) {
+  for (const assetPath of [...new Set(assetPaths)].sort()) {
     const path =
       assetPath === "/index.html" ? "/" : assetPath.replace(/\.html$/u, "")
     const headers = new Map<string, string>()

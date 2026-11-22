@@ -37,8 +37,12 @@ individual, idempotent contents update and triggers the normal production
 Workers Build.
 
 Cloudflare's static asset redirects route `/resume` and `/CV` to `/cv`
-with 308, and proxy `/cv` internally to `/cv.pdf` with status 200. The PDF
-is served inline with a stable URL, explicit type and revalidation headers.
+with 308. `/cv` is a statically rendered HTML page with a self-hosted
+PDF.js viewer that reads only `/cv.pdf`. The original PDF is retained at a
+stable URL with inline content type and revalidation headers. Ctrl+S and
+Command+S save the original PDF from the viewer; the save button does the
+same. A pinned PDF.js worker is copied to `out/vendor` after the static
+export. The viewer loads no cross-origin code or private content.
 Keep the actual PDF out of any future source or build configuration changes.
 
 ## Docker build

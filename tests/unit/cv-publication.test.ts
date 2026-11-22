@@ -6,7 +6,7 @@ const redirects = readFileSync("public/_redirects", "utf8").trim().split("\n")
 
 describe("cv publication", () => {
   it("routes canonical PDF and aliases without exposing private source", () => {
-    expect(redirects).toContain("/cv /cv.pdf 200")
+    expect(redirects).not.toContain("/cv /cv.pdf 200")
     expect(redirects).toContain("/resume /cv 308")
     expect(redirects).toContain("/CV /cv 308")
   })

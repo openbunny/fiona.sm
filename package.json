@@ -17,7 +17,7 @@
   ],
   "scripts": {
     "dev": "next dev --experimental-https",
-    "build": "next build",
+    "build": "next build && bun run scripts/copy-pdf-worker.ts",
     "start": "wrangler dev --local",
     "build:cloudflare": "bun run verify-asc && bun run build && bun run scripts/build-cloudflare-headers.ts && bun run manifest verify --build-output out/blog --article-text-dir out/posts --manifest out/posts.asc --public-key out/fiona.asc",
     "deploy": "bun run build:cloudflare && wrangler deploy",
@@ -52,7 +52,8 @@
     "next": "16.4.6",
     "openpgp": "6.3.2",
     "react": "19.3.1",
-    "react-dom": "19.3.1"
+    "react-dom": "19.3.1",
+    "pdfjs-dist": "5.4.624"
   },
   "devDependencies": {
     "@commitlint/cli": "21.2.4",

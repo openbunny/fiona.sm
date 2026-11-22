@@ -68,6 +68,138 @@
     @apply inline-flex items-center bg-paper-deep px-2 py-0.5 font-sc text-[0.7rem] text-foreground;
   }
 
+  .hire-me-banner {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    width: 8.5rem;
+    height: 3.9rem;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    background: var(--sprout-fill);
+    color: var(--ink-deep);
+    font-family: var(--font-display);
+    font-size: 1.45rem;
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .hire-me-banner:hover,
+  .hire-me-banner:focus-visible {
+    background: var(--sprout-fill);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+
+  .hire-me-banner-text {
+    position: relative;
+    display: inline-block;
+    white-space: nowrap;
+  }
+
+  .hire-me-banner-text::after {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      110deg,
+      transparent 38%,
+      rgb(255 255 255 / 85%) 50%,
+      transparent 62%
+    );
+    background-clip: text;
+    background-position: 140% 0;
+    background-size: 260% 100%;
+    color: transparent;
+    content: attr(data-shine);
+    animation: hire-me-sheen 8s ease-in-out infinite;
+    pointer-events: none;
+  }
+
+  .cv-viewer {
+    width: 100%;
+  }
+
+  .cv-toolbar,
+  .cv-toolbar-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+  }
+
+  .cv-toolbar {
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .cv-toolbar-actions {
+    justify-content: flex-end;
+  }
+
+  .cv-zoom {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+  }
+
+  .cv-zoom select,
+  .cv-action {
+    padding: 0.35rem 0.6rem;
+    border: 1px solid var(--line);
+    background: var(--paper);
+    color: var(--foreground);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    cursor: pointer;
+  }
+
+  .cv-scroll {
+    overflow-x: auto;
+    background: var(--paper-deep);
+  }
+
+  .cv-pages {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem;
+  }
+
+  .cv-page {
+    width: 100%;
+    flex: none;
+    background: white;
+  }
+
+  .cv-pages[data-zoom="85"] .cv-page {
+    width: 85%;
+  }
+
+  .cv-pages[data-zoom="115"] .cv-page {
+    width: 115%;
+  }
+
+  .cv-pages[data-zoom="130"] .cv-page {
+    width: 130%;
+  }
+
+  .cv-canvas {
+    display: block;
+    width: 100%;
+    height: auto;
+    border: 1px solid var(--line);
+  }
+
+  .cv-message {
+    padding: 2rem 1rem;
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+  }
+
   .state-cursor {
     display: inline-block;
     width: 0.5em;
@@ -88,8 +220,13 @@
     scroll-behavior: auto;
   }
 
-  .state-cursor {
+  .state-cursor,
+  .hire-me-banner-text::after {
     animation: none;
+  }
+
+  .hire-me-banner-text::after {
+    opacity: 0;
   }
 }
 
@@ -112,6 +249,34 @@
 
   a[href^="http"]::after {
     content: " (" attr(href) ")";
+  }
+}
+
+@keyframes hire-me-sheen {
+  0%,
+  67% {
+    background-position: 140% 0;
+  }
+
+  83%,
+  100% {
+    background-position: -140% 0;
+  }
+}
+
+@media (width >= 640px) {
+  .hire-me-banner {
+    width: 10rem;
+    height: 5.25rem;
+    font-size: 1.75rem;
+  }
+}
+
+@media (width >= 768px) {
+  .hire-me-banner {
+    width: 11rem;
+    height: 6.75rem;
+    font-size: 2rem;
   }
 }
 
