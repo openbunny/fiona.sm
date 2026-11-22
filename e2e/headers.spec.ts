@@ -238,7 +238,9 @@ test("opens the CV as a browser-rendered HTML page", async ({
   expect(source.headers()["content-disposition"]).toContain("inline")
 
   await page.goto("/cv")
-  await expect(page.getByRole("heading", { name: "cv" })).toBeVisible()
+  await expect(page.getByRole("heading", { name: "fiona" })).toBeVisible()
+  await expect(page.getByRole("link", { name: /download pdf/u })).toBeVisible()
+  await page.getByText("preview the original pdf").click()
   await expect(page.locator(".cv-canvas").first()).toBeVisible()
   await expect(page.getByRole("button", { name: "save pdf" })).toBeVisible()
   expect(await page.locator(".cv-canvas").count()).toBeGreaterThan(0)
@@ -248,6 +250,7 @@ test("zooms the CV with compact controls and pans while dragging", async ({
   page,
 }) => {
   await page.goto("/cv")
+  await page.getByText("preview the original pdf").click()
   await expect(page.locator(".cv-canvas").first()).toBeVisible()
   await page.getByRole("button", { name: "zoom in" }).click()
   await expect(page.getByRole("button", { name: "reset zoom" })).toHaveText(
@@ -264,6 +267,7 @@ test("zooms the CV with compact controls and pans while dragging", async ({
     element.scrollTop = 80
   })
 
+  await scroll.scrollIntoViewIfNeeded()
   const bounds = await scroll.boundingBox()
   expect(bounds).not.toBeNull()
   const x = (bounds?.x ?? 0) + Math.min((bounds?.width ?? 0) / 2, 180)
@@ -287,6 +291,7 @@ test("downloads the original PDF from the viewer save button", async ({
   page,
 }) => {
   await page.goto("/cv")
+  await page.getByText("preview the original pdf").click()
   const saved = page.waitForEvent("download")
   await page.getByRole("button", { name: "save pdf" }).click()
   expect((await saved).suggestedFilename()).toBe("fiona-cv.pdf")
