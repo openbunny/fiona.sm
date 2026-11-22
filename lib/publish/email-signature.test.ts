@@ -177,7 +177,9 @@ describe("buildEmailSignatureHtml", () => {
 describe("the disclaimer", () => {
   it("preserves the approved US spelling in plain text", () => {
     expect(buildEmailSignatureText(input)).toContain("Unauthorized disclosure")
-    expect(buildEmailSignatureText(input)).not.toContain("unauthorised disclosure")
+    expect(buildEmailSignatureText(input)).not.toContain(
+      "unauthorised disclosure"
+    )
   })
 
   it("preserves the original British spelling in HTML", () => {
