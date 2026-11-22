@@ -9,7 +9,7 @@ lockfile = true
 [tools]
 # aqua backends ship a prebuilt binary for every pinned tool below; none is
 # compiled from source.
-act = "0.2.89"
+act = "0.2.97"
 actionlint = "1.7.12"
 # Installs the binary under its full name, not the `ec` alias its own docs
 # use -- `mise which editorconfig-checker` is the one that resolves.
