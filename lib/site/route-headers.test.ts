@@ -85,6 +85,19 @@ describe("route cache policy", () => {
     )
   })
 
+  it("serves the CV as an inline PDF and requires cache revalidation", () => {
+    for (const path of ["/cv", "/cv.pdf"]) {
+      expect(contentTypeOf(path)).toBe("application/pdf")
+      expect(cacheControlOf(path)).toBe("public, max-age=0, must-revalidate")
+      expect(
+        routeHeaders
+          .find((rule) => rule.source === path)
+          ?.headers.find((header) => header.key === "Content-Disposition")
+          ?.value
+      ).toBe('inline; filename="fiona-cv.pdf"')
+    }
+  })
+
   it("serves the clearsigned post manifest as plain text, not a detached signature", () => {
     expect(contentTypeOf("/posts.asc")).toBe("text/plain; charset=utf-8")
   })
