@@ -15,6 +15,7 @@ const everyPath = [
   "/posts/tickerbox-cli.txt",
   "/feed.xml",
   "/robots.txt",
+  "/sitemap.xml",
   "/manifest.webmanifest",
   "/.well-known/security.txt",
   "/llms.txt",
@@ -31,9 +32,7 @@ test("sets security headers", async ({ request }) => {
   expect(headers["x-frame-options"]).toBe("DENY")
   expect(headers["content-security-policy"]).toContain("frame-ancestors 'none'")
   expect(headers["referrer-policy"]).toBe("no-referrer")
-  expect(headers["x-robots-tag"]).toBe(
-    "noindex, nofollow, noarchive, nosnippet, noimageindex"
-  )
+  expect(headers["x-robots-tag"]).toBe("index, follow")
   expect(headers["cross-origin-opener-policy"]).toBe("same-origin")
   expect(headers["cross-origin-resource-policy"]).toBe("same-origin")
   expect(headers["content-security-policy"]).toContain("object-src 'none'")
@@ -76,7 +75,9 @@ for (const path of everyPath) {
   }) => {
     const headers = (await request.get(path)).headers()
     expect(headers["x-robots-tag"]).toBe(
-      "noindex, nofollow, noarchive, nosnippet, noimageindex"
+      path === "/"
+        ? "index, follow"
+        : "noindex, nofollow, noarchive, nosnippet, noimageindex"
     )
   })
 
@@ -309,4 +310,54 @@ test("serves the self-hosted PDF rendering worker", async ({ request }) => {
   expect(worker.status()).toBe(200)
   expect(worker.headers()["content-type"]).toMatch(/javascript/u)
   expect((await worker.body()).length).toBeGreaterThan(10_000)
+})
+
+test("exposes the CV and homepage for recruitment search", async ({
+  page,
+  request,
+}) => {
+  for (const path of ["/", "/cv"]) {
+    const response = await request.get(path)
+    expect(response.headers()["x-robots-tag"]).toBe("index, follow")
+  }
+
+  const sitemap = await request.get("/sitemap.xml")
+  expect(sitemap.status()).toBe(200)
+  expect(await sitemap.text()).toContain("https://fiona.sm/cv")
+
+  await page.goto("/cv")
+  await expect(page.locator('meta[name="robots"]')).toHaveAttribute(
+    "content",
+    /index, follow/u
+  )
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+    "href",
+    /\/cv$/u
+  )
+  const structured = await page
+    .locator('script[type="application/ld+json"]')
+    .textContent()
+  expect(structured).toContain('"@type":"Person"')
+  expect(structured).toContain('"jobTitle":"principal software engineer"')
+})
+
+test("centers the hire-me banner within the space to the right of the image", async ({
+  page,
+}) => {
+  await page.goto("/")
+  const header = page.locator("header").first()
+  const image = header.locator("picture").first()
+  const badge = header.locator(".hire-me-banner")
+  const headerBounds = await header.boundingBox()
+  const imageBounds = await image.boundingBox()
+  const badgeBounds = await badge.boundingBox()
+
+  expect(headerBounds).not.toBeNull()
+  expect(imageBounds).not.toBeNull()
+  expect(badgeBounds).not.toBeNull()
+  const rightStart = (imageBounds?.x ?? 0) + (imageBounds?.width ?? 0)
+  const rightEnd = (headerBounds?.x ?? 0) + (headerBounds?.width ?? 0)
+  const expectedCenter = (rightStart + rightEnd) / 2
+  const badgeCenter = (badgeBounds?.x ?? 0) + (badgeBounds?.width ?? 0) / 2
+  expect(Math.abs(badgeCenter - expectedCenter)).toBeLessThan(18)
 })
