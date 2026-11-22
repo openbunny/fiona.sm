@@ -5,6 +5,25 @@ export const routeHeaders = [
     source: "/:path*",
     headers: [...securityHeaders],
   },
+  {
+    source: "/cv",
+    headers: [
+      { key: "Content-Type", value: "application/pdf" },
+      { key: "Content-Disposition", value: 'inline; filename="fiona-cv.pdf"' },
+      { key: "Cache-Control", value: "public, max-age=0, must-revalidate" },
+    ],
+  },
+  {
+    source: "/cv.pdf",
+    headers: [
+      { key: "Content-Type", value: "application/pdf" },
+      {
+        key: "Content-Disposition",
+        value: 'inline; filename="fiona-cv.pdf"',
+      },
+      { key: "Cache-Control", value: "public, max-age=0, must-revalidate" },
+    ],
+  },
   ...["/", "/privacy", "/canary", "/blog", "/blog/tickerbox-cli"].map(
     (source) => ({
       source,

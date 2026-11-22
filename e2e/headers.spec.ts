@@ -199,3 +199,31 @@ test("revalidates an unpublished post archive", async ({ request }) => {
     "public, max-age=0, must-revalidate"
   )
 })
+
+test("redirects resume aliases permanently to the canonical PDF URL", async ({
+  request,
+}) => {
+  for (const alias of ["/resume", "/CV"]) {
+    const response = await request.get(alias, { maxRedirects: 0 })
+    expect(response.status()).toBe(308)
+    expect(
+      new URL(response.headers()["location"] ?? "", response.url()).pathname
+    ).toBe("/cv")
+  }
+})
+
+test("opens the CV as an inline PDF rather than a download", async ({
+  request,
+}) => {
+  for (const path of ["/cv", "/cv.pdf"]) {
+    const response = await request.get(path)
+    expect(response.status()).toBe(200)
+    expect(response.headers()["content-type"]).toContain("application/pdf")
+    expect(response.headers()["content-disposition"]).toContain("inline")
+    expect(response.headers()["content-disposition"]).not.toContain(
+      "attachment"
+    )
+    const bytes = await response.body()
+    expect(bytes.subarray(0, 5).toString()).toBe("%PDF-")
+  }
+})

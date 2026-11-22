@@ -24,6 +24,23 @@ The canonical address is `https://fiona.sm`; `www.fiona.sm` redirects to it. The
 
 `vercel.json` remains available during cutover. A Vercel build uses its original Next.js deployment path when `VERCEL` is set. The Dockerfile uses `NEXT_OUTPUT=standalone` and retains its signed-artifact checks.
 
+## CV PDF publication
+
+The public site contains only the validated, compiled Fiona PDF at
+`public/cv.pdf`. Its source files, build tools, private repository and any
+other person's resume must never be copied here.
+
+The private resume workflow publishes `public/cv.pdf` after its PDF/A and
+checksum checks. This repository does not fetch private GitHub content, store
+private-repository credentials or build the resume. Publication is an
+individual, idempotent contents update and triggers the normal production
+Workers Build.
+
+Cloudflare's static asset redirects route `/resume` and `/CV` to `/cv`
+with 308, and proxy `/cv` internally to `/cv.pdf` with status 200. The PDF
+is served inline with a stable URL, explicit type and revalidation headers.
+Keep the actual PDF out of any future source or build configuration changes.
+
 ## Docker build
 
 Build from the repository root with the commit hash and committer date from the same checkout:

@@ -7,6 +7,18 @@ describe("cloudflareHeaders", () => {
     expect(() => cloudflareHeaders([])).toThrow(/contains no assets/)
   })
 
+  it("sends inline PDF headers on /cv and /cv.pdf for the rewritten asset", () => {
+    const headers = cloudflareHeaders(["/cv.pdf"])
+    for (const path of ["/cv", "/cv.pdf"]) {
+      expect(headers).toContain(
+        `${path}\n  ! Content-Type\n  Content-Type: application/pdf`
+      )
+      expect(headers).toContain(
+        'Content-Disposition: inline; filename="fiona-cv.pdf"'
+      )
+    }
+  })
+
   it("keeps missing signed archives revalidating while preserving published route headers", () => {
     const headers = cloudflareHeaders([
       "/index.html",

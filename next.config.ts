@@ -39,12 +39,17 @@ const nextConfig: NextConfig = {
         async redirects() {
           return [
             { source: "/plain", destination: "/", permanent: true },
+            { source: "/resume", destination: "/cv", permanent: true },
+            { source: "/CV", destination: "/cv", permanent: true },
             {
               source: "/blog/page/1",
               destination: "/blog",
               permanent: true,
             },
           ]
+        },
+        async rewrites() {
+          return [{ source: "/cv", destination: "/cv.pdf" }]
         },
       }
     : {}),

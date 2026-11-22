@@ -26,6 +26,17 @@ describe("Page (personal home)", () => {
     expect(h1.textContent).toBe(canary.displayName)
   })
 
+  it("links the hire-me badge directly to the canonical cv URL", async () => {
+    await renderPage()
+
+    const badge = screen.getByRole("link", { name: "hire me" })
+    expect(badge.getAttribute("href")).toBe("/cv")
+    expect(badge.className.split(" ")).toContain("bg-sprout-fill")
+
+    const heading = screen.getByRole("heading", { level: 1 })
+    expect(badge.parentElement).toBe(heading.parentElement)
+  })
+
   it("links the newest post in a top banner, with its date alongside", async () => {
     await renderPage()
 
