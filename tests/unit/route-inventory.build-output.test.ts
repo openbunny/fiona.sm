@@ -25,6 +25,7 @@ const ROUTES_INDEPENDENT_OF_POST_COUNT: readonly string[] = [
   "/manifest.webmanifest",
   "/privacy",
   "/robots.txt",
+  "/sitemap.xml",
 ]
 
 const POST_ROUTES: readonly string[] = posts.map((post) => post.href)
