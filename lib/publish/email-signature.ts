@@ -34,8 +34,6 @@ export function buildEmailSignatureText(input: EmailSignatureInput): string {
   const rows = fingerprintRows(input.fingerprint)
 
   return [
-    "",
-    "",
     "---",
     "",
     "Please find my PGP key attached. Other attachments may include signatures for transmitted files.",
@@ -43,7 +41,6 @@ export function buildEmailSignatureText(input: EmailSignatureInput): string {
     `${canaryLabel}${assertOrigin(input.siteOrigin)}/canary`,
     "",
     "This email contains confidential information. Unauthorized disclosure or distribution is prohibited. Opinions expressed are for informational purposes only and do not constitute investment, financial, tax, legal, or medical advice.",
-    "",
     "",
   ].join("\n")
 }
