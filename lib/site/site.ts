@@ -5,7 +5,8 @@ export const site = {
   title: canary.displayName,
   homeTitle: "fiona's website",
   possessive: `${canary.displayName}'s`,
-  description: "a blog and a signed canary.",
+  description:
+    "principal software engineer working in distributed systems, go, rust, cloud infrastructure and security. explore projects, experience and cv.",
   url: canary.siteOrigin,
   locale: "en_GB",
   language: "en",
