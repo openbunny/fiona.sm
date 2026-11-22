@@ -14,6 +14,18 @@ concurrency:
   group: cv-production-smoke
   cancel-in-progress: true
 jobs:
+  inspect:
+    name: inspect live cv headers
+    runs-on: ubuntu-24.04
+    permissions: {}
+    steps:
+      - name: Inspect public response headers
+        shell: bash
+        run: |
+          for path in /cv /cv.pdf /resume /CV; do
+            printf '\n=== %s ===\n' "$path"
+            curl -sS --max-time 15 -D - -o /dev/null "https://fiona.sm$path"
+          done
   verify:
     name: verify production cv
     runs-on: ubuntu-24.04
