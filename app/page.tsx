@@ -1,3 +1,4 @@
+// cspell:ignore fionapesch
 import type { ReactElement, ReactNode } from "react"
 import type { Metadata } from "next"
 
