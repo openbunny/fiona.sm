@@ -1,3 +1,4 @@
+// cspell:ignore fionapesch
 import type { ReactElement, ReactNode } from "react"
 import type { Metadata } from "next"
 
@@ -56,6 +57,15 @@ export default function Page(): ReactElement {
         <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-3 font-mono text-[0.78rem] leading-[1.6]">
           <Row label="mail">
             <MailLink className="text-[0.78rem]" />
+          </Row>
+          <Row label="linkedin">
+            <a
+              href="https://www.linkedin.com/in/fionapesch/"
+              className="link"
+              rel="me"
+            >
+              linkedin.com/in/fionapesch
+            </a>
           </Row>
           <Row label="key">
             {canary.algorithm},{" "}
