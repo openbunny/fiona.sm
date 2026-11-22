@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest"
 
 import { canary } from "@/lib/canary/canary"
-import { metadata, routeSocialMetadata } from "@/lib/site/metadata"
+import {
+  metadata,
+  publicRecruitmentRobots,
+  routeSocialMetadata,
+} from "@/lib/site/metadata"
 import { site } from "@/lib/site/site"
 
 describe("metadata robots", () => {
@@ -28,6 +32,16 @@ describe("metadata robots", () => {
     const directives = robots as Extract<typeof robots, { index?: unknown }>
     expect(directives.index).toBe(false)
     expect(directives.follow).toBe(false)
+  })
+})
+
+describe("recruitment metadata", () => {
+  it("allows search indexing for explicitly public recruitment routes", () => {
+    expect(publicRecruitmentRobots).toMatchObject({
+      index: true,
+      follow: true,
+      googleBot: { index: true, follow: true },
+    })
   })
 })
 
