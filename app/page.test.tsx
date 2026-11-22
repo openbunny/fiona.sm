@@ -1,3 +1,4 @@
+// cspell:ignore fionapesch
 /** @vitest-environment jsdom */
 
 import { screen, within } from "@testing-library/react"
