@@ -5,7 +5,7 @@ import type { ReactElement } from "react"
 import { barSpecFor, entryLabel } from "@/lib/site/navigation"
 import { PathTrail } from "@/components/path-link"
 
-const ENTRY_COLUMNS = 2
+const ENTRY_COLUMNS = 3
 
 export function SiteBar({ route }: { readonly route: string }): ReactElement {
   const spec = barSpecFor(route)
