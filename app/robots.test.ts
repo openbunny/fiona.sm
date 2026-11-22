@@ -7,7 +7,7 @@ const result = robots()
 const rules = Array.isArray(result.rules) ? result.rules : [result.rules]
 
 describe("robots", () => {
-  it("lets every crawler read the site, so it can see the noindex directive", () => {
+  it("lets permitted crawlers read the site and its indexing directives", () => {
     expect(rules).toContainEqual({ userAgent: "*", allow: "/" })
   })
 
@@ -45,8 +45,8 @@ describe("robots", () => {
     }
   })
 
-  it("advertises no sitemap", () => {
-    expect(result).not.toHaveProperty("sitemap")
+  it("advertises the recruitment sitemap", () => {
+    expect(result.sitemap).toBe(`${site.url}/sitemap.xml`)
   })
 
   it("still names this site's own host", () => {
