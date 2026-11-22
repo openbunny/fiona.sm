@@ -6,6 +6,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   dco:
+    if: github.event.pull_request.user.login != 'renovate[bot]'
     permissions:
       contents: read
     uses: openbunny/.github/.github/workflows/reusable-dco.yml@2050692900f7dcd883e416ebee37a1b97b119203 # v0.3.0
