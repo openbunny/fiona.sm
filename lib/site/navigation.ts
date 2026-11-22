@@ -108,6 +108,7 @@ function entriesFor(route: string): readonly BarEntry[] {
   switch (route) {
     case "/": {
       const rootEntries: BarEntry[] = []
+      rootEntries.push({ name: "cv", href: "/cv", kind: "dir" })
       if (posts.length > 0) {
         rootEntries.push({ name: "blog", href: "/blog", kind: "dir" })
       }
