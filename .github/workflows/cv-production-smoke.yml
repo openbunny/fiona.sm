@@ -1,0 +1,56 @@
+name: cv production smoke
+on:
+  push:
+    branches: [main]
+    paths:
+      - "public/cv.pdf"
+      - "public/_redirects"
+      - "lib/site/route-headers.ts"
+      - "lib/site/cloudflare-headers.ts"
+      - ".github/workflows/cv-production-smoke.yml"
+  workflow_dispatch:
+permissions: {}
+concurrency:
+  group: cv-production-smoke
+  cancel-in-progress: true
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Verify deployed PDF and browser display
+        shell: bash
+        run: |
+          set -euo pipefail
+          expected="$(sha256sum public/cv.pdf | cut -d ' ' -f1)"
+          verified=false
+          for attempt in $(seq 1 36); do
+            if curl -fsS --max-time 20 -H 'Cache-Control: no-cache' -D "$RUNNER_TEMP/cv.headers" -o "$RUNNER_TEMP/cv.pdf" "https://fiona.sm/cv?commit=$GITHUB_SHA&attempt=$attempt" &&
+              grep -Eiq '^content-type:[[:space:]]*application/pdf' "$RUNNER_TEMP/cv.headers" &&
+              grep -Eiq '^content-disposition:[[:space:]]*inline' "$RUNNER_TEMP/cv.headers" &&
+              [[ "$(sha256sum "$RUNNER_TEMP/cv.pdf" | cut -d ' ' -f1)" == "$expected" ]] &&
+              curl -fsS --max-time 20 -D "$RUNNER_TEMP/direct.headers" -o "$RUNNER_TEMP/direct.pdf" "https://fiona.sm/cv.pdf?commit=$GITHUB_SHA&attempt=$attempt" &&
+              grep -Eiq '^content-type:[[:space:]]*application/pdf' "$RUNNER_TEMP/direct.headers" &&
+              grep -Eiq '^content-disposition:[[:space:]]*inline' "$RUNNER_TEMP/direct.headers" &&
+              [[ "$(sha256sum "$RUNNER_TEMP/direct.pdf" | cut -d ' ' -f1)" == "$expected" ]]; then
+              verified=true
+              break
+            fi
+            sleep 10
+          done
+          if [[ "$verified" != true ]]; then
+            echo "Production PDF did not become available inline with the expected SHA-256" >&2
+            exit 1
+          fi
+          for alias in /resume /CV; do
+            status="$(curl -sS --max-time 20 -D "$RUNNER_TEMP/redirect.headers" -o /dev/null -w '%{http_code}' "https://fiona.sm$alias")"
+            if [[ "$status" != 308 ]] ||
+              ! grep -Eiq '^location:[[:space:]]*(https://fiona\.sm)?/cv[[:space:]]*$' "$RUNNER_TEMP/redirect.headers"; then
+              echo "Expected permanent $alias -> /cv redirect; got HTTP $status" >&2
+              exit 1
+            fi
+          done
