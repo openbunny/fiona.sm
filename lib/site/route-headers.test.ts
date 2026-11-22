@@ -27,15 +27,22 @@ const contentAddressed = ["/posts/:slug/:digest.txt", "/img/:name"]
 
 describe("recruitment indexing policy", () => {
   it.each(["/", "/cv"])("permits indexing %s", (source) => {
-    const headers = routeHeaders
-      .find((rule) => rule.source === source && rule.headers.some((header) => header.key === "X-Robots-Tag"))
-      ?.headers
-    expect(headers?.find((header) => header.key === "X-Robots-Tag")?.value).toBe("index, follow")
+    const headers = routeHeaders.find(
+      (rule) =>
+        rule.source === source &&
+        rule.headers.some((header) => header.key === "X-Robots-Tag")
+    )?.headers
+    expect(
+      headers?.find((header) => header.key === "X-Robots-Tag")?.value
+    ).toBe("index, follow")
   })
 
   it("keeps the default noindex policy for sensitive and other pages", () => {
     expect(routeHeaders[0]?.source).toBe("/:path*")
-    expect(routeHeaders[0]?.headers.find((header) => header.key === "X-Robots-Tag")?.value).toContain("noindex")
+    expect(
+      routeHeaders[0]?.headers.find((header) => header.key === "X-Robots-Tag")
+        ?.value
+    ).toContain("noindex")
   })
 })
 
