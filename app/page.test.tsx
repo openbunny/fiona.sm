@@ -54,6 +54,19 @@ describe("Page (personal home)", () => {
     ).toBeInTheDocument()
   })
 
+  it("links to the professional linkedin profile on the homepage", async () => {
+    await renderPage()
+
+    const link = within(screen.getByRole("main")).getByRole("link", {
+      name: "linkedin.com/in/fionapesch",
+    })
+    expect(link).toHaveAttribute(
+      "href",
+      "https://www.linkedin.com/in/fionapesch/"
+    )
+    expect(link).toHaveAttribute("rel", "me")
+  })
+
   it("links to the canary route as a path, with its description alongside", async () => {
     await renderPage()
 
