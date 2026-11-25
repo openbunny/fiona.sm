@@ -89,7 +89,7 @@
     "html-validate": "11.21.1",
     "jsdom": "31.0.1",
     "knip": "6.45.1",
-    "lint-staged": "17.6.0",
+    "lint-staged": "17.6.1",
     "markdownlint-cli2": "0.24.1",
     "path-to-regexp": "6.3.0",
     "prettier": "3.10.1",
