@@ -5,9 +5,9 @@
   "private": true,
   "license": "UNLICENSED",
   "description": "personal site for fiona, with a blog and a pgp key canary at /canary.",
-  "packageManager": "bun@1.4.4",
+  "packageManager": "bun@1.4.5",
   "engines": {
-    "bun": "1.4.4"
+    "bun": "1.4.5"
   },
   "browserslist": [
     "chrome 111",
