@@ -102,7 +102,7 @@
     "typescript": "6.0.3",
     "typescript-eslint": "8.72.2",
     "vitest": "5.1.0",
-    "wrangler": "4.162.0"
+    "wrangler": "4.166.0"
   },
   "overrides": {
     "katex": "0.18.2",
