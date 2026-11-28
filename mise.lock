@@ -271,10 +271,10 @@ url = "https://github.com/lycheeverse/lychee/releases/download/lychee-v0.24.2/ly
 url_api = "https://api.github.com/repos/lycheeverse/lychee/releases/assets/409959491"
 
 [[tools."npm:renovate"]]
-version = "44.239.1"
-aube = { path = ".mise/locks/npm-renovate/44.239.1~aa673d8d", digest = "sha256:76160ec7abf14b18ca03dbf1974a19d09d11a0ae3f19d2a6d5cdc995243b7353" }
+version = "44.257.7"
+aube = { path = ".mise/locks/npm-renovate/44.257.7~aa673d8d", digest = "sha256:9bcc7e9dcf613c66c5069375c19f6918de1c3f39a89b9018e81bfb6df6b9e0fa" }
 backend = "npm:renovate"
-specifiers = ["44.239.1"]
+specifiers = ["44.257.7"]
 
 [tools."npm:renovate".options]
 trust_policy_excludes = '["@yarnpkg/libzip@3.2.2"]'
